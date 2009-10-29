@@ -14,7 +14,11 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.IO;
+using System.Net;
+using System.Security.Principal;
 using System.Text;
+using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
@@ -43,9 +47,27 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       url.Append (version);
       url.Append ("%22+and+status%3D+%22");
       url.Append (status);
-      url.Append ("%22");
+      url.Append ("%22&tempMax=1000");
       return url.ToString();
     }
 
+    public XDocument GetBasicXmlDocument ()
+    {
+      var url = CreateUrl (_version, "closed");
+      var xmlResult = "";
+
+      var request = WebRequest.Create (url);
+      
+      using (var response = request.GetResponse())
+      {
+        using (var dataStream = response.GetResponseStream())
+        {
+          using (var reader = new StreamReader (dataStream))
+          {
+            return XDocument.Parse(reader.ReadToEnd());
+          }
+        }
+      }
+    }
   }
 }

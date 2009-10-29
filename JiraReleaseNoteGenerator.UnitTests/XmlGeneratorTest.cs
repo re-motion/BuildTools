@@ -2,6 +2,8 @@
 // All rights reserved.
 //
 using System;
+using System.IO;
+using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 
@@ -18,10 +20,28 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var xmlCreator = new XmlGenerator (Configuration.Current, version);
 
       var output = xmlCreator.CreateUrl(version, status);
-      var expectedOutput = Configuration.Current.Url + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22" + Configuration.Current.Project + "%22+and+fixVersion+%3D+%22" + version + "%22+and+status%3D+%22" + status + "%22";
+      var expectedOutput = Configuration.Current.Url + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22" + Configuration.Current.Project + "%22+and+fixVersion+%3D+%22" + version + "%22+and+status%3D+%22" + status + "%22&tempMax=1000";
 
       Assert.That(output, Is.EqualTo(expectedOutput));
 
+    }
+
+    [Test]
+    public void GetBasicXmlDocument ()
+    {
+      const string version = "2.0.2";
+      var xmlCreator = new XmlGenerator (Configuration.Current, version);
+
+      var output = xmlWithoutHeader(xmlCreator.GetBasicXmlDocument().ToString());
+      var expectedOutput = xmlWithoutHeader (XDocument.Load (@"..\..\TestDomain\SearchRequest.xml").ToString ());
+
+      Assert.That (output, Is.EqualTo (expectedOutput));
+    }
+
+
+    private string xmlWithoutHeader (string xml)
+    {
+      return xml.Substring (xml.IndexOf ("-->"));
     }
   }
 }

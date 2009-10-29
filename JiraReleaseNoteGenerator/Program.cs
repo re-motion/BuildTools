@@ -29,7 +29,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       if (argumentCheckResult != 0)
         return (argumentCheckResult);
 
-      Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + args[0]);
+      var version = args[0];
+      Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
 
       Console.In.ReadLine();
 
