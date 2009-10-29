@@ -14,6 +14,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Text;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
@@ -34,7 +35,16 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     public string CreateUrl (string version, string status)
     {
-      return "";
+      var url = new StringBuilder();
+      url.Append (_configuration.Url);
+      url.Append ("/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22");
+      url.Append (_configuration.Project);
+      url.Append ("%22+and+fixVersion+%3D+%22");
+      url.Append (version);
+      url.Append ("%22+and+status%3D+%22");
+      url.Append (status);
+      url.Append ("%22");
+      return url.ToString();
     }
 
   }

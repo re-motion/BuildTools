@@ -7,6 +7,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   {
     public static Configuration Current = new Configuration();
 
-    public string Url { get { return "http://jira.atlassian.com"; } }
+    public string Url { get { return "http://localhost:8080/jira"; } }
+    public string Project { get { return "COMMONS"; } }
     }
 }
