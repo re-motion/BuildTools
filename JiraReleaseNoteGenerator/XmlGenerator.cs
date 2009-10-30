@@ -14,11 +14,15 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
@@ -26,15 +30,13 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public class XmlGenerator
   {
     private readonly Configuration _configuration;
-    private readonly string _version;
-
-    public XmlGenerator (Configuration configuration, string version)
+    
+    public XmlGenerator (Configuration configuration)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
-      ArgumentUtility.CheckNotNull ("version", version);
-
+     
       _configuration = configuration;
-      _version = version;
+     
     }
 
     public string CreateUrl (string version, string status)
@@ -51,9 +53,9 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       return url.ToString();
     }
 
-    public XDocument GetBasicXmlDocument ()
+    public XDocument GetBasicXmlDocument (string version)
     {
-      var url = CreateUrl (_version, "closed");
+      var url = CreateUrl (version, "closed");
       var xmlResult = "";
 
       var request = WebRequest.Create (url);
@@ -68,6 +70,27 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
           }
         }
       }
+    }
+
+    public string[] ResolveUnknownParents (XDocument xmlDocument)
+    {
+      var parentList = new HashSet<string>();
+
+      var nav = GetXPathDocument(xmlDocument).CreateNavigator();
+      var NodeIter = nav.Select ("//parent/@id");
+      
+      while (NodeIter.MoveNext ())
+        parentList.Add (NodeIter.Current.Value);
+      
+      return parentList.ToArray();
+    }
+
+    private XPathDocument GetXPathDocument (XDocument xmlDocument)
+    {
+      xmlDocument.Save ("tmpRequest.xml");
+      var docNav = new XPathDocument (@"tmpRequest.xml");
+      File.Delete ("tmpRequest");
+      return docNav;
     }
   }
 }
