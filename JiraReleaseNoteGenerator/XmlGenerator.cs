@@ -18,9 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Principal;
 using System.Text;
-using System.Xml;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
@@ -30,13 +28,12 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public class XmlGenerator
   {
     private readonly Configuration _configuration;
-    
+
     public XmlGenerator (Configuration configuration)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
-     
+
       _configuration = configuration;
-     
     }
 
     public string CreateUrl (string version, string status)
@@ -59,30 +56,39 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var xmlResult = "";
 
       var request = WebRequest.Create (url);
-      
+      request.Headers.Add ("X-AUTH-USER", "RUBICON\\patrick.groess");
+
       using (var response = request.GetResponse())
       {
         using (var dataStream = response.GetResponseStream())
         {
           using (var reader = new StreamReader (dataStream))
           {
-            return XDocument.Parse(reader.ReadToEnd());
+            return XDocument.Parse (reader.ReadToEnd());
           }
         }
       }
     }
 
-    public string[] ResolveUnknownParents (XDocument xmlDocument)
+    public string[] ResolveUnknownParentIds (XDocument xmlDocument)
     {
-      var parentList = new HashSet<string>();
+      var issueKeyList = new HashSet<string>();
+      var parentKeyList = new HashSet<string>();
 
-      var nav = GetXPathDocument(xmlDocument).CreateNavigator();
-      var NodeIter = nav.Select ("//parent/@id");
+      var pathNavigator = GetXPathDocument (xmlDocument).CreateNavigator();
+      var issueNodeIterator = pathNavigator.Select ("//key/@id");
+      var parentNodeIterator = pathNavigator.Select ("//parent/@id");
+
+      while (issueNodeIterator.MoveNext())
+        issueKeyList.Add (issueNodeIterator.Current.Value);
       
-      while (NodeIter.MoveNext ())
-        parentList.Add (NodeIter.Current.Value);
+      while (parentNodeIterator.MoveNext())
+      {
+        if (!issueKeyList.Contains (parentNodeIterator.Current.Value))
+          parentKeyList.Add (parentNodeIterator.Current.Value);
+      }
       
-      return parentList.ToArray();
+      return parentKeyList.ToArray();
     }
 
     private XPathDocument GetXPathDocument (XDocument xmlDocument)

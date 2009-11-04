@@ -39,12 +39,12 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     }
 
     [Test]
-    public void ResolveUnknownParents ()
+    public void ResolveUnknownParentIds ()
     {
       const string version = "2.0.2";
       var xmlCreator = new XmlGenerator (Configuration.Current);
 
-      var output = xmlCreator.ResolveUnknownParents (XDocument.Load (@"..\..\TestDomain\SearchRequest.xml"));
+      var output = xmlCreator.ResolveUnknownParentIds (XDocument.Load (@"..\..\TestDomain\SearchRequest.xml"));
       var expectedOutput = new[] { "10003" };
 
       Assert.That (output, Is.EquivalentTo (expectedOutput));
