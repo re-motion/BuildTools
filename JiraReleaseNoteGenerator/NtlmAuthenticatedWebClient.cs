@@ -14,21 +14,17 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Net;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
-  public class Configuration
+  public class NtlmAuthenticatedWebClient : WebClient, IWebClient
   {
-    public static Configuration Current = new Configuration();
-
-    public string Url
+    protected override WebRequest GetWebRequest (Uri address)
     {
-      get { return "https://dev-53-isa-1.int.rubicon-it.com/jira"; }
-    }
-
-    public string Project
-    {
-      get { return "UUU"; }
+      var request = base.GetWebRequest (address);
+      ((HttpWebRequest) request).UnsafeAuthenticatedConnectionSharing = true;
+      return request;
     }
   }
 }
