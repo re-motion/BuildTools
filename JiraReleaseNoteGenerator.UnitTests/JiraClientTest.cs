@@ -14,6 +14,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Net;
 using System.Text;
 using System.Xml.Linq;
 using NUnit.Framework;
@@ -26,18 +27,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   {
     private JiraClient _jiraClient;
     private readonly Configuration _configuration = Configuration.Current;
-    private StringBuilder _basicUrl;
+    private JiraRequestUrlBuilder _builder;
 
     [SetUp]
     public void SetUp ()
     {
-      _jiraClient = new JiraClient (_configuration, new NtlmAuthenticatedWebClient());
-
-      _basicUrl = new StringBuilder();
-      _basicUrl.Append (_configuration.Url);
-      _basicUrl.Append ("/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22");
-      _basicUrl.Append (_configuration.Project);
-      _basicUrl.Append ("%22");
+      var webClient = new NtlmAuthenticatedWebClient ();
+      webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+      _builder = new JiraRequestUrlBuilder(_configuration);
+      _jiraClient = new JiraClient (webClient, ()=>_builder);
     }
 
 
@@ -46,7 +44,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       var key = new[] { "UUU-116" };
 
-      var output = _jiraClient.GetIssuesAsXml (null, null, key);
+      var output = _jiraClient.GetIssuesByKeys (key);
       var expectedOutput = XDocument.Load (@"..\..\TestDomain\IssuesForKey_UUU-116.xml");
 
       Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
@@ -59,14 +57,13 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       try
       {
-        var output = _jiraClient.GetIssuesAsXml (null, null, key);
+        var output = _jiraClient.GetIssuesByKeys (key);
         Assert.Fail ("Expected exeption 'The remote server returned an error: (400) Bad Request.' was not thrown");
       }
       catch (System.Net.WebException ex)
       {
         Assert.That (ex.Message, Is.EqualTo ("The remote server returned an error: (400) Bad Request."));
-      }
-      
+      } 
     }
 
     [Test]
@@ -74,81 +71,23 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       var sourceFile = XDocument.Load (@"..\..\TestDomain\IssuesForKey_UUU-116.xml");
       var webClientStub = new WebClientStub (sourceFile.ToString());
-      var jiraClient = new JiraClient (_configuration, webClientStub);
+      var urlBuilderStub = new JiraRequestUrlBuilder(_configuration);
+      //var urlBuilderStub = new JiraRequestUrlBuilderStub();
+      var jiraClient = new JiraClient (webClientStub, ()=>urlBuilderStub);
       var key = new[] { "UUU-116" };
 
-      var output = jiraClient.GetIssuesAsXml (null, null, key);
+      var output = jiraClient.GetIssuesByKeys(key);
       var expectedOutput = XDocument.Load (@"..\..\TestDomain\IssuesForKey_UUU-116.xml");
 
       Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
     }
-
-    [Test]
-    public void CreateRequestUrl_EmptyParameter_ValidUrl ()
-    {
-      var output = _jiraClient.CreateRequestUrl (null, null, null);
-      _basicUrl.Append ("&tempMax=1000");
-      var expectedOutput = _basicUrl.ToString();
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
-    public void CreateRequestUrl_VersionSet_ValidUrl ()
-    {
-      const string version = "1.2";
-      var output = _jiraClient.CreateRequestUrl (version, null, null);
-      _basicUrl.Append ("+and+fixVersion+%3D+%22");
-      _basicUrl.Append (version);
-      _basicUrl.Append ("%22");
-      _basicUrl.Append ("&tempMax=1000");
-      var expectedOutput = _basicUrl.ToString();
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
-    public void CreateRequestUrl_StatusSet_ValidUrl ()
-    {
-      const string status = "closed";
-      var output = _jiraClient.CreateRequestUrl (null, status, null);
-      _basicUrl.Append ("+and+status%3D+%22");
-      _basicUrl.Append (status);
-      _basicUrl.Append ("%22");
-      _basicUrl.Append ("&tempMax=1000");
-      var expectedOutput = _basicUrl.ToString();
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
-    public void CreateRequestUrl_OneKeySet_ValidUrl ()
-    {
-      var keys = new[] { "keyName-111" };
-
-      var output = _jiraClient.CreateRequestUrl (null, null, keys);
-      _basicUrl.Append ("+and+(+key+%3D+%22keyName-111%22+)&tempMax=1000");
-      var expectedOutput = _basicUrl.ToString();
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
-    public void CreateRequestUrl_TwoKeysSet_ValidUrl ()
-    {
-      var keys = new[] { "keyName-111", "keyName-112" };
-
-      var output = _jiraClient.CreateRequestUrl (null, null, keys);
-      _basicUrl.Append ("+and+(+key+%3D+%22keyName-111%22+or+key+%3D+%22keyName-112%22+)&tempMax=1000");
-      var expectedOutput = _basicUrl.ToString();
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
+  
 
     private string XmlComparisonHelper (XDocument document)
     {
       var documentAsString = document.ToString();
       return documentAsString.Substring (documentAsString.IndexOf ("-->"));
     }
+      
   }
 }

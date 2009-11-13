@@ -15,13 +15,11 @@
 // 
 using System;
 using System.IO;
-using System.Net;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public interface IWebClient
   {
-    ICredentials Credentials { get; set; }
     Stream OpenRead (string address);
   }
 }

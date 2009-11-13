@@ -14,6 +14,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.Net;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -23,58 +24,25 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   [TestFixture]
   public class JiraIssueAggregatorTest
   {
-    [Test]
-    public void CreateUrl ()
+    private JiraIssueAggregator _jiraIssueAggregator;
+
+    [SetUp]
+    public void SetUp ()
     {
-      const string version = "2.0.2";
-      const string status = "closed";
-      var xmlCreator = new JiraIssueAggregator (Configuration.Current);
-
-      var output = xmlCreator.CreateUrl (version, status, null);
-      var expectedOutput = Configuration.Current.Url + "/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22"
-                           + Configuration.Current.Project + "%22+and+fixVersion+%3D+%22" + version + "%22+and+status%3D+%22" + status
-                           + "%22&tempMax=1000";
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
-    public void GetBasicXmlDocument ()
-    {
-      const string version = "1.2";
-      var xmlCreator = new JiraIssueAggregator (Configuration.Current);
-
-      var output = xmlWithoutHeader (xmlCreator.GetIssuesForVersion (version).ToString());
-      var expectedOutput = xmlWithoutHeader (XDocument.Load (@"..\..\TestDomain\IssuesForVersion_1.2.xml").ToString());
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
-    public void GetIssuesForKeys ()
-    {
-      var xmlCreator = new JiraIssueAggregator (Configuration.Current);
+      var webClient = new NtlmAuthenticatedWebClient();
+      webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+      var jiraClient = new JiraClient (webClient, () => new JiraRequestUrlBuilder(Configuration.Current));
       
-      var output = xmlWithoutHeader (xmlCreator.GetIssuesForKeys (new[] {"UUU-111", "UUU-112"}).ToString ());
-      var expectedOutput = xmlWithoutHeader (XDocument.Load (@"..\..\TestDomain\IssuesForKeys_111_112.xml").ToString ());
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
+      _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, jiraClient);  
     }
 
+    /*
     [Test]
-    public void FindUnknownParentKeys ()
+    public void GetXml ()
     {
-      var xmlCreator = new JiraIssueAggregator (Configuration.Current);
-
-      var output = xmlCreator.FindUnknownParentKeys (XDocument.Load (@"..\..\TestDomain\SearchRequest.xml"));
-      var expectedOutput = new[] { "COMMONS-4" };
-
-      Assert.That (output, Is.EquivalentTo (expectedOutput));
+      _jiraClientStub.Stub (stub => stub.GetIssuesAsXml ("v1", "s3", null)).Returns ("firstXmlBlob");
+      _jiraClientStub.Stub (stub=>stub.GetIssuesAsXml (null, null, 1, 2, 3)).Returns ("secondXmlBlob");
     }
-
-    private string xmlWithoutHeader (string xml)
-    {
-      return xml.Substring (xml.IndexOf ("-->"));
-    }
+     */ 
   }
 }

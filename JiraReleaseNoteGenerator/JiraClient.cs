@@ -24,23 +24,40 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public class JiraClient
   {
-    private readonly Configuration _configuration;
     private readonly IWebClient _webClient;
+    private readonly Func<IJiraRequestUrlBuilder> _builderFactory;
 
-    public JiraClient (Configuration configuration, IWebClient webClient)
+    public JiraClient (IWebClient webClient, Func<IJiraRequestUrlBuilder> builderFactory)
     {
-      ArgumentUtility.CheckNotNull ("configuration", configuration);
       ArgumentUtility.CheckNotNull ("webClient", webClient);
-
-      _configuration = configuration;
+      ArgumentUtility.CheckNotNull ("builderFactory", builderFactory);
+    
       _webClient = webClient;
+      _builderFactory = builderFactory;
     }
 
-    public XDocument GetIssuesAsXml (string version, string status, string[] keys)
+    public XDocument GetIssuesByVersion (string version, string status)
     {
-      _webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+      ArgumentUtility.CheckNotNull ("version", version);
 
-      var url = CreateRequestUrl (version, status, keys);
+      return GetIssues (version, status, null);
+    }
+
+    public XDocument GetIssuesByKeys (string[] keys)
+    {
+      ArgumentUtility.CheckNotNull ("keys", keys);
+
+      return GetIssues (null, null, keys);
+    }
+
+    private XDocument GetIssues (string version, string status, string[] keys)
+    {
+      var builder = _builderFactory();
+      builder.Version = version;
+      builder.Status = status;
+      builder.Keys = keys;
+
+      var url = builder.Build();
 
       using (var data = _webClient.OpenRead (url))
       {
@@ -49,49 +66,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
           return XDocument.Parse (reader.ReadToEnd ());
         }
       }
-    }
-
-    public string CreateRequestUrl (string version, string status, string[] keys)
-    {
-      var url = new StringBuilder ();
-      url.Append (_configuration.Url);
-      url.Append ("/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22");
-      url.Append (_configuration.Project);
-      url.Append ("%22");
-
-      if (version != null)
-      {
-        url.Append ("+and+fixVersion+%3D+%22");
-        url.Append (version);
-        url.Append ("%22");
-      }
-
-      if (status != null)
-      {
-        url.Append ("+and+status%3D+%22");
-        url.Append (status);
-        url.Append ("%22");
-      }
-
-      if (keys != null)
-      {
-        url.Append ("+and+(");
-
-        for (int i = 0; i < keys.Length; i++)
-        {
-          if (i != 0)
-            url.Append ("+or");
-
-          url.Append ("+key+%3D+%22");
-          url.Append (keys[i]);
-          url.Append ("%22");
-        }
-        url.Append ("+)");
-      }
-
-      url.Append ("&tempMax=1000");
-
-      return url.ToString ();
     }
   }
 }

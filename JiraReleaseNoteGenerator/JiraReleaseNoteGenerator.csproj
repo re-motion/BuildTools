@@ -46,8 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="IJiraRequestUrlBuilder.cs" />
     <Compile Include="IWebClient.cs" />
     <Compile Include="JiraClient.cs" />
+    <Compile Include="JiraRequestUrlBuilder.cs" />
     <Compile Include="NtlmAuthenticatedWebClient.cs">
       <SubType>Component</SubType>
     </Compile>

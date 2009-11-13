@@ -27,83 +27,29 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public class JiraIssueAggregator
   {
-    private const string CLOSED = "closed";
     private readonly Configuration _configuration;
-    // private readonly IWebClient _webClient;
+    private readonly JiraClient _jiraClient;
 
-    public JiraIssueAggregator (Configuration configuration)
+
+    public JiraIssueAggregator (Configuration configuration, JiraClient jiraClient)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
+      ArgumentUtility.CheckNotNull ("jiraClient", jiraClient);
+
       _configuration = configuration;
+      _jiraClient = jiraClient;
     }
-
-    //public JiraIssueAggregator (Configuration configuration, IWebClient webClient)
-    //{
-    //  ArgumentUtility.CheckNotNull ("configuration", configuration);
-    //  ArgumentUtility.CheckNotNull ("webClient", webClient);
-
-    //  _configuration = configuration;
-    //  _webClient = webClient;
-    //}
-
-    public string CreateUrl (string version, string status, string[] key)
+    
+    public XDocument GetXml(string version)
     {
-      var url = new StringBuilder();
-      url.Append (_configuration.Url);
-      url.Append ("/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22");
-      url.Append (_configuration.Project);
-      url.Append ("%22");
-
-      if (version != null)
-      {
-        url.Append ("+and+fixVersion+%3D+%22");
-        url.Append (version);
-        url.Append ("%22");
-      }
-
-      if (status != null)
-      {
-        url.Append ("+and+status%3D+%22");
-        url.Append (status);
-        url.Append ("%22");
-      }
-
-      if (key != null)
-      {
-        url.Append ("+and+(");
-
-        for (int i = 0; i < key.Length; i++)
-        {
-          if (i != 0) 
-            url.Append ("+or");
-          
-          url.Append ("+key%3D+%22");
-          url.Append (key[i]);
-          url.Append ("%22");
-        }
-        url.Append ("+)");
-      }
-
-      url.Append ("&tempMax=1000");
-
-      return url.ToString();
+      var doc1 = _jiraClient.GetIssuesByVersion(version, "closed");
+      var keys = FindUnknownParentKeys (doc1);
+      var doc2 = _jiraClient.GetIssuesByKeys (keys);
+      return doc2;
     }
 
-    public XDocument GetIssuesForVersion (string version)
-    {
-      var url = CreateUrl (version, CLOSED, null);
-      
-      return GetXmlWebClientRequest (url);
-    }
-
-    public XDocument GetIssuesForKeys (string[] keys)
-    {
-      var url = CreateUrl (null, null, keys);
-
-      return GetXmlWebClientRequest(url);
-    }
-
-    public string[] FindUnknownParentKeys (XDocument xmlDocument)
+    
+    private string[] FindUnknownParentKeys (XDocument xmlDocument)
     {
       var issueKeyList = new HashSet<string>();
       var parentKeyList = new HashSet<string>();
@@ -121,20 +67,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
           parentKeyList.Add (parentNodeIterator.Current.Value);
       }
       return parentKeyList.ToArray();
-    }
-
-    private XDocument GetXmlWebClientRequest (string url)
-    {
-      var client = new NtlmAuthenticatedWebClient ();
-      client.Credentials = CredentialCache.DefaultNetworkCredentials;
-
-      using (var data = client.OpenRead (url))
-      {
-        using (var reader = new StreamReader (data))
-        {
-          return XDocument.Parse (reader.ReadToEnd ());
-        }
-      }
     }
   }
 }
