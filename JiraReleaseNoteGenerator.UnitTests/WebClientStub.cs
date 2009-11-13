@@ -16,12 +16,26 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Text;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
-namespace Remotion.BuildTools.JiraReleaseNoteGenerator
+namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {
-  public interface IWebClient
+  public class WebClientStub : IWebClient
   {
-    ICredentials Credentials { get; set; }
-    Stream OpenRead (string address);
+    private readonly string _resultStream;
+
+    public WebClientStub (string resultStream)
+    {
+      ArgumentUtility.CheckNotNull ("resultStream", resultStream);
+      _resultStream = resultStream;
+    }
+
+    public ICredentials Credentials { get; set; }
+
+    public Stream OpenRead (string address)
+    {
+      return new MemoryStream (ASCIIEncoding.UTF8.GetBytes (_resultStream));
+    }
   }
 }

@@ -53,6 +53,7 @@
     <Compile Include="ProgramTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="JiraIssueAggregatorTest.cs" />
+    <Compile Include="WebClientStub.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JiraReleaseNoteGenerator\JiraReleaseNoteGenerator.csproj">
@@ -62,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="TestDomain\IssuesForKeys_111_112.xml" />
+    <Content Include="TestDomain\IssuesForKey_UUU-116.xml" />
     <Content Include="TestDomain\IssuesForVersion_1.2.xml" />
     <Content Include="TestDomain\SearchRequest.xml" />
   </ItemGroup>

@@ -14,6 +14,8 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.IO;
+using System.Net;
 using System.Text;
 using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
@@ -36,7 +38,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     public XDocument GetIssuesAsXml (string version, string status, string[] keys)
     {
-      throw new NotImplementedException();
+      _webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+
+      var url = CreateRequestUrl (version, status, keys);
+
+      using (var data = _webClient.OpenRead (url))
+      {
+        using (var reader = new StreamReader (data))
+        {
+          return XDocument.Parse (reader.ReadToEnd ());
+        }
+      }
     }
 
     public string CreateRequestUrl (string version, string status, string[] keys)

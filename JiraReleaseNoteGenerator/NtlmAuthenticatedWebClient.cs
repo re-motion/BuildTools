@@ -14,6 +14,7 @@
 // along with re-motion; if not, see http://www.gnu.org/licenses.
 // 
 using System;
+using System.IO;
 using System.Net;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
@@ -25,6 +26,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var request = base.GetWebRequest (address);
       ((HttpWebRequest) request).UnsafeAuthenticatedConnectionSharing = true;
       return request;
+    }
+
+    public new ICredentials Credentials
+    {
+      get { return base.Credentials; }
+      set { base.Credentials = value; }
+    }
+
+    public new Stream OpenRead (string address)
+    {
+      return base.OpenRead (address);
     }
   }
 }
