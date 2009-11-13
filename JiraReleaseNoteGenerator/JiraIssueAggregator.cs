@@ -42,10 +42,11 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     
     public XDocument GetXml(string version)
     {
-      var doc1 = _jiraClient.GetIssuesByVersion(version, "closed");
-      var keys = FindUnknownParentKeys (doc1);
-      var doc2 = _jiraClient.GetIssuesByKeys (keys);
-      return doc2;
+      throw new NotImplementedException();
+      //var xmlForVersion = _jiraClient.GetIssuesByVersion(version, "closed");
+      //var keys = FindUnknownParentKeys (basicXml);
+      //var xmlWithMissingParents = _jiraClient.GetIssuesByKeys (keys);
+      //return merge(xmlForVersion, xmlWithMissingParents);
     }
 
     

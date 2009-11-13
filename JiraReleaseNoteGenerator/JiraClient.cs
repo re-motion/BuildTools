@@ -53,7 +53,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     private XDocument GetIssues (string version, string status, string[] keys)
     {
       var builder = _builderFactory();
-      builder.Version = version;
+      builder.FixVersion = version;
       builder.Status = status;
       builder.Keys = keys;
 

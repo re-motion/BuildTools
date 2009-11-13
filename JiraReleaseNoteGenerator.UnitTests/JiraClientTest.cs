@@ -15,7 +15,6 @@
 // 
 using System;
 using System.Net;
-using System.Text;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -26,39 +25,43 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   public class JiraClientTest
   {
     private JiraClient _jiraClient;
-    private readonly Configuration _configuration = Configuration.Current;
-    private JiraRequestUrlBuilder _builder;
-
+    private readonly JiraRequestUrlBuilder _builder = new JiraRequestUrlBuilder (Configuration.Current);
+    private readonly JiraRequestUrlBuilderStub _builderStub = new JiraRequestUrlBuilderStub ();
+    private readonly NtlmAuthenticatedWebClient _webClient = new NtlmAuthenticatedWebClient ();
+    
     [SetUp]
     public void SetUp ()
     {
-      var webClient = new NtlmAuthenticatedWebClient ();
-      webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
-      _builder = new JiraRequestUrlBuilder(_configuration);
-      _jiraClient = new JiraClient (webClient, ()=>_builder);
+      _webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+      var webClientStub = new WebClientStub ();
+      _jiraClient = new JiraClient (webClientStub, () => _builderStub);
+
+      // _jiraClient = new JiraClient (_webClient, () => _builder);
     }
 
 
     [Test]
-    public void JiraClient_ValidKey_SuccessfulRequest ()
+    public void JiraClient_GetIssuesByKeys_ValidKey_SuccessfulRequest ()
     {
       var key = new[] { "UUU-116" };
+      _jiraClient = new JiraClient (_webClient, () => _builder);
 
       var output = _jiraClient.GetIssuesByKeys (key);
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\IssuesForKey_UUU-116.xml");
+      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_UUU-116.xml");
 
       Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
     }
 
     [Test]
-    public void JiraClient_InvalidKey_BadRequest ()
+    public void JiraClient_GetIssuesByKeys_InvalidKey_BadRequest ()
     {
       var key = new[] { "UUU-000" };
+      _jiraClient = new JiraClient (_webClient, () => _builder);
 
       try
       {
-        var output = _jiraClient.GetIssuesByKeys (key);
-        Assert.Fail ("Expected exeption 'The remote server returned an error: (400) Bad Request.' was not thrown");
+        _jiraClient.GetIssuesByKeys (key);
+        Assert.Fail ("Expected exeption was not thrown");
       }
       catch (System.Net.WebException ex)
       {
@@ -67,17 +70,56 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     }
 
     [Test]
-    public void JiraClient_WebClientStub_ValidRequest ()
+    public void JiraClient_GetIssuesByVersion_KeyIsNull_ArgumentNotNullException ()
     {
-      var sourceFile = XDocument.Load (@"..\..\TestDomain\IssuesForKey_UUU-116.xml");
-      var webClientStub = new WebClientStub (sourceFile.ToString());
-      var urlBuilderStub = new JiraRequestUrlBuilder(_configuration);
-      //var urlBuilderStub = new JiraRequestUrlBuilderStub();
-      var jiraClient = new JiraClient (webClientStub, ()=>urlBuilderStub);
+      
+      _jiraClient = new JiraClient (_webClient, () => _builder);
+
+      try
+      {
+        _jiraClient.GetIssuesByVersion (null, null);
+        Assert.Fail ("Expected exeption was not thrown");
+      }
+      catch (ArgumentNullException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("Value cannot be null.\r\nParameter name: version"));
+      }
+    }
+
+    [Test]
+    public void JiraClient_GetIssuesByKeys_KeyIsNull_ArgumentNotNullException ()
+    {
+      _jiraClient = new JiraClient (_webClient, () => _builder);
+
+      try
+      {
+        _jiraClient.GetIssuesByKeys (null);
+        Assert.Fail ("Expected exeption was not thrown");
+      }
+      catch (ArgumentNullException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("Value cannot be null.\r\nParameter name: keys"));
+      }
+    }
+
+    [Test]
+    public void JiraClient_WebClientStub_OneKey_ValidRequest ()
+    {
       var key = new[] { "UUU-116" };
 
-      var output = jiraClient.GetIssuesByKeys(key);
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\IssuesForKey_UUU-116.xml");
+      var output = _jiraClient.GetIssuesByKeys(key);
+      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_UUU-116.xml");
+
+      Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
+    }
+
+    [Test]
+    public void JiraClient_WebClientStub_TwoKeys_ValidRequest ()
+    {
+      var key = new[] { "UUU-111", "UUU-112" };
+
+      var output = _jiraClient.GetIssuesByKeys (key);
+      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_UUU-111_UUU-112.xml");
 
       Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
     }

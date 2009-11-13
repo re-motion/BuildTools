@@ -10,7 +10,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   {
     private readonly Configuration _configuration;
 
-    public string Version { get; set; }
+    public string FixVersion { get; set; }
     public string Status { get; set; }
     public string[] Keys { get; set; }
 
@@ -28,10 +28,10 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       url.Append (_configuration.Project);
       url.Append ("%22");
 
-      if (Version != null)
+      if (FixVersion != null)
       {
         url.Append ("+and+fixVersion+%3D+%22");
-        url.Append (Version);
+        url.Append (FixVersion);
         url.Append ("%22");
       }
 

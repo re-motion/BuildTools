@@ -17,25 +17,27 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {
   public class WebClientStub : IWebClient
   {
-    private readonly string _resultStream;
+    //private readonly string _resultStream;
 
-    public WebClientStub (string resultStream)
-    {
-      ArgumentUtility.CheckNotNull ("resultStream", resultStream);
-      _resultStream = resultStream;
-    }
+    //public WebClientStub (string resultStream)
+    //{
+    //  ArgumentUtility.CheckNotNull ("resultStream", resultStream);
+    //  _resultStream = resultStream;
+    //}
 
     public ICredentials Credentials { get; set; }
 
     public Stream OpenRead (string address)
     {
-      return new MemoryStream (ASCIIEncoding.UTF8.GetBytes (_resultStream));
+      var stream = XDocument.Load (@"..\..\TestDomain\Issues_" + address + ".xml").ToString();
+      return new MemoryStream (ASCIIEncoding.UTF8.GetBytes (stream));
     }
   }
 }

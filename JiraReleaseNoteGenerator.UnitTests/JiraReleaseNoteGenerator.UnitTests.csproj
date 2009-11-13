@@ -64,10 +64,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestDomain\IssueForKey_COMMONS-4.xml" />
-    <Content Include="TestDomain\IssuesForKeys_111_112.xml" />
-    <Content Include="TestDomain\IssuesForKey_UUU-116.xml" />
-    <Content Include="TestDomain\IssuesForVersion_1.2.xml" />
+    <Content Include="TestDomain\Issues_COMMONS-4.xml" />
+    <Content Include="TestDomain\Issues_UUU-111_UUU-112.xml" />
+    <Content Include="TestDomain\Issues_UUU-116.xml" />
+    <Content Include="TestDomain\Issues_v1.2.xml" />
     <Content Include="TestDomain\SearchRequest.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

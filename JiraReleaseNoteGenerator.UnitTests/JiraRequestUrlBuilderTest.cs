@@ -54,7 +54,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       const string version = "1.2";  
 
-      _jiraRequestUrlBuilder.Version = version;
+      _jiraRequestUrlBuilder.FixVersion = version;
       _basicUrl.Append ("+and+fixVersion+%3D+%22");
       _basicUrl.Append (version);
       _basicUrl.Append ("%22");
@@ -71,7 +71,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       const string version = "1.2";
       const string status = "closed";
-      _jiraRequestUrlBuilder.Version = version;
+      _jiraRequestUrlBuilder.FixVersion = version;
       _jiraRequestUrlBuilder.Status = status;
       _basicUrl.Append ("+and+fixVersion+%3D+%22");
       _basicUrl.Append (version);
