@@ -67,7 +67,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     }
 
     [Test]
-    public void CreateRequestUrl_StatusSet_ValidUrl ()
+    public void CreateRequestUrl_VersionAndStatusSet_ValidUrl ()
     {
       const string version = "1.2";
       const string status = "closed";
@@ -86,7 +86,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       Assert.That (output, Is.EqualTo (expectedOutput));
     }
-
+    
     [Test]
     public void CreateRequestUrl_OneKeySet_ValidUrl ()
     {
@@ -109,6 +109,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       
       var output = _jiraRequestUrlBuilder.Build ();
       var expectedOutput = _basicUrl.ToString();
+
+      Assert.That (output, Is.EqualTo (expectedOutput));
+    }
+
+    [Test]
+    public void CreateRequestUrl_NothingSet_ValidUrl ()
+    {
+      _basicUrl.Append ("&tempMax=1000");
+
+      var output = _jiraRequestUrlBuilder.Build ();
+      var expectedOutput = _basicUrl.ToString ();
 
       Assert.That (output, Is.EqualTo (expectedOutput));
     }
