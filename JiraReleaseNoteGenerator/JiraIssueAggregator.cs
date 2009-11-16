@@ -72,10 +72,14 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     }
 
 
-    private XDocument MergeXml (XDocument basicDocument, XDocument parentDocument)
+    private XDocument MergeXml (XDocument xDocument1, XDocument xDocument2)
     {
-      var result = new XDocument (basicDocument);
-      result.Root.Elements ().First ().Add (parentDocument.Root.Elements ().First ().Elements ());
+      var result = new XDocument (xDocument1);
+
+      if (result.Root == null || xDocument2.Root == null)
+        throw new ArgumentException ("Both xml documents must have a root element.");
+      
+      result.Root.Elements ().First ().Add (xDocument2.Root.Elements ().First ().Elements ());
       return result;
     }
   }
