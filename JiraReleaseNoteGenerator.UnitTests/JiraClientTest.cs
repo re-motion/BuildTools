@@ -103,6 +103,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     }
 
     [Test]
+    public void JiraClient_WebClientStub_GetIssuesByVersion_ValidRequest ()
+    {
+      var version = "1.2";
+
+      var output = _jiraClient.GetIssuesByVersion (version, null);
+      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_v1.2.xml");
+
+      Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
+    }
+
+    [Test]
     public void JiraClient_WebClientStub_OneKey_ValidRequest ()
     {
       var key = new[] { "UUU-116" };
