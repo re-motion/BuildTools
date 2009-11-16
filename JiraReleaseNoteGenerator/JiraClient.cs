@@ -60,15 +60,22 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       builder.Status = status;
       builder.Keys = keys;
 
-      var url = builder.Build();
-
-      using (var data = _webClient.OpenRead (url))
+      if (builder.IsValidQuery ())
       {
-        using (var reader = new StreamReader (data))
+        var url = builder.Build();
+
+        using (var data = _webClient.OpenRead (url))
         {
-          return XDocument.Parse (reader.ReadToEnd());
+          using (var reader = new StreamReader (data))
+          {
+            return XDocument.Parse (reader.ReadToEnd());
+          }
         }
       }
+
+      var result = new XDocument();
+      result.Add (new XElement ("rss", new XElement ("channel")));
+      return result;
     }
   }
 }

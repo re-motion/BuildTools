@@ -20,6 +20,7 @@
 // 
 using System;
 using System.Text;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {
@@ -56,6 +57,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       }
 
       return url.ToString();
+    }
+
+    public bool IsValidQuery ()
+    {
+      if (String.IsNullOrEmpty (FixVersion) && ArrayUtility.IsNullOrEmpty (Keys))
+        return false;
+
+      if (Status != null && Status.Length == 0)
+        return false;
+      
+      return true;
     }
   }
 }

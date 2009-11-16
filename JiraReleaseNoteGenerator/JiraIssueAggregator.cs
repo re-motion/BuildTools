@@ -44,11 +44,10 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     public XDocument GetXml (string version)
     {
-      throw new NotImplementedException();
-      //var xmlForVersion = _jiraClient.GetIssuesByVersion(version, "closed");
-      //var keys = FindUnknownParentKeys (basicXml);
-      //var xmlWithMissingParents = _jiraClient.GetIssuesByKeys (keys);
-      //return merge(xmlForVersion, xmlWithMissingParents);
+      var xmlForVersion = _jiraClient.GetIssuesByVersion (version, "closed");
+      var keys = FindUnknownParentKeys (xmlForVersion);
+      var xmlWithMissingParents = _jiraClient.GetIssuesByKeys (keys);
+      return MergeXml (xmlForVersion, xmlWithMissingParents);
     }
 
 
@@ -70,6 +69,14 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
           parentKeyList.Add (parentNodeIterator.Current.Value);
       }
       return parentKeyList.ToArray();
+    }
+
+
+    private XDocument MergeXml (XDocument basicDocument, XDocument parentDocument)
+    {
+      var result = new XDocument (basicDocument);
+      result.Root.Elements ().First ().Add (parentDocument.Root.Elements ().First ().Elements ());
+      return result;
     }
   }
 }

@@ -29,5 +29,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     string[] Keys { get; set; }
 
     string Build ();
+    bool IsValidQuery ();
   }
 }

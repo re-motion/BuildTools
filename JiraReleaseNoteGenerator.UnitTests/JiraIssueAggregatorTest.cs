@@ -19,7 +19,6 @@
 // THE SOFTWARE.
 // 
 using System;
-using System.Linq;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -40,26 +39,23 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, jiraClient);
     }
 
-    [Ignore("Test not finished")]
     [Test]
-    public void GetXml ()
+    public void GetXml_VersionWithMissingParents ()
     {
-      //_jiraClientStub.Stub (stub => stub.GetIssuesAsXml ("v1", "s3", null)).Returns ("firstXmlBlob");
-      //_jiraClientStub.Stub (stub=>stub.GetIssuesAsXml (null, null, 1, 2, 3)).Returns ("secondXmlBlob");
-
       var output = _jiraIssueAggregator.GetXml ("2.0.2");
-      var xmlWithoutParents = XDocument.Load (@"..\..\TestDomain\Issues_v2.0.2.xml");
-      var xmlOnlyParents = XDocument.Load (@"..\..\TestDomain\Issues_COMMONS-4.xml");
-      var expectedOutput = MergeXml (xmlWithoutParents, xmlOnlyParents);
+      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_v2.0.2_complete.xml");
 
-      Assert.That (output, Is.EqualTo (expectedOutput));
+      Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
     }
 
-    private XDocument MergeXml (XDocument basicDocument, XDocument parentDocument)
+    [Test]
+    public void GetXml_VersionWithoutMissingParents ()
     {
-      var result = new XDocument (basicDocument);
-      result.Root.Elements().First().Add (parentDocument.Root.Elements().First().Elements());
-      return result;
+      var output = _jiraIssueAggregator.GetXml ("1.2");
+      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_v1.2_closed.xml");
+
+      Assert.That (output.ToString (), Is.EqualTo (expectedOutput.ToString ()));
     }
+
   }
 }
