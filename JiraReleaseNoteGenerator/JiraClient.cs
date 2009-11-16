@@ -1,22 +1,25 @@
-// This file is part of the re-motion Build Tools (www.re-motion.org)
-// Copyright (C) 2005-2009 rubicon informationstechnologie gmbh, www.rubicon.eu
+// Copyright (c) 2009 rubicon informationstechnologie gmbh
 // 
-// The re-motion Build Tools are free software; you can redistribute it 
-// and/or modify it under the terms of the GNU Lesser General Public License 
-// version 3.0 as published by the Free Software Foundation.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 // 
-// re-motion is distributed in the hope that it will be useful, 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-// GNU Lesser General Public License for more details.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 // 
-// You should have received a copy of the GNU Lesser General Public License
-// along with re-motion; if not, see http://www.gnu.org/licenses.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 // 
 using System;
 using System.IO;
-using System.Net;
-using System.Text;
 using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
@@ -31,7 +34,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       ArgumentUtility.CheckNotNull ("webClient", webClient);
       ArgumentUtility.CheckNotNull ("builderFactory", builderFactory);
-    
+
       _webClient = webClient;
       _builderFactory = builderFactory;
     }
@@ -63,7 +66,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       {
         using (var reader = new StreamReader (data))
         {
-          return XDocument.Parse (reader.ReadToEnd ());
+          return XDocument.Parse (reader.ReadToEnd());
         }
       }
     }

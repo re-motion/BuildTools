@@ -68,7 +68,7 @@
     <Content Include="TestDomain\Issues_UUU-111_UUU-112.xml" />
     <Content Include="TestDomain\Issues_UUU-116.xml" />
     <Content Include="TestDomain\Issues_v1.2.xml" />
-    <Content Include="TestDomain\SearchRequest.xml" />
+    <Content Include="TestDomain\Issues_v2.0.2.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

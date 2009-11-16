@@ -1,17 +1,22 @@
-// This file is part of the re-motion Build Tools (www.re-motion.org)
-// Copyright (C) 2005-2009 rubicon informationstechnologie gmbh, www.rubicon.eu
+// Copyright (c) 2009 rubicon informationstechnologie gmbh
 // 
-// The re-motion Build Tools are free software; you can redistribute it 
-// and/or modify it under the terms of the GNU Lesser General Public License 
-// version 3.0 as published by the Free Software Foundation.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 // 
-// re-motion is distributed in the hope that it will be useful, 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-// GNU Lesser General Public License for more details.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 // 
-// You should have received a copy of the GNU Lesser General Public License
-// along with re-motion; if not, see http://www.gnu.org/licenses.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 // 
 using System;
 using System.Net;
@@ -26,14 +31,14 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   {
     private JiraClient _jiraClient;
     private readonly JiraRequestUrlBuilder _builder = new JiraRequestUrlBuilder (Configuration.Current);
-    private readonly JiraRequestUrlBuilderStub _builderStub = new JiraRequestUrlBuilderStub ();
-    private readonly NtlmAuthenticatedWebClient _webClient = new NtlmAuthenticatedWebClient ();
-    
+    private readonly JiraRequestUrlBuilderStub _builderStub = new JiraRequestUrlBuilderStub();
+    private readonly NtlmAuthenticatedWebClient _webClient = new NtlmAuthenticatedWebClient();
+
     [SetUp]
     public void SetUp ()
     {
       _webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
-      var webClientStub = new WebClientStub ();
+      var webClientStub = new WebClientStub();
       _jiraClient = new JiraClient (webClientStub, () => _builderStub);
 
       // _jiraClient = new JiraClient (_webClient, () => _builder);
@@ -63,16 +68,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
         _jiraClient.GetIssuesByKeys (key);
         Assert.Fail ("Expected exeption was not thrown");
       }
-      catch (System.Net.WebException ex)
+      catch (WebException ex)
       {
         Assert.That (ex.Message, Is.EqualTo ("The remote server returned an error: (400) Bad Request."));
-      } 
+      }
     }
 
     [Test]
     public void JiraClient_GetIssuesByVersion_KeyIsNull_ArgumentNotNullException ()
     {
-      
       _jiraClient = new JiraClient (_webClient, () => _builder);
 
       try
@@ -118,7 +122,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       var key = new[] { "UUU-116" };
 
-      var output = _jiraClient.GetIssuesByKeys(key);
+      var output = _jiraClient.GetIssuesByKeys (key);
       var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_UUU-116.xml");
 
       Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
@@ -134,13 +138,12 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
     }
-  
+
 
     private string XmlComparisonHelper (XDocument document)
     {
       var documentAsString = document.ToString();
       return documentAsString.Substring (documentAsString.IndexOf ("-->"));
     }
-      
   }
 }

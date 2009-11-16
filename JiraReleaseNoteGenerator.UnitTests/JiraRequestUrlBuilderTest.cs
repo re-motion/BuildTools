@@ -1,17 +1,22 @@
-// This file is part of the re-motion Build Tools (www.re-motion.org)
-// Copyright (C) 2005-2009 rubicon informationstechnologie gmbh, www.rubicon.eu
+// Copyright (c) 2009 rubicon informationstechnologie gmbh
 // 
-// The re-motion Build Tools are free software; you can redistribute it 
-// and/or modify it under the terms of the GNU Lesser General Public License 
-// version 3.0 as published by the Free Software Foundation.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 // 
-// re-motion is distributed in the hope that it will be useful, 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-// GNU Lesser General Public License for more details.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 // 
-// You should have received a copy of the GNU Lesser General Public License
-// along with re-motion; if not, see http://www.gnu.org/licenses.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 // 
 using System;
 using System.Text;
@@ -32,7 +37,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       _jiraRequestUrlBuilder = new JiraRequestUrlBuilder (_configuration);
 
-      _basicUrl = new StringBuilder ();
+      _basicUrl = new StringBuilder();
       _basicUrl.Append (_configuration.Url);
       _basicUrl.Append ("/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22");
       _basicUrl.Append (_configuration.Project);
@@ -42,7 +47,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     [Test]
     public void CreateRequestUrl_EmptyParameter_ValidUrl ()
     {
-      var output = _jiraRequestUrlBuilder.Build ();
+      var output = _jiraRequestUrlBuilder.Build();
       _basicUrl.Append ("&tempMax=1000");
       var expectedOutput = _basicUrl.ToString();
 
@@ -52,7 +57,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     [Test]
     public void CreateRequestUrl_VersionSet_ValidUrl ()
     {
-      const string version = "1.2";  
+      const string version = "1.2";
 
       _jiraRequestUrlBuilder.FixVersion = version;
       _basicUrl.Append ("+and+fixVersion+%3D+%22");
@@ -86,7 +91,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       Assert.That (output, Is.EqualTo (expectedOutput));
     }
-    
+
     [Test]
     public void CreateRequestUrl_OneKeySet_ValidUrl ()
     {
@@ -94,7 +99,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       _basicUrl.Append ("+and+(+key+%3D+%22keyName-111%22+)&tempMax=1000");
       _jiraRequestUrlBuilder.Keys = keys;
 
-      var output = _jiraRequestUrlBuilder.Build ();
+      var output = _jiraRequestUrlBuilder.Build();
       var expectedOutput = _basicUrl.ToString();
 
       Assert.That (output, Is.EqualTo (expectedOutput));
@@ -106,8 +111,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var keys = new[] { "keyName-111", "keyName-112" };
       _jiraRequestUrlBuilder.Keys = keys;
       _basicUrl.Append ("+and+(+key+%3D+%22keyName-111%22+or+key+%3D+%22keyName-112%22+)&tempMax=1000");
-      
-      var output = _jiraRequestUrlBuilder.Build ();
+
+      var output = _jiraRequestUrlBuilder.Build();
       var expectedOutput = _basicUrl.ToString();
 
       Assert.That (output, Is.EqualTo (expectedOutput));
@@ -118,8 +123,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       _basicUrl.Append ("&tempMax=1000");
 
-      var output = _jiraRequestUrlBuilder.Build ();
-      var expectedOutput = _basicUrl.ToString ();
+      var output = _jiraRequestUrlBuilder.Build();
+      var expectedOutput = _basicUrl.ToString();
 
       Assert.That (output, Is.EqualTo (expectedOutput));
     }
