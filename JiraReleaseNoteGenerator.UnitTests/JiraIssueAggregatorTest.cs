@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.Net;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -55,6 +56,33 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_v1.2_closed.xml");
 
       Assert.That (output.ToString (), Is.EqualTo (expectedOutput.ToString ()));
+    }
+
+    [Test]
+    public void GetXml_WrongVersion_WebException ()
+    {
+      try
+      {
+        _jiraIssueAggregator.GetXml ("1.2.3");
+        Assert.Fail ("Expected exception not thrown");
+      }
+      catch (WebException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("The remote server returned an error: (400) Bad Request."));
+      }
+    }
+
+    [Test]
+    public void GetXml_VersionIsNull_ArgumentNotNullException ()
+    {
+      try
+      {
+        _jiraIssueAggregator.GetXml (null);
+        Assert.Fail ("Expected exception not thrown");
+      }
+      catch (ArgumentNullException ex)
+      {
+      }
     }
 
   }

@@ -20,6 +20,7 @@
 // 
 using System;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Xml.Linq;
 
@@ -29,8 +30,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   {
     public Stream OpenRead (string address)
     {
-      var stream = XDocument.Load (@"..\..\TestDomain\Issues_" + address + ".xml").ToString();
-      return new MemoryStream (ASCIIEncoding.UTF8.GetBytes (stream));
+      try
+      {
+        var stream = XDocument.Load (@"..\..\TestDomain\Issues_" + address + ".xml").ToString ();
+        return new MemoryStream (ASCIIEncoding.UTF8.GetBytes (stream));
+      }
+      catch (FileNotFoundException ex)
+      {
+        throw new WebException ("The remote server returned an error: (400) Bad Request.");
+      }
     }
   }
 }
