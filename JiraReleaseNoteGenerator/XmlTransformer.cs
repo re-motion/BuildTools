@@ -33,21 +33,21 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     private const string xsltProcessorPath = @"XmlUtilities\Saxon\Transform.exe";
 
     private readonly string _xmlInputFile;
-    private readonly string _outputDirectory;
+    private readonly string _outputFile;
 
-    public XmlTransformer (string xmlInputFile, string outputDirectory)
+    public XmlTransformer (string xmlInputFile, string outputFile)
     {
       ArgumentUtility.CheckNotNull ("xmlInputFile", xmlInputFile);
-      ArgumentUtility.CheckNotNull ("outputDirectory", outputDirectory);
+      ArgumentUtility.CheckNotNull ("outputFile", outputFile);
 
       _xmlInputFile = xmlInputFile;
-      _outputDirectory = outputDirectory;
+      _outputFile = outputFile;
     }
 
     public int GenerateHtmlFromXml ()
     {
-      var mainOutputFile = Path.Combine (_outputDirectory, "index.html");
-      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", _xmlInputFile, _xsltStyleSheetPath, mainOutputFile);
+   
+      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", _xmlInputFile, _xsltStyleSheetPath, _outputFile);
 
       var xsltProcessor = new Process();
       xsltProcessor.StartInfo.FileName = xsltProcessorPath;

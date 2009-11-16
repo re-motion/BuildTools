@@ -55,13 +55,14 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReleaseNoteGenerator.cs" />
     <Compile Include="Utilities\ArgumentUtility.cs" />
     <Compile Include="JiraIssueAggregator.cs" />
     <Compile Include="Utilities\ArrayUtility.cs" />
     <Compile Include="XmlTransformer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Utilities\Config.xml">
+    <Content Include="XmlUtilities\Config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="XmlUtilities\Main.xslt">

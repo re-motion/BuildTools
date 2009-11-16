@@ -36,7 +36,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var textWriter = new StringWriter();
       Console.SetError (textWriter);
 
-      var transfomer = new XmlTransformer ("invalidFile.xml", "C:/");
+      var transfomer = new XmlTransformer ("invalidFile.xml", "C:\\output.html");
 
       // error code 2 means - source file does not exist
       Assert.That (transfomer.GenerateHtmlFromXml(), Is.EqualTo (2));
@@ -53,7 +53,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var fileName = Path.Combine (documentationDirectory, "index.html");
 
       Directory.CreateDirectory (documentationDirectory);
-      var transfomer = new XmlTransformer (@"..\..\TestDomain\Issues_v2.0.2_complete.xml", documentationDirectory);
+      var transfomer = new XmlTransformer (@"..\..\TestDomain\Issues_v2.0.2_complete.xml", fileName);
 
       Assert.That (File.Exists (fileName), Is.False);
       Assert.That (transfomer.GenerateHtmlFromXml(), Is.EqualTo (0));

@@ -19,26 +19,37 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.IO;
+using System.Net;
+using System.Xml.Linq;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
-  public class Configuration
+  public class ReleaseNoteGenerator
   {
-    public static Configuration Current = new Configuration();
-
-    public string Url
+    private readonly Configuration _configuration;
+    private JiraIssueAggregator _jiraIssueAggregator;
+    
+    public ReleaseNoteGenerator (Configuration configuration, JiraClient jiraClient)
     {
-      get { return "https://dev-53-isa-1.int.rubicon-it.com/jira"; }
+      ArgumentUtility.CheckNotNull ("configuration", configuration);
+
+      _configuration = configuration;
+      _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, jiraClient);
     }
 
-    public string Project
+    public void GenerateReleaseNotes (string version)
     {
-      get { return "UUU"; }
-    }
+      ArgumentUtility.CheckNotNull ("version", version);
 
-    public string ConfigFile
-    {
-      get { return "Config.xml"; }
+      var issues = _jiraIssueAggregator.GetXml (version);
+      var config = XDocument.Load (Path.Combine("XmlUtilities", _configuration.ConfigFile));
+      issues.Root.AddFirst (config.Elements());
+      issues.Save ("JiraIssues.xml");
+
+      var xmlTransformer = new XmlTransformer ("JiraIssues.xml", "ReleaseNotesForVersion" + version + ".html");
+      xmlTransformer.GenerateHtmlFromXml();
     }
   }
 }

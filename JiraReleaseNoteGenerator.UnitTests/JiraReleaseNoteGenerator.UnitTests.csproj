@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="JiraClientTest.cs" />
+    <Compile Include="ReleaseNoteGeneratorTest.cs" />
     <Compile Include="Stubs\JiraRequestUrlBuilderStub.cs" />
     <Compile Include="JiraRequestUrlBuilderTest.cs" />
     <Compile Include="ProgramTest.cs" />
@@ -72,6 +73,7 @@
     <Content Include="TestDomain\Issues_v1.2.xml" />
     <Content Include="TestDomain\Issues_v2.0.2_closed.xml" />
     <Content Include="TestDomain\Issues_v2.0.2_complete.xml" />
+    <Content Include="TestDomain\Issues_v2.0.2_withConfig.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
