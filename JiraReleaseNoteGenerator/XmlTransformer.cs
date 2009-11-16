@@ -21,7 +21,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {

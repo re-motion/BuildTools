@@ -20,7 +20,7 @@
 // 
 using System;
 
-namespace Remotion.BuildTools.JiraReleaseNoteGenerator.Utility
+namespace Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities
 {
   public class ArgumentUtility
   {

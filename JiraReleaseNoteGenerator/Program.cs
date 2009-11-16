@@ -19,7 +19,7 @@
 // THE SOFTWARE.
 // 
 using System;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
