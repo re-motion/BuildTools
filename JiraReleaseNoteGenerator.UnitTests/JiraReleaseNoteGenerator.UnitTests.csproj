@@ -74,6 +74,7 @@
     <Content Include="TestDomain\Issues_v2.0.2_closed.xml" />
     <Content Include="TestDomain\Issues_v2.0.2_complete.xml" />
     <Content Include="TestDomain\Issues_v2.0.2_withConfig.xml" />
+    <Content Include="TestDomain\ReleaseNotes_FixVersion_2.0.2.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

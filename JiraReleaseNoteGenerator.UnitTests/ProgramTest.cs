@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.IO;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 
@@ -46,7 +47,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     [Test]
     public void CheckArguments_True ()
     {
-      var result = Program.CheckArguments (new [] { "2.0.2" });
+      var result = Program.CheckArguments (new[] { "2.0.2" });
 
       Assert.That (result, Is.EqualTo (0));
     }
@@ -56,16 +57,26 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     {
       Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub();
       Program.WebClient = new WebClientStub();
-      var result = Program.Main (new [] {"2.0.2"});
+      const string version = "2.0.2";
+      const string filename = "ReleaseNotes_FixVersion_" + version + ".html";
+
+      Assert.That (File.Exists (filename), Is.False);
+
+      var result = Program.Main (new[] { version });
 
       Assert.That (result, Is.EqualTo (0));
+      Assert.That (File.Exists (filename), Is.True);
+      var output = File.ReadAllLines (filename);
+      var expectedOutput = File.ReadAllLines ((@"..\..\TestDomain\"+filename));
+      Assert.That (output, Is.EqualTo (expectedOutput));
+      File.Delete (filename);
     }
 
     [Test]
     public void Main_Stub_InvalidVersion_WebException ()
     {
-      Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub ();
-      Program.WebClient = new WebClientStub ();
+      Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub();
+      Program.WebClient = new WebClientStub();
       var result = Program.Main (new[] { "2.1.0" });
 
       Assert.That (result, Is.EqualTo (3));

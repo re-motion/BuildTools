@@ -29,7 +29,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public class ReleaseNoteGenerator
   {
     private readonly Configuration _configuration;
-    private JiraIssueAggregator _jiraIssueAggregator;
+    private readonly JiraIssueAggregator _jiraIssueAggregator;
     
     public ReleaseNoteGenerator (Configuration configuration, JiraClient jiraClient)
     {
@@ -48,7 +48,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       issues.Root.AddFirst (config.Elements());
       issues.Save ("JiraIssues.xml");
 
-      var xmlTransformer = new XmlTransformer ("JiraIssues.xml", "ReleaseNotesForVersion" + version + ".html");
+      var xmlTransformer = new XmlTransformer ("JiraIssues.xml", "ReleaseNotes_FixVersion_" + version + ".html");
       xmlTransformer.GenerateHtmlFromXml();
     }
   }
