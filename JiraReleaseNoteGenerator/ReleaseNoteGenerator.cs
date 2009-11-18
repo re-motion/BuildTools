@@ -39,17 +39,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, jiraClient);
     }
 
-    public void GenerateReleaseNotes (string version)
+    public XDocument GenerateReleaseNotes (string version)
     {
       ArgumentUtility.CheckNotNull ("version", version);
 
       var issues = _jiraIssueAggregator.GetXml (version);
       var config = XDocument.Load (Path.Combine("XmlUtilities", _configuration.ConfigFile));
       issues.Root.AddFirst (config.Elements());
-      issues.Save ("JiraIssues.xml");
 
-      var xmlTransformer = new XmlTransformer ("JiraIssues.xml", "ReleaseNotes_FixVersion_" + version + ".html");
-      xmlTransformer.GenerateHtmlFromXml();
+      return issues;
     }
   }
 }

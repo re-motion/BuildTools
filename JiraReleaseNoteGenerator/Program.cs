@@ -19,38 +19,55 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.IO;
 using System.Net;
+using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public class Program
   {
-    private static IWebClient _webClient;
-    private static IJiraRequestUrlBuilder _requestUrlBuilder;
+    private static IWebClient s_WebClient;
+    private static IJiraRequestUrlBuilder s_RequestUrlBuilder;
+    private static readonly Configuration s_Configuration = Configuration.Current;
+    private static string _outputFile;
 
     public static IWebClient WebClient
     {
       get
       {
-        if (_webClient == null)
+        if (s_WebClient == null)
         {
-          _webClient = new NtlmAuthenticatedWebClient();
-          ((NtlmAuthenticatedWebClient)_webClient).Credentials = CredentialCache.DefaultNetworkCredentials;
+          s_WebClient = new NtlmAuthenticatedWebClient();
+          ((NtlmAuthenticatedWebClient) s_WebClient).Credentials = CredentialCache.DefaultNetworkCredentials;
         }
-        return _webClient;
+        return s_WebClient;
       }
-      set { _webClient = value; }
+      set { s_WebClient = value; }
     }
 
     public static IJiraRequestUrlBuilder RequestUrlBuilder
     {
-      get {
-        if (_requestUrlBuilder == null)
-          _requestUrlBuilder = new JiraRequestUrlBuilder(Configuration.Current);
-        return _requestUrlBuilder; 
+      get
+      {
+        if (s_RequestUrlBuilder == null)
+          s_RequestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
+        return s_RequestUrlBuilder;
       }
-      set { _requestUrlBuilder = value; }
+      set { s_RequestUrlBuilder = value; }
+    }
+
+    public static string OutputFile
+    {
+      get
+      {
+        if (_outputFile == null)
+          _outputFile = s_Configuration.OutputFileName;
+
+        return _outputFile;
+      }
+      set { _outputFile = value; }
     }
 
 
@@ -66,23 +83,44 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var client = new JiraClient (WebClient, () => RequestUrlBuilder);
       var jiraClient = client;
 
-      var releaseNoteGenerator = new ReleaseNoteGenerator (Configuration.Current, jiraClient);
+      var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraClient);
+      XDocument releaseNotesXml;
 
       try
       {
-        releaseNoteGenerator.GenerateReleaseNotes (args[0]);
-        return 0;
+        releaseNotesXml = releaseNoteGenerator.GenerateReleaseNotes (args[0]);
       }
       catch (WebException webException)
       {
         Console.Error.Write (webException);
         return 3;
       }
-      catch (Exception ex)
+
+
+      var outputDirectory = Path.GetDirectoryName (OutputFile);
+      var filename = Path.GetFileName (OutputFile);
+
+      if (!Directory.Exists (outputDirectory))
+        Directory.CreateDirectory (outputDirectory);
+
+      File.Copy (@".\XmlUtilities\style.css", Path.Combine (outputDirectory, "style.css"), true);
+
+      var xmlInputFile = Path.Combine (outputDirectory, "JiraIssues_v" + version + ".xml");
+      releaseNotesXml.Save (xmlInputFile);
+
+      var outputFile = Path.Combine (outputDirectory, filename);
+      var xmlTransformer = new XmlTransformer (xmlInputFile, outputFile);
+      var transformerExitCode = xmlTransformer.GenerateHtmlFromXml();
+
+      if (transformerExitCode != 0)
       {
-        Console.Error.Write (ex);
-        return 4;
+        Console.Error.WriteLine ("Error applying XSLT (code {0})", transformerExitCode);
+        return transformerExitCode;
       }
+
+      Console.Out.WriteLine ("Creation of ReleaseNotes for version {0} was successful.", version);
+
+      return 0;
     }
 
 

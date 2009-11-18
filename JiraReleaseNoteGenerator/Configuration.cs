@@ -36,6 +36,12 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       get { return "UUU"; }
     }
 
+    public string OutputFileName
+    {
+      get { return @".\Output\ReleaseNotes.html"; }
+      set { OutputFileName = value; }
+    }
+
     public string ConfigFile
     {
       get { return "Config.xml"; }

@@ -28,6 +28,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   [TestFixture]
   public class ProgramTest
   {
+    private readonly Configuration _configuration = Configuration.Current;
+
     [Test]
     public void CheckArguments_MissingArgument_False ()
     {
@@ -55,21 +57,26 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     [Test]
     public void Main_Stub_ValidVersion_SuccessfulGeneration ()
     {
+      const string outputFile = ".\\UnitTest\\result.html";
+      const string version = "2.0.2";
       Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub();
       Program.WebClient = new WebClientStub();
-      const string version = "2.0.2";
-      const string filename = "ReleaseNotes_FixVersion_" + version + ".html";
+      Program.OutputFile = outputFile;
+      
 
-      Assert.That (File.Exists (filename), Is.False);
+      Assert.That (File.Exists (outputFile), Is.False);
 
       var result = Program.Main (new[] { version });
 
       Assert.That (result, Is.EqualTo (0));
-      Assert.That (File.Exists (filename), Is.True);
-      var output = File.ReadAllLines (filename);
-      var expectedOutput = File.ReadAllLines ((@"..\..\TestDomain\"+filename));
+      Assert.That (File.Exists (outputFile), Is.True);
+      
+
+      var output = File.ReadAllLines (outputFile);
+      var expectedOutput = File.ReadAllLines ((@"..\..\TestDomain\ReleaseNotes_FixVersion_" + version + ".html"));
+      
       Assert.That (output, Is.EqualTo (expectedOutput));
-      File.Delete (filename);
+      File.Delete (outputFile);
     }
 
     [Test]
