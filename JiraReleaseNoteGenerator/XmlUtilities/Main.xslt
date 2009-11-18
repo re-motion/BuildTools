@@ -12,7 +12,7 @@
   <xsl:output
 	name="standardHtmlOutputFormat"
 	method="html"
-	indent="yes"
+	indent="no"
 	omit-xml-declaration="yes"
 	doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
     doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
@@ -34,7 +34,7 @@
           </title>
           <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
           <!-- include resources -->
-          <link rel="stylesheet" type="text/css" href="style.css" />
+          <link rel="stylesheet" type="text/css" href=".\style.css" />
         </head>
         <body>
           <h1>
@@ -47,6 +47,17 @@
             </h3>
             <xsl:variable name="selectingType" select="type"/>
             <xsl:call-template name="issueListForType">
+              <xsl:with-param name="root" select="/" />
+              <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
+            </xsl:call-template>
+          </xsl:for-each>
+
+          <h1>
+            Details
+          </h1>
+          <xsl:for-each select="/rss/issueOrder/issue">
+            <xsl:variable name="selectingType" select="type"/>
+            <xsl:call-template name="issueDetailsForType">
               <xsl:with-param name="root" select="/" />
               <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
             </xsl:call-template>
@@ -89,6 +100,71 @@
     </xsl:for-each>
   </xsl:template>
 
+  <xsl:template name="issueDetailsForType">
+    <xsl:param name="root" />
+    <xsl:param name="issues" />
+    <xsl:param name="class" />
+
+    <xsl:for-each select="$issues">
+      <div class="detailEntry {$class}">
+        <a name="{key}"/>
+        <h4>
+          <xsl:if test="status = 'Closed'">
+            <xsl:value-of select="title"/>
+          </xsl:if>
+          <xsl:if test="status != 'Closed'">
+            <span class="notClosedIssue">
+              <xsl:value-of select="title"/>
+            </span>
+          </xsl:if>
+        </h4>
+
+        <div class="component">
+          <span class="label">Component/s: </span>
+          <span class="value">
+            <xsl:value-of select="component"/>
+          </span>
+        </div>
+        <div class="issueType">
+          <span class="label">Issue Type: </span>
+          <span class="value">
+            <xsl:value-of select="type"/>
+          </span>
+        </div>
+
+        <xsl:if test="resolution != 'Fixed'">
+          <div class="resolution">
+            <span class="label">Resolution: </span>
+            <span class="value">
+              <xsl:value-of select="resolution"/>
+            </span>
+          </div>
+        </xsl:if>
+
+        <xsl:if test="status != 'Closed'">
+          <div class="status">
+            <span class="label">Status: </span>
+            <span class="value">
+              <xsl:value-of select="status"/>
+            </span>
+          </div>
+        </xsl:if>
+        <br/>
+        <div class="description">
+          <span>
+            <xsl:value-of select="description" disable-output-escaping="yes"/>
+          </span>
+        </div>
+      </div>
+
+      <xsl:call-template name="detailsForChildren">
+        <xsl:with-param name="root" select="$root" />
+        <xsl:with-param name="key" select="key" />
+      </xsl:call-template>
+
+    </xsl:for-each>
+  </xsl:template>
+
   <xsl:template name="listChildren">
     <xsl:param name="root"/>
     <xsl:param name="key"/>
@@ -100,6 +176,20 @@
         </a>
       </div>
     </xsl:for-each>
+
+  </xsl:template>
+
+  <xsl:template name="detailsForChildren">
+    <xsl:param name="root"/>
+    <xsl:param name="key"/>
+
+
+    <xsl:call-template name="issueDetailsForType">
+      <xsl:with-param name="root" select="/" />
+      <xsl:with-param name="issues" select="$root//rss/channel/item[parent = $key]"/>
+      <xsl:with-param name="class" select="'children'" />
+    </xsl:call-template>
+
 
   </xsl:template>
 

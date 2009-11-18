@@ -93,13 +93,13 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       if (arguments.Length != 1)
       {
         Console.Error.WriteLine ("Wrong number of arguments.");
-        Console.Error.WriteLine ("usage: Remotion.BuildTools versionNumber");
+        Console.Error.WriteLine ("usage: JiraReleaseNoteGenerator versionNumber");
         return 1;
       }
       if (string.IsNullOrEmpty (arguments[0]))
       {
-        Console.Error.WriteLine ("usage: Remotion.BuildTools versionNumber");
         Console.Error.WriteLine ("versionNumber must not be empty.");
+        Console.Error.WriteLine ("usage: JiraReleaseNoteGenerator versionNumber");
         return 2;
       }
 
