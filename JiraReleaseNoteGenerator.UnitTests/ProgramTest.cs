@@ -28,7 +28,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   public class ProgramTest
   {
     [Test]
-    public void CheckArguments_False ()
+    public void CheckArguments_MissingArgument_False ()
     {
       var result = Program.CheckArguments (new string[] { });
 
@@ -36,9 +36,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     }
 
     [Test]
+    public void CheckArguments_WrongArgument_False ()
+    {
+      var result = Program.CheckArguments (new string[] { });
+
+      Assert.That (result, Is.EqualTo (2));
+    }
+
+    [Test]
     public void CheckArguments_True ()
     {
-      var result = Program.CheckArguments (new string[] { "2.0.2" });
+      var result = Program.CheckArguments (new [] { "2.0.2" });
 
       Assert.That (result, Is.EqualTo (0));
     }
@@ -61,16 +69,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var result = Program.Main (new[] { "2.1.0" });
 
       Assert.That (result, Is.EqualTo (3));
-    }
-
-    [Test]
-    public void Main_Stub_EmptyVersion_WebException ()
-    {
-      Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub ();
-      Program.WebClient = new WebClientStub ();
-      var result = Program.Main (new[] { "" });
-
-      Assert.That (result, Is.EqualTo (2));
     }
   }
 }
