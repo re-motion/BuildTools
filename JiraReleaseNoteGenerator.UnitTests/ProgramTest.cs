@@ -42,5 +42,35 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       Assert.That (result, Is.EqualTo (0));
     }
+
+    [Test]
+    public void Main_Stub_ValidVersion_SuccessfulGeneration ()
+    {
+      Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub();
+      Program.WebClient = new WebClientStub();
+      var result = Program.Main (new [] {"2.0.2"});
+
+      Assert.That (result, Is.EqualTo (0));
+    }
+
+    [Test]
+    public void Main_Stub_InvalidVersion_WebException ()
+    {
+      Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub ();
+      Program.WebClient = new WebClientStub ();
+      var result = Program.Main (new[] { "2.1.0" });
+
+      Assert.That (result, Is.EqualTo (3));
+    }
+
+    [Test]
+    public void Main_Stub_EmptyVersion_WebException ()
+    {
+      Program.RequestUrlBuilder = new JiraRequestUrlBuilderStub ();
+      Program.WebClient = new WebClientStub ();
+      var result = Program.Main (new[] { "" });
+
+      Assert.That (result, Is.EqualTo (2));
+    }
   }
 }

@@ -26,7 +26,35 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public class Program
   {
-    private static int Main (string[] args)
+    private static IWebClient _webClient;
+    private static IJiraRequestUrlBuilder _requestUrlBuilder;
+
+    public static IWebClient WebClient
+    {
+      get
+      {
+        if (_webClient == null)
+        {
+          _webClient = new NtlmAuthenticatedWebClient();
+          ((NtlmAuthenticatedWebClient)_webClient).Credentials = CredentialCache.DefaultNetworkCredentials;
+        }
+        return _webClient;
+      }
+      set { _webClient = value; }
+    }
+
+    public static IJiraRequestUrlBuilder RequestUrlBuilder
+    {
+      get {
+        if (_requestUrlBuilder == null)
+          _requestUrlBuilder = new JiraRequestUrlBuilder(Configuration.Current);
+        return _requestUrlBuilder; 
+      }
+      set { _requestUrlBuilder = value; }
+    }
+
+
+    public static int Main (string[] args)
     {
       var argumentCheckResult = CheckArguments (args);
       if (argumentCheckResult != 0)
@@ -35,9 +63,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var version = args[0];
       Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
 
-      var webClient = new NtlmAuthenticatedWebClient ();
-      webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
-      var jiraClient = new JiraClient (webClient, () => new JiraRequestUrlBuilder (Configuration.Current));
+      var client = new JiraClient (WebClient, () => RequestUrlBuilder);
+      var jiraClient = client;
 
       var releaseNoteGenerator = new ReleaseNoteGenerator (Configuration.Current, jiraClient);
 
@@ -49,14 +76,13 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       catch (WebException webException)
       {
         Console.Error.Write (webException);
-        return 2;
+        return 3;
       }
       catch (Exception ex)
       {
         Console.Error.Write (ex);
-        return 3;
+        return 4;
       }
-
     }
 
 
@@ -66,8 +92,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
       if (arguments.Length != 1)
       {
-        Console.Out.WriteLine ("usage: Remotion.BuildTools versionNumber");
+        Console.Error.WriteLine ("Wrong number of arguments.");
+        Console.Error.WriteLine ("usage: Remotion.BuildTools versionNumber");
         return 1;
+      }
+      if (string.IsNullOrEmpty (arguments[0]))
+      {
+        Console.Error.WriteLine ("usage: Remotion.BuildTools versionNumber");
+        Console.Error.WriteLine ("versionNumber must not be empty.");
+        return 2;
       }
 
       return 0;
