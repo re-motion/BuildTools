@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.Net;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
@@ -34,9 +35,28 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var version = args[0];
       Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
 
-      Console.In.ReadLine();
+      var webClient = new NtlmAuthenticatedWebClient ();
+      webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+      var jiraClient = new JiraClient (webClient, () => new JiraRequestUrlBuilder (Configuration.Current));
 
-      return 0;
+      var releaseNoteGenerator = new ReleaseNoteGenerator (Configuration.Current, jiraClient);
+
+      try
+      {
+        releaseNoteGenerator.GenerateReleaseNotes (args[0]);
+        return 0;
+      }
+      catch (WebException webException)
+      {
+        Console.Error.Write (webException);
+        return 2;
+      }
+      catch (Exception ex)
+      {
+        Console.Error.Write (ex);
+        return 3;
+      }
+
     }
 
 
