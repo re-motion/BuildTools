@@ -63,20 +63,18 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       Program.WebClient = new WebClientStub();
       Program.OutputFile = outputFile;
       
-
-      Assert.That (File.Exists (outputFile), Is.False);
+      if (File.Exists(outputFile))
+        File.Delete (outputFile);
 
       var result = Program.Main (new[] { version });
 
       Assert.That (result, Is.EqualTo (0));
       Assert.That (File.Exists (outputFile), Is.True);
       
-
       var output = File.ReadAllLines (outputFile);
       var expectedOutput = File.ReadAllLines ((@"..\..\TestDomain\ReleaseNotes_FixVersion_" + version + ".html"));
       
       Assert.That (output, Is.EqualTo (expectedOutput));
-      File.Delete (outputFile);
     }
 
     [Test]

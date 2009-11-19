@@ -103,8 +103,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       if (!Directory.Exists (outputDirectory))
         Directory.CreateDirectory (outputDirectory);
 
-      File.Copy (@".\XmlUtilities\style.css", Path.Combine (outputDirectory, "style.css"), true);
-
       var xmlInputFile = Path.Combine (outputDirectory, "JiraIssues_v" + version + ".xml");
       releaseNotesXml.Save (xmlInputFile);
 

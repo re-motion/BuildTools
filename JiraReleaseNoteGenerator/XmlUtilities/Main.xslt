@@ -24,6 +24,20 @@
     </xsl:call-template>
   </xsl:template>
 
+  <xsl:function name="ru:is-value-in-sequence" as="xs:boolean" >
+    <xsl:param name="value" as="xs:anyAtomicType?"/>
+    <xsl:param name="seq" as="xs:anyAtomicType*"/>
+
+    <xsl:sequence select="$value = $seq"/>
+  </xsl:function>
+
+  <xsl:function name="ru:contains">
+    <xsl:param name="sequence" />
+    <xsl:param name="searchItem" />
+
+    <xsl:copy-of select=" exists( index-of( $sequence, $searchItem ) )" />
+  </xsl:function>
+
   <xsl:template name="htmlSite">
     <xsl:param name="siteTitle" />
     <xsl:result-document format="standardHtmlOutputFormat">
@@ -34,69 +48,127 @@
           </title>
           <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
           <!-- include resources -->
-          <link rel="stylesheet" type="text/css" href=".\style.css" />
+          <style type="text/css">
+            .detailNotVisible, .detailNotVisible h4, .listEntry .notVisible a
+            {
+            color: Gray;
+            }
+
+            .children
+            {
+            margin-left:30px;
+            }
+
+            .label
+            {
+            min-width: 11em;
+            font-weight: bold;
+            }
+
+            .description, .component, .issueType, .status, .resolution
+            {
+            margin-left:10px;
+            }
+
+            h4
+            {
+            color: #000080;
+            }
+          </style>
         </head>
         <body>
           <h1>
             Release Notes
           </h1>
-
-          <xsl:for-each select="/rss/issueOrder/issue">
-            <h3>
-              <xsl:value-of select="title"/>
-            </h3>
-            <xsl:variable name="selectingType" select="type"/>
-            <xsl:call-template name="issueListForType">
-              <xsl:with-param name="root" select="/" />
-              <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
+          <div class="releaseNoteList">
+            <xsl:call-template name="printConfiguredTypes">
+              <xsl:with-param name="outputType" select="'list'"/>
             </xsl:call-template>
-          </xsl:for-each>
+          </div>
 
           <h1>
             Details
           </h1>
-          <xsl:for-each select="/rss/issueOrder/issue">
-            <xsl:variable name="selectingType" select="type"/>
-            <xsl:call-template name="issueDetailsForType">
-              <xsl:with-param name="root" select="/" />
-              <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
-            </xsl:call-template>
-          </xsl:for-each>
+          <xsl:call-template name="printConfiguredTypes">
+            <xsl:with-param name="outputType" select="'details'"/>
+          </xsl:call-template>
         </body>
       </html>
     </xsl:result-document>
   </xsl:template>
 
+  <xsl:template name="printConfiguredTypes">
+    <xsl:param name="outputType" />
+
+    <xsl:for-each select="/rss/outputConfiguration/issueOrder/issue">
+
+      <xsl:if test="$outputType = 'list'">
+        <h3>
+          <xsl:value-of select="title"/>
+        </h3>
+      </xsl:if>
+
+      <xsl:variable name="selectingType" select="type"/>
+
+
+
+      <xsl:if test="$outputType = 'list'">
+        <xsl:call-template name="issueListForType">
+          <xsl:with-param name="root" select="/" />
+          <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
+          <xsl:with-param name="visibleStatus" select="current()"/>
+        </xsl:call-template>
+      </xsl:if>
+
+      <xsl:if test="$outputType = 'details'">
+        <xsl:call-template name="issueDetailsForType">
+          <xsl:with-param name="root" select="/" />
+          <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
+          <xsl:with-param name="visibleStatus" select="current()"/>
+        </xsl:call-template>
+      </xsl:if>
+
+
+
+    </xsl:for-each>
+  </xsl:template>
+
   <xsl:template name="issueListForType">
     <xsl:param name="root" />
     <xsl:param name="issues" />
+    <xsl:param name="visibleStatus" />
 
     <xsl:if test="count($issues) = 0">
       <div class="listEntry">(none)</div>
     </xsl:if>
 
     <xsl:for-each select="$issues">
-      <div class="listEntry">
+      <!-- select="ru:is-value-in-sequence(current()/status, $root//rss/channel/item[parent = current()/key]/status)" -->
 
-        <xsl:if test="status = 'Closed'">
+      <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
+
+      <div class="listEntry">
+        <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true()">
           <a href="#{key}">
             <xsl:value-of select="title"/>
           </a>
         </xsl:if>
-        <xsl:if test="status != 'Closed'">
-          <span class="notClosedIssue">
+        <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() and $hasValidChildren = true()">
+          <span class="notVisible">
             <a href="#{key}">
               <xsl:value-of select="title"/>
             </a>
           </span>
         </xsl:if>
-
       </div>
 
-      <xsl:call-template name="listChildren">
-        <xsl:with-param name="root" select="$root" />
-        <xsl:with-param name="key" select="key" />
-      </xsl:call-template>
+      <xsl:if test="$hasValidChildren = true()">
+        <xsl:call-template name="listChildren">
+          <xsl:with-param name="root" select="$root" />
+          <xsl:with-param name="key" select="key" />
+        </xsl:call-template>
+      </xsl:if>
+
     </xsl:for-each>
   </xsl:template>
 
@@ -104,65 +176,86 @@
     <xsl:param name="root" />
     <xsl:param name="issues" />
     <xsl:param name="class" />
+    <xsl:param name="visibleStatus" />
 
     <xsl:for-each select="$issues">
-      <div class="detailEntry {$class}">
-        <a name="{key}"/>
-        <h4>
-          <xsl:if test="status = 'Closed'">
+      <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
+      <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true() or $hasValidChildren = true()">
+        <xsl:variable name="visibilityTag">
+          <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false()">
+            detailNotVisible
+          </xsl:if>
+        </xsl:variable>
+
+        <div class="detailEntry {$class} {$visibilityTag}">
+
+          <a name="{key}"/>
+          <h4>
             <xsl:value-of select="title"/>
-          </xsl:if>
-          <xsl:if test="status != 'Closed'">
-            <span class="notClosedIssue">
-              <xsl:value-of select="title"/>
+          </h4>
+
+          <div class="component">
+            <span class="label">Component/s: </span>
+            <span class="value">
+              <xsl:value-of select="component"/>
             </span>
-          </xsl:if>
-        </h4>
+          </div>
+          <div class="issueType">
+            <span class="label">Issue Type: </span>
+            <span class="value">
+              <xsl:value-of select="type"/>
+            </span>
+          </div>
 
-        <div class="component">
-          <span class="label">Component/s: </span>
-          <span class="value">
-            <xsl:value-of select="component"/>
-          </span>
-        </div>
-        <div class="issueType">
-          <span class="label">Issue Type: </span>
-          <span class="value">
-            <xsl:value-of select="type"/>
-          </span>
-        </div>
-
-        <xsl:if test="resolution != 'Fixed'">
           <div class="resolution">
             <span class="label">Resolution: </span>
             <span class="value">
               <xsl:value-of select="resolution"/>
             </span>
           </div>
-        </xsl:if>
 
-        <xsl:if test="status != 'Closed'">
+          <!--
+          <xsl:if test="status != 'Closed'">
+          -->
           <div class="status">
             <span class="label">Status: </span>
             <span class="value">
               <xsl:value-of select="status"/>
             </span>
           </div>
-        </xsl:if>
-        <br/>
-        <div class="description">
-          <span>
-            <xsl:value-of select="description" disable-output-escaping="yes"/>
-          </span>
+          <!--
+          </xsl:if>
+          -->
+          <br/>
+          <div class="description">
+            <xsl:if test="description = ''">
+              (no description)
+            </xsl:if>
+            <span>
+              <xsl:value-of select="description" disable-output-escaping="yes"/>
+            </span>
+          </div>
         </div>
-      </div>
 
-      <xsl:call-template name="detailsForChildren">
-        <xsl:with-param name="root" select="$root" />
-        <xsl:with-param name="key" select="key" />
-      </xsl:call-template>
+        <xsl:if test="$hasValidChildren = true()">
+          <xsl:call-template name="detailsForChildren">
+            <xsl:with-param name="root" select="$root" />
+            <xsl:with-param name="key" select="key" />
+            <xsl:with-param name="visibleStatus" select="$visibleStatus" />
+          </xsl:call-template>
+        </xsl:if>
 
+      </xsl:if>
     </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template name="detailsForIssue">
+    <xsl:param name="root" />
+    <xsl:param name="class" />
+    <xsl:param name="visibilityTag" />
+    <xsl:param name="visibleStatus" />
+    <xsl:param name="hasChildren" />
+
   </xsl:template>
 
   <xsl:template name="listChildren">
@@ -182,15 +275,14 @@
   <xsl:template name="detailsForChildren">
     <xsl:param name="root"/>
     <xsl:param name="key"/>
-
+    <xsl:param name="visibleStatus"/>
 
     <xsl:call-template name="issueDetailsForType">
       <xsl:with-param name="root" select="/" />
       <xsl:with-param name="issues" select="$root//rss/channel/item[parent = $key]"/>
       <xsl:with-param name="class" select="'children'" />
+      <xsl:with-param name="visibleStatus" select="$visibleStatus" />
     </xsl:call-template>
-
-
   </xsl:template>
 
 </xsl:stylesheet>
