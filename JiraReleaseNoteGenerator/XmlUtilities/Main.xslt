@@ -51,28 +51,38 @@
           <style type="text/css">
             .detailNotVisible, .detailNotVisible h4, .listEntry .notVisible a
             {
-            color: Gray;
+              color: Gray;
             }
 
             .children
             {
-            margin-left:30px;
+              margin-left:30px;
             }
 
             .label
             {
-            min-width: 11em;
-            font-weight: bold;
+              min-width: 11em;
+              font-weight: bold;
+            }
+
+            .detailEntry
+            {
+              padding-bottom: 20px;
+            }
+
+            .releaseNoteList
+            {
+              padding-bottom: 30px;
             }
 
             .description, .component, .issueType, .status, .resolution
             {
-            margin-left:10px;
+              margin-left:10px;
             }
 
             h4
             {
-            color: #000080;
+              color: #000080;
             }
           </style>
         </head>
