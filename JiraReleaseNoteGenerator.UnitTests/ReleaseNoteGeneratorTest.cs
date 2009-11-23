@@ -19,9 +19,11 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.IO;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.TestDomain;
 using Rhino.Mocks;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
@@ -39,15 +41,22 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       _releaseNoteGenerator = new ReleaseNoteGenerator (Configuration.Current, _jiraIssueAggregatorStub);
     }
 
-    [Ignore ("needs refactoring")]
     [Test]
     public void GenerateReleaseNotes_JiraXmlWithConfigSection ()
     {
-      _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2");
-      var output = XDocument.Load ("JiraIssues.xml");
-      var expectedOutput = XDocument.Load ("Issues_v2.0.2_withConfig.xml");
+      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
+      {
+        _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (XDocument.Load (reader));
+      }
 
-      Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
+      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_withConfig.xml")))
+      {
+        _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2");
+        var output = XDocument.Load ("JiraIssues.xml");
+        var expectedOutput = XDocument.Load (reader);
+
+        Assert.That (output.ToString (), Is.EqualTo (expectedOutput.ToString ())); 
+      }
     }
   }
 }
