@@ -11,28 +11,34 @@ http://localhost:8080/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchReque
 <?xml-stylesheet href="http://localhost:8080/jira/styles/jiraxml2html.xsl" type="text/xsl"?>
 -->
 <rss version="0.92">
-  <issueOrder>
-    <issue>
-      <title>Bugfixes</title>
-      <type>Bug</type>
-    </issue>
-    <issue>
-      <title>Breaking Changes</title>
-      <type>Breaking Change</type>
-    </issue>
-    <issue>
-      <title>Improvements</title>
-      <type>Improvement</type>
-    </issue>
-    <issue>
-      <title>Refactoring</title>
-      <type>Refactoring</type>
-    </issue>
-    <issue>
-      <title>New Features</title>
-      <type>New Feature</type>
-    </issue>
-  </issueOrder>
+  <outputConfiguration>
+    <issueOrder>
+      <issue>
+        <title>Bugfixes</title>
+        <type>Bug</type>
+        <fieldname>status</fieldname>
+      </issue>
+      <issue>
+        <title>Breaking Changes</title>
+        <type>Breaking Change</type>
+      </issue>
+      <issue>
+        <title>Improvements</title>
+        <type>Improvement</type>
+      </issue>
+      <issue>
+        <title>Refactoring</title>
+        <type>Refactoring</type>
+      </issue>
+      <issue>
+        <title>New Features</title>
+        <type>New Feature</type>
+      </issue>
+    </issueOrder>
+    <issueVisibility>
+      <visibleStatus>Closed</visibleStatus>
+    </issueVisibility>
+  </outputConfiguration>
   <channel>
     <title>rubicon</title>
     <link>http://localhost:8080/jira/secure/IssueNavigator.jspa?reset=true&amp;jqlQuery=project+%3D+%22COMMONS%22+and+fixVersion+%3D+%222.0.2%22+and+status%3D+%22closed%22</link>
