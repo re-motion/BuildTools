@@ -19,7 +19,6 @@
 // THE SOFTWARE.
 // 
 using System;
-using System.IO;
 using System.Net;
 using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
@@ -53,22 +52,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       try
       {
         issues = _jiraIssueAggregator.GetXml (version);
-        var config = XDocument.Load (Path.Combine ("XmlUtilities", _configuration.ConfigFile));
-        issues.Root.AddFirst (config.Elements ());  
+        var config = XDocument.Load (_configuration.ConfigFile);
+        issues.Root.AddFirst (config.Elements());
       }
       catch (WebException webException)
       {
         Console.Error.Write (webException);
         return 1;
       }
-      
-      var outputDirectory = Path.GetDirectoryName (outputFile);    
-      var xmlInputFile = Path.Combine (outputDirectory, "JiraIssues_v" + version + ".xml");
-      
-      string xsltStyleSheetPath = _configuration.XsltProcessorPath;
-      const string xsltProcessorPath = @"XmlUtilities\Saxon\Transform.exe";
 
-      var transformerExitCode = _xmlTransformer.GenerateHtmlFromXml (issues, outputFile, _configuration.XsltStyleSheetPath, _configuration.XsltProcessorPath);
+      var transformerExitCode = _xmlTransformer.GenerateHtmlFromXml (
+          issues, outputFile, _configuration.XsltStyleSheetPath, _configuration.XsltProcessorPath);
 
       return transformerExitCode;
     }

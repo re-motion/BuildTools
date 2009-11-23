@@ -44,7 +44,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     public string ConfigFile
     {
-      get { return "Config.xml"; }
+      get { return @".\XmlUtilities\Config.xml"; }
     }
 
     public string XsltStyleSheetPath

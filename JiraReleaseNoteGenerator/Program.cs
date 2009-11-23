@@ -29,51 +29,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     private const int WebServiceError = 1;
     private const int XmlTransformerError = 2;
 
-    private static IJiraIssueAggregator s_JiraIssueAggregator;
-    private static IXmlTransformer s_XmlTransformer;
     private static readonly Configuration s_Configuration = Configuration.Current;
-    private static string _outputFile;
-
-    public static IJiraIssueAggregator JiraIssueAggregator
-    {
-      get
-      {
-        if (s_JiraIssueAggregator == null)
-        {
-          var webClient = new NtlmAuthenticatedWebClient();
-          webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
-          var requestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
-          var jiraClient = new JiraClient (webClient, () => requestUrlBuilder);
-          s_JiraIssueAggregator = new JiraIssueAggregator (s_Configuration, jiraClient);
-        }
-        return s_JiraIssueAggregator;
-      }
-      set { s_JiraIssueAggregator = value; }
-    }
-
-    public static IXmlTransformer XmlTransformer
-    {
-      get
-      {
-        if (s_XmlTransformer == null)
-          s_XmlTransformer = new XmlTransformer(new FileSystemHelper());
-
-        return s_XmlTransformer;
-      }
-      set { s_XmlTransformer = value; }
-    }
-
-    public static string OutputFile
-    {
-      get
-      {
-        if (_outputFile == null)
-          _outputFile = s_Configuration.OutputFileName;
-
-        return _outputFile;
-      }
-      set { _outputFile = value; }
-    }
 
 
     public static int Main (string[] args)
@@ -85,9 +41,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var version = args[0];
       Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
 
-      var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, JiraIssueAggregator, XmlTransformer);
+      var webClient = new NtlmAuthenticatedWebClient ();
+      webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+      var requestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
+      var jiraClient = new JiraClient (webClient, () => requestUrlBuilder);
+      var jiraIssueAggregator = new JiraIssueAggregator (s_Configuration, jiraClient);
+      var xmlTransformer = new XmlTransformer (new FileSystemHelper ());
+      var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator, xmlTransformer);
 
-      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], OutputFile);
+      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], s_Configuration.OutputFileName);
 
       if (exitCode == WebServiceError)
         return 3;

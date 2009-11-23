@@ -45,19 +45,19 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       _releaseNoteGenerator = new ReleaseNoteGenerator (_configuration, _jiraIssueAggregatorStub, _xmlTransformerStub);
     }
 
-    [Ignore ("need to be refactored")]
     [Test]
-    public void GenerateReleaseNotes_XmlOutputWithConfigSection ()
+    public void GenerateReleaseNotes ()
     {
       const string outputFile = @".\ReleaseNoteGenerator-UnitTest\output.html";
 
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
       {
-        _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (XDocument.Load (reader));
-      }
-      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_withConfig.xml")))
-      {
-        _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (XDocument.Load (reader), outputFile, _configuration.XsltStyleSheetPath, _configuration.XsltProcessorPath)).Return (0);
+        var issues = XDocument.Load (reader);
+        _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (issues);
+
+        var config = XDocument.Load (_configuration.ConfigFile);
+        issues.Root.AddFirst (config.Elements ());  
+        _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (issues, outputFile, _configuration.XsltStyleSheetPath, _configuration.XsltProcessorPath)).Return (0);
       }
 
       var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2", outputFile);

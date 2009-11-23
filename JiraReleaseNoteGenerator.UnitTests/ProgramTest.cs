@@ -19,7 +19,6 @@
 // THE SOFTWARE.
 // 
 using System;
-using System.IO;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 
@@ -52,40 +51,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var result = Program.CheckArguments (new[] { "2.0.2" });
 
       Assert.That (result, Is.EqualTo (0));
-    }
-
-    [Ignore ("needs refactoring")]
-    [Test]
-    public void Main_Stub_ValidVersion_SuccessfulGeneration ()
-    {
-      const string outputFile = ".\\UnitTest\\result.html";
-      const string version = "2.0.2";
-      // TODO: needs stub
-      Program.JiraIssueAggregator = null;
-      Program.OutputFile = outputFile;
-      
-      if (File.Exists(outputFile))
-        File.Delete (outputFile);
-
-      var result = Program.Main (new[] { version });
-
-      Assert.That (result, Is.EqualTo (0));
-      Assert.That (File.Exists (outputFile), Is.True);
-      
-      var output = File.ReadAllLines (outputFile);
-      var expectedOutput = File.ReadAllLines ((@"..\..\TestDomain\ReleaseNotes_FixVersion_" + version + ".html"));
-      
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
-    public void Main_Stub_InvalidVersion_WebException ()
-    {
-      // TODO: needs stub
-      Program.JiraIssueAggregator = null;
-      var result = Program.Main (new[] { "2.1.0" });
-
-      Assert.That (result, Is.EqualTo (3));
     }
   }
 }
