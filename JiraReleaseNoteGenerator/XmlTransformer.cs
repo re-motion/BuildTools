@@ -44,16 +44,26 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       ArgumentUtility.CheckNotNull ("xmlInputFile", xmlInput);
       ArgumentUtility.CheckNotNull ("outputFile", outputFile);
-      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", _xsltStyleSheetPath);
-      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", _xsltStyleSheetPath);
 
-      const string inputFilePath = @".\issuesForSaxon.xml";
-
-      CheckOrCreateDirectory (inputFilePath);
-      xmlInput.Save (inputFilePath);
+      const string inputFile = @".\temporaryIssuesForSaxon.xml";
+      CheckOrCreateDirectory (inputFile);
+      xmlInput.Save (inputFile);
       CheckOrCreateDirectory (outputFile);
 
-      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", inputFilePath, _xsltStyleSheetPath, outputFile);
+      var xsltProcessor = CreateXsltProcessor (inputFile, outputFile);
+      xsltProcessor.Start();
+      Console.Error.Write (xsltProcessor.StandardError.ReadToEnd());
+      Console.Out.Write (xsltProcessor.StandardOutput.ReadToEnd());
+      xsltProcessor.WaitForExit();
+
+      File.Delete (inputFile);
+
+      return xsltProcessor.ExitCode;
+    }
+
+    private Process CreateXsltProcessor (string inputFile, string outputFile)
+    {
+      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", inputFile, _xsltStyleSheetPath, outputFile);
 
       var xsltProcessor = new Process();
       xsltProcessor.StartInfo.FileName = _xsltProcessorPath;
@@ -61,15 +71,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       xsltProcessor.StartInfo.RedirectStandardError = true;
       xsltProcessor.StartInfo.RedirectStandardOutput = true;
       xsltProcessor.StartInfo.UseShellExecute = false;
-
-      xsltProcessor.Start();
-      Console.Error.Write (xsltProcessor.StandardError.ReadToEnd());
-      Console.Out.Write (xsltProcessor.StandardOutput.ReadToEnd());
-      xsltProcessor.WaitForExit();
-
-      File.Delete (inputFilePath);
-
-      return xsltProcessor.ExitCode;
+      return xsltProcessor;
     }
 
     private void CheckOrCreateDirectory (string path)
