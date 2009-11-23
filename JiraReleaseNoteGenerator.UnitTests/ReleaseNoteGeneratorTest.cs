@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.Collections;
 using System.IO;
 using System.Xml.Linq;
 using NUnit.Framework;
@@ -33,31 +34,32 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   {
     private ReleaseNoteGenerator _releaseNoteGenerator;
     private IJiraIssueAggregator _jiraIssueAggregatorStub;
+    private IXmlTransformer _xmlTransformerStub;
 
     [SetUp]
     public void SetUp ()
     {
       _jiraIssueAggregatorStub = MockRepository.GenerateStub<IJiraIssueAggregator>();
-      _releaseNoteGenerator = new ReleaseNoteGenerator (Configuration.Current, _jiraIssueAggregatorStub, new XmlTransformer());
+      _xmlTransformerStub = MockRepository.GenerateMock<IXmlTransformer> ();
+      _releaseNoteGenerator = new ReleaseNoteGenerator (Configuration.Current, _jiraIssueAggregatorStub, _xmlTransformerStub);
     }
 
-    [Ignore ("needs refactoring")]
     [Test]
     public void GenerateReleaseNotes_JiraXmlWithConfigSection ()
     {
+      const string inputFile = @".\ReleaseNoteGenerator-UnitTest\JiraIssues_v2.0.2.xml";
+      const string outputFile = @".\ReleaseNoteGenerator-UnitTest\output.html";
+
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
       {
         _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (XDocument.Load (reader));
       }
+      _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (inputFile, outputFile)).Return (0);
+      
+      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2", outputFile);
 
-      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_withConfig.xml")))
-      {
-        //_releaseNoteGenerator.GenerateReleaseNotes ("2.0.2",);
-        var output = XDocument.Load ("JiraIssues.xml");
-        var expectedOutput = XDocument.Load (reader);
-
-        Assert.That (output.ToString (), Is.EqualTo (expectedOutput.ToString ())); 
-      }
+      Assert.That (exitCode, Is.EqualTo (0));
+      _xmlTransformerStub.VerifyAllExpectations();
     }
   }
 }

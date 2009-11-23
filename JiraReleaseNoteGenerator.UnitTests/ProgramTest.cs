@@ -22,7 +22,6 @@ using System;
 using System.IO;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.Stubs;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {
