@@ -20,34 +20,11 @@
 // 
 using System;
 using System.Xml.Linq;
-using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
-using Rhino.Mocks;
 
-namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
+namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
-  [TestFixture]
-  public class ReleaseNoteGeneratorTest
+  public interface IJiraIssueAggregator
   {
-    private ReleaseNoteGenerator _releaseNoteGenerator;
-    private IJiraIssueAggregator _jiraIssueAggregatorStub;
-
-    [SetUp]
-    public void SetUp ()
-    {
-      _jiraIssueAggregatorStub = MockRepository.GenerateStub<IJiraIssueAggregator>();
-      _releaseNoteGenerator = new ReleaseNoteGenerator (Configuration.Current, _jiraIssueAggregatorStub);
-    }
-
-    [Ignore ("needs refactoring")]
-    [Test]
-    public void GenerateReleaseNotes_JiraXmlWithConfigSection ()
-    {
-      _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2");
-      var output = XDocument.Load ("JiraIssues.xml");
-      var expectedOutput = XDocument.Load ("Issues_v2.0.2_withConfig.xml");
-
-      Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
-    }
+    XDocument GetXml (string version);
   }
 }

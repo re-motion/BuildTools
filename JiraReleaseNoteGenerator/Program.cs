@@ -80,10 +80,10 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var version = args[0];
       Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
 
-      var client = new JiraClient (WebClient, () => RequestUrlBuilder);
-      var jiraClient = client;
+      var jiraClient = new JiraClient (WebClient, () => RequestUrlBuilder);
+      var jiraIssueAggregator = new JiraIssueAggregator (s_Configuration, jiraClient);
 
-      var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraClient);
+      var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator);
       XDocument releaseNotesXml;
 
       try

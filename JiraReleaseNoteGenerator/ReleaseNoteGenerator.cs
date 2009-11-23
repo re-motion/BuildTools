@@ -20,7 +20,6 @@
 // 
 using System;
 using System.IO;
-using System.Net;
 using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
@@ -29,14 +28,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public class ReleaseNoteGenerator
   {
     private readonly Configuration _configuration;
-    private readonly JiraIssueAggregator _jiraIssueAggregator;
+    private readonly IJiraIssueAggregator _jiraIssueAggregator;
     
-    public ReleaseNoteGenerator (Configuration configuration, IJiraClient jiraClient)
+    public ReleaseNoteGenerator (Configuration configuration, IJiraIssueAggregator jiraIssueAggregator)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
+      ArgumentUtility.CheckNotNull ("jiraIssueAggregator", jiraIssueAggregator);
 
       _configuration = configuration;
-      _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, jiraClient);
+      _jiraIssueAggregator = jiraIssueAggregator;
     }
 
     public XDocument GenerateReleaseNotes (string version)

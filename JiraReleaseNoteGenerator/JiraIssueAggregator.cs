@@ -27,7 +27,7 @@ using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
-  public class JiraIssueAggregator
+  public class JiraIssueAggregator : IJiraIssueAggregator
   {
     private readonly Configuration _configuration;
     private readonly IJiraClient _jiraClient;
