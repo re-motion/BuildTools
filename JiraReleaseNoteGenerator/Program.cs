@@ -19,43 +19,48 @@
 // THE SOFTWARE.
 // 
 using System;
-using System.IO;
 using System.Net;
-using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public class Program
   {
-    private static IWebClient s_WebClient;
-    private static IJiraRequestUrlBuilder s_RequestUrlBuilder;
+    private const int WebServiceError = 1;
+    private const int XmlTransformerError = 2;
+
+    private static IJiraIssueAggregator s_JiraIssueAggregator;
+    private static IXmlTransformer s_XmlTransformer;
     private static readonly Configuration s_Configuration = Configuration.Current;
     private static string _outputFile;
 
-    public static IWebClient WebClient
+    public static IJiraIssueAggregator JiraIssueAggregator
     {
       get
       {
-        if (s_WebClient == null)
+        if (s_JiraIssueAggregator == null)
         {
-          s_WebClient = new NtlmAuthenticatedWebClient();
-          ((NtlmAuthenticatedWebClient) s_WebClient).Credentials = CredentialCache.DefaultNetworkCredentials;
+          var webClient = new NtlmAuthenticatedWebClient();
+          webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
+          var requestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
+          var jiraClient = new JiraClient (webClient, () => requestUrlBuilder);
+          s_JiraIssueAggregator = new JiraIssueAggregator (s_Configuration, jiraClient);
         }
-        return s_WebClient;
+        return s_JiraIssueAggregator;
       }
-      set { s_WebClient = value; }
+      set { s_JiraIssueAggregator = value; }
     }
 
-    public static IJiraRequestUrlBuilder RequestUrlBuilder
+    public static IXmlTransformer XmlTransformer
     {
       get
       {
-        if (s_RequestUrlBuilder == null)
-          s_RequestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
-        return s_RequestUrlBuilder;
+        if (s_XmlTransformer == null)
+          s_XmlTransformer = new XmlTransformer();
+
+        return s_XmlTransformer;
       }
-      set { s_RequestUrlBuilder = value; }
+      set { s_XmlTransformer = value; }
     }
 
     public static string OutputFile
@@ -80,41 +85,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var version = args[0];
       Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
 
-      var jiraClient = new JiraClient (WebClient, () => RequestUrlBuilder);
-      var jiraIssueAggregator = new JiraIssueAggregator (s_Configuration, jiraClient);
+      var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, JiraIssueAggregator, XmlTransformer);
 
-      var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator);
-      XDocument releaseNotesXml;
+      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], OutputFile);
 
-      try
-      {
-        releaseNotesXml = releaseNoteGenerator.GenerateReleaseNotes (args[0]);
-      }
-      catch (WebException webException)
-      {
-        Console.Error.Write (webException);
+      if (exitCode == WebServiceError)
         return 3;
-      }
 
-
-      var outputDirectory = Path.GetDirectoryName (OutputFile);
-      var filename = Path.GetFileName (OutputFile);
-
-      if (!Directory.Exists (outputDirectory))
-        Directory.CreateDirectory (outputDirectory);
-
-      var xmlInputFile = Path.Combine (outputDirectory, "JiraIssues_v" + version + ".xml");
-      releaseNotesXml.Save (xmlInputFile);
-
-      var outputFile = Path.Combine (outputDirectory, filename);
-      var xmlTransformer = new XmlTransformer (xmlInputFile, outputFile);
-      var transformerExitCode = xmlTransformer.GenerateHtmlFromXml();
-
-      if (transformerExitCode != 0)
-      {
-        Console.Error.WriteLine ("Error applying XSLT (code {0})", transformerExitCode);
-        return transformerExitCode;
-      }
+      if (exitCode == XmlTransformerError)
+        return 4;
 
       Console.Out.WriteLine ("Creation of ReleaseNotes for version {0} was successful.", version);
 

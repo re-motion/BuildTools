@@ -20,6 +20,7 @@
 // 
 using System;
 using System.IO;
+using System.Net;
 using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
@@ -29,25 +30,49 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   {
     private readonly Configuration _configuration;
     private readonly IJiraIssueAggregator _jiraIssueAggregator;
-    
-    public ReleaseNoteGenerator (Configuration configuration, IJiraIssueAggregator jiraIssueAggregator)
+    private readonly IXmlTransformer _xmlTransformer;
+
+    public ReleaseNoteGenerator (Configuration configuration, IJiraIssueAggregator jiraIssueAggregator, IXmlTransformer xmlTransformer)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
       ArgumentUtility.CheckNotNull ("jiraIssueAggregator", jiraIssueAggregator);
+      ArgumentUtility.CheckNotNull ("xmlTransformer", xmlTransformer);
 
       _configuration = configuration;
       _jiraIssueAggregator = jiraIssueAggregator;
+      _xmlTransformer = xmlTransformer;
     }
 
-    public XDocument GenerateReleaseNotes (string version)
+    public int GenerateReleaseNotes (string version, string outputFile)
     {
       ArgumentUtility.CheckNotNull ("version", version);
+      ArgumentUtility.CheckNotNull ("outputFile", outputFile);
 
-      var issues = _jiraIssueAggregator.GetXml (version);
-      var config = XDocument.Load (Path.Combine("XmlUtilities", _configuration.ConfigFile));
-      issues.Root.AddFirst (config.Elements());
+      XDocument issues;
 
-      return issues;
+      try
+      {
+        issues = _jiraIssueAggregator.GetXml (version);
+        var config = XDocument.Load (Path.Combine ("XmlUtilities", _configuration.ConfigFile));
+        issues.Root.AddFirst (config.Elements ());  
+      }
+      catch (WebException webException)
+      {
+        Console.Error.Write (webException);
+        return 1;
+      }
+
+      var outputDirectory = Path.GetDirectoryName (outputFile);
+      
+      if (!Directory.Exists (outputDirectory))
+        Directory.CreateDirectory (outputDirectory);
+
+      var xmlInputFile = Path.Combine (outputDirectory, "JiraIssues_v" + version + ".xml");
+      issues.Save (xmlInputFile);
+      
+      var transformerExitCode = _xmlTransformer.GenerateHtmlFromXml (xmlInputFile, outputFile);
+
+      return transformerExitCode;
     }
   }
 }

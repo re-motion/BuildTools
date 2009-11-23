@@ -36,10 +36,10 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       var textWriter = new StringWriter();
       Console.SetError (textWriter);
 
-      var transfomer = new XmlTransformer ("invalidFile.xml", "C:\\output.html");
+      var transfomer = new XmlTransformer ();
 
       // error code 2 means - source file does not exist
-      Assert.That (transfomer.GenerateHtmlFromXml(), Is.EqualTo (2));
+      Assert.That (transfomer.GenerateHtmlFromXml ("invalidFile.xml", "C:\\output.html"), Is.EqualTo (2));
       Assert.That (textWriter.ToString(), Is.EqualTo ("Source file invalidFile.xml does not exist\r\n"));
 
       // restore standard error
@@ -49,14 +49,13 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     [Test]
     public void GeneateHtmlFromXml_ValidXmlInputFile ()
     {
-      const string documentationDirectory = "output";
+      const string documentationDirectory = "XmlTransformerUnitTestOutput";
       var fileName = Path.Combine (documentationDirectory, "index.html");
 
       Directory.CreateDirectory (documentationDirectory);
-      var transfomer = new XmlTransformer (@"..\..\TestDomain\Issues_v2.0.2_complete.xml", fileName);
+      var transfomer = new XmlTransformer ();
 
-      Assert.That (File.Exists (fileName), Is.False);
-      Assert.That (transfomer.GenerateHtmlFromXml(), Is.EqualTo (0));
+      Assert.That (transfomer.GenerateHtmlFromXml (@"..\..\TestDomain\Issues_v2.0.2_complete.xml", fileName), Is.EqualTo (0));
       Assert.That (File.Exists (fileName), Is.True);
 
       Directory.Delete (documentationDirectory, true);

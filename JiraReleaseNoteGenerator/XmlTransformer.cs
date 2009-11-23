@@ -25,27 +25,21 @@ using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
-  public class XmlTransformer
+  public class XmlTransformer : IXmlTransformer
   {
     // stylesheet path
     private const string _xsltStyleSheetPath = @"XmlUtilities\Main.xslt";
     // xslt processor path
     private const string xsltProcessorPath = @"XmlUtilities\Saxon\Transform.exe";
 
-    private readonly string _xmlInputFile;
-    private readonly string _outputFile;
 
-    public XmlTransformer (string xmlInputFile, string outputFile)
+    public int GenerateHtmlFromXml (string xmlInputFile, string outputFile)
     {
       ArgumentUtility.CheckNotNull ("xmlInputFile", xmlInputFile);
       ArgumentUtility.CheckNotNull ("outputFile", outputFile);
 
-      _xmlInputFile = xmlInputFile;
-      _outputFile = outputFile;
-    }
-
-    public int GenerateHtmlFromXml ()
-    {
+      var _xmlInputFile = xmlInputFile;
+      var _outputFile = outputFile;
    
       var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", _xmlInputFile, _xsltStyleSheetPath, _outputFile);
 

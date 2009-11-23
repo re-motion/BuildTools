@@ -50,6 +50,7 @@
     <Compile Include="IJiraIssueAggregator.cs" />
     <Compile Include="IJiraRequestUrlBuilder.cs" />
     <Compile Include="IWebClient.cs" />
+    <Compile Include="IXmlTransformer.cs" />
     <Compile Include="JiraClient.cs" />
     <Compile Include="JiraRequestUrlBuilder.cs" />
     <Compile Include="NtlmAuthenticatedWebClient.cs">
