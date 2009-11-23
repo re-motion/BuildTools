@@ -72,27 +72,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     }
 
     [Test]
-    public void CreateRequestUrl_VersionAndStatusSet_ValidUrl ()
-    {
-      const string version = "1.2";
-      const string status = "closed";
-      _jiraRequestUrlBuilder.FixVersion = version;
-      _jiraRequestUrlBuilder.Status = status;
-      _basicUrl.Append ("+and+fixVersion+%3D+%22");
-      _basicUrl.Append (version);
-      _basicUrl.Append ("%22");
-      _basicUrl.Append ("+and+status%3D+%22");
-      _basicUrl.Append (status);
-      _basicUrl.Append ("%22");
-      _basicUrl.Append ("&tempMax=1000");
-
-      var output = _jiraRequestUrlBuilder.Build();
-      var expectedOutput = _basicUrl.ToString();
-
-      Assert.That (output, Is.EqualTo (expectedOutput));
-    }
-
-    [Test]
     public void CreateRequestUrl_OneKeySet_ValidUrl ()
     {
       var keys = new[] { "keyName-111" };

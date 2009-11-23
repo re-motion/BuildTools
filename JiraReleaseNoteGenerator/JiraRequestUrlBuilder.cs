@@ -29,7 +29,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     private readonly Configuration _configuration;
 
     public string FixVersion { get; set; }
-    public string Status { get; set; }
     public string[] Keys { get; set; }
 
     public JiraRequestUrlBuilder (Configuration configuration)
@@ -50,13 +49,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       {
         url.Append ("+and+fixVersion+%3D+%22");
         url.Append (FixVersion);
-        url.Append ("%22");
-      }
-
-      if (Status != null)
-      {
-        url.Append ("+and+status%3D+%22");
-        url.Append (Status);
         url.Append ("%22");
       }
 
@@ -84,9 +76,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     public bool IsValidQuery ()
     {
       if (String.IsNullOrEmpty (FixVersion) && ArrayUtility.IsNullOrEmpty (Keys))
-        return false;
-
-      if (Status != null && Status.Length == 0)
         return false;
 
       return true;
