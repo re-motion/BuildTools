@@ -19,10 +19,12 @@
 // THE SOFTWARE.
 // 
 using System;
-using System.Net;
+using System.IO;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.TestDomain;
+using Rhino.Mocks;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {
@@ -30,120 +32,98 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   public class JiraClientTest
   {
     private JiraClient _jiraClient;
-    private readonly JiraRequestUrlBuilder _builder = new JiraRequestUrlBuilder (Configuration.Current);
-    private readonly JiraRequestUrlBuilderStub _builderStub = new JiraRequestUrlBuilderStub();
-    private readonly NtlmAuthenticatedWebClient _webClient = new NtlmAuthenticatedWebClient();
+    private IJiraRequestUrlBuilder _builderMock;
+    private IWebClient _webClientStub;
 
     [SetUp]
     public void SetUp ()
     {
-      _webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
-      var webClientStub = new WebClientStub();
-      _jiraClient = new JiraClient (webClientStub, () => _builderStub);
-
-      // _jiraClient = new JiraClient (_webClient, () => _builder);
-    }
-
-
-    [Test]
-    public void JiraClient_GetIssuesByKeys_ValidKey_SuccessfulRequest ()
-    {
-      var key = new[] { "UUU-116" };
-      _jiraClient = new JiraClient (_webClient, () => _builder);
-
-      var output = _jiraClient.GetIssuesByKeys (key);
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_UUU-116.xml");
-
-      Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
+      _builderMock = MockRepository.GenerateMock<IJiraRequestUrlBuilder>();
+      _webClientStub = MockRepository.GenerateStub<IWebClient>();
+      _jiraClient = new JiraClient (_webClientStub, () => _builderMock);
     }
 
     [Test]
-    public void JiraClient_GetIssuesByKeys_InvalidKey_BadRequest ()
+    public void GetIssuesByVersion_BuildsUrlFromInputParameters()
     {
-      var key = new[] { "UUU-000" };
-      _jiraClient = new JiraClient (_webClient, () => _builder);
-
-      try
+      using (_builderMock.GetMockRepository().Ordered())
       {
-        _jiraClient.GetIssuesByKeys (key);
-        Assert.Fail ("Expected exeption was not thrown");
+        _builderMock.Expect (mock => mock.FixVersion = "1.2");
+        _builderMock.Expect (mock => mock.Status = null);
+        _builderMock.Expect (mock => mock.Keys = null);
+        _builderMock.Expect (mock => mock.IsValidQuery()).Return (true);
+        _builderMock.Expect (mock => mock.Build()).Return ("JiraUrl");
       }
-      catch (WebException ex)
+      
+      using (var stream = ResourceManager.GetResourceStream ("Issues_v1.2.xml"))
       {
-        Assert.That (ex.Message, Is.EqualTo ("The remote server returned an error: (400) Bad Request."));
+        _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
+
+        _jiraClient.GetIssuesByVersion ("1.2", null);
+      }
+
+      _builderMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void GetIssuesByKeys_BuildsUrlFromInputParameters ()
+    {
+      using (_builderMock.GetMockRepository ().Ordered ())
+      {
+        _builderMock.Expect (mock => mock.FixVersion = null);
+        _builderMock.Expect (mock => mock.Status = null);
+        _builderMock.Expect (mock => mock.Keys = new[] { "UUU-116" });
+        _builderMock.Expect (mock => mock.IsValidQuery ()).Return (true);
+        _builderMock.Expect (mock => mock.Build ()).Return ("JiraUrl");
+      }
+
+      using (var stream = ResourceManager.GetResourceStream ("Issues_v1.2.xml"))
+      {
+        _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
+
+        _jiraClient.GetIssuesByKeys (new[] { "UUU-116" });
+      }
+
+      _builderMock.VerifyAllExpectations ();
+    }
+
+    [Test]
+    public void GetIssuesByVersion_ReturnsStreamForUrl ()
+    {
+      _builderMock.Expect (mock => mock.IsValidQuery ()).Return (true);
+      _builderMock.Stub (mock => mock.Build ()).Return ("JiraUrl");
+
+      using (var stream = ResourceManager.GetResourceStream ("Issues_v1.2.xml"))
+      {
+        _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
+        var output = _jiraClient.GetIssuesByVersion ("1.2", null);
+
+        using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v1.2.xml")))
+        {
+          var expectedOutput = XDocument.Load (reader);
+          Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
+        }
       }
     }
 
     [Test]
-    public void JiraClient_GetIssuesByVersion_KeyIsNull_ArgumentNotNullException ()
+    public void GetIssuesByKeys_ReturnsStreamForUrl ()
     {
-      _jiraClient = new JiraClient (_webClient, () => _builder);
+      _builderMock.Expect (mock => mock.IsValidQuery ()).Return (true);
+      _builderMock.Stub (mock => mock.Build ()).Return ("JiraUrl");
 
-      try
+      using (var stream = ResourceManager.GetResourceStream ("Issues_UUU-116.xml"))
       {
-        _jiraClient.GetIssuesByVersion (null, null);
-        Assert.Fail ("Expected exeption was not thrown");
-      }
-      catch (ArgumentNullException ex)
-      {
-        Assert.That (ex.Message, Is.EqualTo ("Value cannot be null.\r\nParameter name: version"));
-      }
-    }
+        _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
+        var output = _jiraClient.GetIssuesByKeys (new[] { "UUU-116"});
 
-    [Test]
-    public void JiraClient_GetIssuesByKeys_KeyIsNull_ArgumentNotNullException ()
-    {
-      _jiraClient = new JiraClient (_webClient, () => _builder);
-
-      try
-      {
-        _jiraClient.GetIssuesByKeys (null);
-        Assert.Fail ("Expected exeption was not thrown");
-      }
-      catch (ArgumentNullException ex)
-      {
-        Assert.That (ex.Message, Is.EqualTo ("Value cannot be null.\r\nParameter name: keys"));
+        using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_UUU-116.xml")))
+        {
+          var expectedOutput = XDocument.Load (reader);
+          Assert.That (output.ToString (), Is.EqualTo (expectedOutput.ToString ()));
+        }
       }
     }
 
-    [Test]
-    public void JiraClient_WebClientStub_GetIssuesByVersion_ValidRequest ()
-    {
-      var version = "1.2";
-
-      var output = _jiraClient.GetIssuesByVersion (version, null);
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_v1.2.xml");
-
-      Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
-    }
-
-    [Test]
-    public void JiraClient_WebClientStub_OneKey_ValidRequest ()
-    {
-      var key = new[] { "UUU-116" };
-
-      var output = _jiraClient.GetIssuesByKeys (key);
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_UUU-116.xml");
-
-      Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
-    }
-
-    [Test]
-    public void JiraClient_WebClientStub_TwoKeys_ValidRequest ()
-    {
-      var key = new[] { "UUU-111", "UUU-112" };
-
-      var output = _jiraClient.GetIssuesByKeys (key);
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_UUU-111_UUU-112.xml");
-
-      Assert.That (XmlComparisonHelper (output), Is.EqualTo (XmlComparisonHelper (expectedOutput)));
-    }
-
-
-    private string XmlComparisonHelper (XDocument document)
-    {
-      var documentAsString = document.ToString();
-      return documentAsString.Substring (documentAsString.IndexOf ("-->"));
-    }
   }
 }
