@@ -62,8 +62,6 @@
     <Compile Include="Utilities\ArgumentUtility.cs" />
     <Compile Include="JiraIssueAggregator.cs" />
     <Compile Include="Utilities\ArrayUtility.cs" />
-    <Compile Include="Utilities\FileSystemHelper.cs" />
-    <Compile Include="Utilities\IFileSystemHelper.cs" />
     <Compile Include="XmlTransformer.cs" />
   </ItemGroup>
   <ItemGroup>

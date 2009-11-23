@@ -20,12 +20,11 @@
 // 
 using System;
 using System.Xml.Linq;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public interface IXmlTransformer
   {
-    int GenerateHtmlFromXml (XDocument xmlInput, string outputFile, string xsltStyleSheetPath, string xsltProcessorPath);
+    int GenerateHtmlFromXml (XDocument xmlInput, string outputFile);
   }
 }

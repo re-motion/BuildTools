@@ -46,7 +46,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var requestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
       var jiraClient = new JiraClient (webClient, () => requestUrlBuilder);
       var jiraIssueAggregator = new JiraIssueAggregator (s_Configuration, jiraClient);
-      var xmlTransformer = new XmlTransformer (new FileSystemHelper ());
+      var xmlTransformer = new XmlTransformer (s_Configuration.XsltStyleSheetPath, s_Configuration.XsltProcessorPath);
       var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator, xmlTransformer);
 
       var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], s_Configuration.OutputFileName);

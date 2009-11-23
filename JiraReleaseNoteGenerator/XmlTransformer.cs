@@ -20,6 +20,7 @@
 // 
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
@@ -27,30 +28,35 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public class XmlTransformer : IXmlTransformer
   {
-    private readonly IFileSystemHelper _fileSystemHelper;
-    
-    public XmlTransformer (IFileSystemHelper fileSystemHelper)
-    {
-      ArgumentUtility.CheckNotNull ("fileSystemHelper", fileSystemHelper);
+    private readonly string _xsltStyleSheetPath;
+    private readonly string _xsltProcessorPath;
 
-      _fileSystemHelper = fileSystemHelper;
+    public XmlTransformer (string xsltStyleSheetPath, string xsltProcessorPath)
+    {
+      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", xsltStyleSheetPath);
+      ArgumentUtility.CheckNotNull ("xsltProcessorPath", xsltProcessorPath);
+      
+      _xsltStyleSheetPath = xsltStyleSheetPath;
+      _xsltProcessorPath = xsltProcessorPath;
     }
 
-    public int GenerateHtmlFromXml (XDocument xmlInput, string outputFile, string xsltStyleSheetPath, string xsltProcessorPath)
+    public int GenerateHtmlFromXml (XDocument xmlInput, string outputFile)
     {
       ArgumentUtility.CheckNotNull ("xmlInputFile", xmlInput);
       ArgumentUtility.CheckNotNull ("outputFile", outputFile);
-      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", xsltStyleSheetPath);
-      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", xsltStyleSheetPath);
+      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", _xsltStyleSheetPath);
+      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", _xsltStyleSheetPath);
 
       const string inputFilePath = @".\issuesForSaxon.xml";
-      _fileSystemHelper.SaveXml (xmlInput, inputFilePath);
-      _fileSystemHelper.CheckOrCreateDirectory (outputFile);
 
-      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", inputFilePath, xsltStyleSheetPath, outputFile);
+      CheckOrCreateDirectory (inputFilePath);
+      xmlInput.Save (inputFilePath);
+      CheckOrCreateDirectory (outputFile);
+
+      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", inputFilePath, _xsltStyleSheetPath, outputFile);
 
       var xsltProcessor = new Process();
-      xsltProcessor.StartInfo.FileName = xsltProcessorPath;
+      xsltProcessor.StartInfo.FileName = _xsltProcessorPath;
       xsltProcessor.StartInfo.Arguments = arguments;
       xsltProcessor.StartInfo.RedirectStandardError = true;
       xsltProcessor.StartInfo.RedirectStandardOutput = true;
@@ -61,9 +67,19 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       Console.Out.Write (xsltProcessor.StandardOutput.ReadToEnd());
       xsltProcessor.WaitForExit();
 
-      _fileSystemHelper.Delete (inputFilePath);
+      File.Delete (inputFilePath);
 
       return xsltProcessor.ExitCode;
+    }
+
+    private void CheckOrCreateDirectory (string path)
+    {
+      ArgumentUtility.CheckNotNull ("path", path);
+
+      path = Path.GetDirectoryName (path);
+
+      if (!Directory.Exists (path))
+        Directory.CreateDirectory (path);
     }
   }
 }

@@ -57,7 +57,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
         var config = XDocument.Load (_configuration.ConfigFile);
         issues.Root.AddFirst (config.Elements ());  
-        _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (issues, outputFile, _configuration.XsltStyleSheetPath, _configuration.XsltProcessorPath)).Return (0);
+        _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (issues, outputFile)).Return (0);
       }
 
       var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2", outputFile);
