@@ -21,9 +21,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
-namespace Remotion.BuildTools.JiraReleaseNoteGenerator.Utility
+namespace Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities
 {
   /// <summary>
   /// Provides utility functions that make common array operations easier.
