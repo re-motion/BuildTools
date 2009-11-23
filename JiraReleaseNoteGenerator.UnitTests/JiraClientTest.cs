@@ -49,7 +49,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       using (_builderMock.GetMockRepository().Ordered())
       {
         _builderMock.Expect (mock => mock.FixVersion = "1.2");
-        _builderMock.Expect (mock => mock.Status = null);
         _builderMock.Expect (mock => mock.Keys = null);
         _builderMock.Expect (mock => mock.IsValidQuery()).Return (true);
         _builderMock.Expect (mock => mock.Build()).Return ("JiraUrl");
@@ -59,7 +58,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
 
-        _jiraClient.GetIssuesByVersion ("1.2", null);
+        _jiraClient.GetIssuesByVersion ("1.2");
       }
 
       _builderMock.VerifyAllExpectations();
@@ -71,7 +70,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       using (_builderMock.GetMockRepository ().Ordered ())
       {
         _builderMock.Expect (mock => mock.FixVersion = null);
-        _builderMock.Expect (mock => mock.Status = null);
         _builderMock.Expect (mock => mock.Keys = new[] { "UUU-116" });
         _builderMock.Expect (mock => mock.IsValidQuery ()).Return (true);
         _builderMock.Expect (mock => mock.Build ()).Return ("JiraUrl");
@@ -96,7 +94,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       using (var stream = ResourceManager.GetResourceStream ("Issues_v1.2.xml"))
       {
         _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
-        var output = _jiraClient.GetIssuesByVersion ("1.2", null);
+        var output = _jiraClient.GetIssuesByVersion ("1.2");
 
         using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v1.2.xml")))
         {

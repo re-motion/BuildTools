@@ -30,10 +30,10 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public class JiraIssueAggregator
   {
     private readonly Configuration _configuration;
-    private readonly JiraClient _jiraClient;
+    private readonly IJiraClient _jiraClient;
 
 
-    public JiraIssueAggregator (Configuration configuration, JiraClient jiraClient)
+    public JiraIssueAggregator (Configuration configuration, IJiraClient jiraClient)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
       ArgumentUtility.CheckNotNull ("jiraClient", jiraClient);
@@ -44,7 +44,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     public XDocument GetXml (string version)
     {
-      var xmlForVersion = _jiraClient.GetIssuesByVersion (version, "closed");
+      var xmlForVersion = _jiraClient.GetIssuesByVersion (version);
       var keys = FindUnknownParentKeys (xmlForVersion);
       var xmlWithMissingParents = _jiraClient.GetIssuesByKeys (keys);
       return MergeXml (xmlForVersion, xmlWithMissingParents);

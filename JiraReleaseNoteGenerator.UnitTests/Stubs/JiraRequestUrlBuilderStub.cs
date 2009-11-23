@@ -22,12 +22,11 @@ using System;
 using System.Text;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utility;
 
-namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
+namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.Stubs
 {
   public class JiraRequestUrlBuilderStub : IJiraRequestUrlBuilder
   {
     public string FixVersion { get; set; }
-    public string Status { get; set; }
     public string[] Keys { get; set; }
 
     public string Build ()
@@ -38,12 +37,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         url.Append ("v");
         url.Append (FixVersion);
-      }
-
-      if (Status != null)
-      {
-        url.Append ("_");
-        url.Append (Status);
       }
 
       if (Keys != null)
@@ -62,9 +55,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     public bool IsValidQuery ()
     {
       if (String.IsNullOrEmpty (FixVersion) && ArrayUtility.IsNullOrEmpty (Keys))
-        return false;
-
-      if (Status != null && Status.Length == 0)
         return false;
       
       return true;

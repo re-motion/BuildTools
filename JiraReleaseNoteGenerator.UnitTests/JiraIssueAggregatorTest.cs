@@ -19,10 +19,13 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.IO;
 using System.Net;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.TestDomain;
+using Rhino.Mocks;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {
@@ -30,37 +33,59 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   public class JiraIssueAggregatorTest
   {
     private JiraIssueAggregator _jiraIssueAggregator;
+    private IJiraClient _jiraClientStub;
 
     [SetUp]
     public void SetUp ()
     {
-      var webClient = new WebClientStub();
-      var jiraClient = new JiraClient (webClient, () => new JiraRequestUrlBuilderStub());
-
-      _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, jiraClient);
+      _jiraClientStub = MockRepository.GenerateStub<IJiraClient>();
+      _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, _jiraClientStub);
     }
 
     [Test]
     public void GetXml_VersionWithMissingParents ()
     {
-      var output = _jiraIssueAggregator.GetXml ("2.0.2");
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_v2.0.2_complete.xml");
+      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2.xml")))
+      {
+        _jiraClientStub.Stub (stub => stub.GetIssuesByVersion ("2.0.2")).Return (XDocument.Load (reader));
+      }
+      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_COMMONS-4.xml")))
+      {
+        _jiraClientStub.Stub (stub => stub.GetIssuesByKeys (new[] { "COMMONS-4" })).Return (XDocument.Load (reader));
+      }
 
-      Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
+      using (var resultReader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
+      {
+        var output = _jiraIssueAggregator.GetXml ("2.0.2");
+        var expectedOutput = XDocument.Load (resultReader);
+
+        Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
+      }
     }
 
     [Test]
     public void GetXml_VersionWithoutMissingParents ()
     {
-      var output = _jiraIssueAggregator.GetXml ("1.2");
-      var expectedOutput = XDocument.Load (@"..\..\TestDomain\Issues_v1.2_closed.xml");
+      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v1.2_closed.xml")))
+      {
+        var xmlFile = XDocument.Load (reader);
+        _jiraClientStub.Stub (stub => stub.GetIssuesByVersion ("1.2")).Return (xmlFile);
+        var emptyXml = new XDocument (new XElement ("rss", new XElement ("channel")));
+        _jiraClientStub.Stub (stub => stub.GetIssuesByKeys (new string[0])).Return (emptyXml);
 
-      Assert.That (output.ToString (), Is.EqualTo (expectedOutput.ToString ()));
+        var output = _jiraIssueAggregator.GetXml ("1.2");
+        var expectedOutput = xmlFile;
+
+        Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
+      }
     }
 
     [Test]
     public void GetXml_WrongVersion_WebException ()
     {
+      _jiraClientStub.Stub (stub => stub.GetIssuesByVersion ("1.2.3")).Throw (
+          new WebException ("The remote server returned an error: (400) Bad Request."));
+
       try
       {
         _jiraIssueAggregator.GetXml ("1.2.3");
@@ -69,19 +94,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       catch (WebException ex)
       {
         Assert.That (ex.Message, Is.EqualTo ("The remote server returned an error: (400) Bad Request."));
-      }
-    }
-
-    [Test]
-    public void GetXml_VersionIsNull_ArgumentNotNullException ()
-    {
-      try
-      {
-        _jiraIssueAggregator.GetXml (null);
-        Assert.Fail ("Expected exception not thrown");
-      }
-      catch (ArgumentNullException ex)
-      {
       }
     }
 

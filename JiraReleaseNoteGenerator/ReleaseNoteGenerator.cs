@@ -31,7 +31,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     private readonly Configuration _configuration;
     private readonly JiraIssueAggregator _jiraIssueAggregator;
     
-    public ReleaseNoteGenerator (Configuration configuration, JiraClient jiraClient)
+    public ReleaseNoteGenerator (Configuration configuration, IJiraClient jiraClient)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
 

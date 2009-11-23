@@ -25,7 +25,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public interface IJiraRequestUrlBuilder
   {
     string FixVersion { get; set; }
-    string Status { get; set; }
     string[] Keys { get; set; }
 
     string Build ();

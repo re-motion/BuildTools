@@ -25,7 +25,7 @@ using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
-  public class JiraClient
+  public class JiraClient : IJiraClient
   {
     private readonly IWebClient _webClient;
     private readonly Func<IJiraRequestUrlBuilder> _builderFactory;
@@ -39,25 +39,24 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       _builderFactory = builderFactory;
     }
 
-    public XDocument GetIssuesByVersion (string version, string status)
+    public XDocument GetIssuesByVersion (string version)
     {
       ArgumentUtility.CheckNotNull ("version", version);
 
-      return GetIssues (version, status, null);
+      return GetIssues (version, null);
     }
 
     public XDocument GetIssuesByKeys (string[] keys)
     {
       ArgumentUtility.CheckNotNull ("keys", keys);
 
-      return GetIssues (null, null, keys);
+      return GetIssues (null, keys);
     }
 
-    private XDocument GetIssues (string version, string status, string[] keys)
+    private XDocument GetIssues (string version, string[] keys)
     {
       var builder = _builderFactory();
       builder.FixVersion = version;
-      builder.Status = status;
       builder.Keys = keys;
 
       if (builder.IsValidQuery ())
