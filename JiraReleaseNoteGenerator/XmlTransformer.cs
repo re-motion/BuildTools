@@ -61,7 +61,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       Console.Out.Write (xsltProcessor.StandardOutput.ReadToEnd());
       xsltProcessor.WaitForExit();
 
-      //_fileSystemHelper.Delete (inputFilePath);
+      _fileSystemHelper.Delete (inputFilePath);
 
       return xsltProcessor.ExitCode;
     }

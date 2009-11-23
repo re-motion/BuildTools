@@ -40,23 +40,37 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       _fileSystemHelperMock = MockRepository.GenerateMock<IFileSystemHelper>();
     }
 
-    [Ignore ("need to be refactored")]
     [Test]
-    public void GeneateHtmlFromXml_ValidXmlInputFile ()
+    public void GeneateHtmlFromXml_XmlInputSavedToXml ()
     {
-      const string fileName = @".\output.html";
-      
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2.xml")))
       {
         var xmlInput = XDocument.Load (reader);
-        _fileSystemHelperMock.Expect (mock => mock.SaveXml (xmlInput, fileName));
+        _fileSystemHelperMock.Expect (mock => mock.SaveXml (xmlInput, @".\issuesForSaxon.xml"));
+        var transformer = new XmlTransformer (_fileSystemHelperMock);
 
-        var transfomer = new XmlTransformer (_fileSystemHelperMock);
-        
-        Assert.That (transfomer.GenerateHtmlFromXml (xmlInput, fileName, @".\TestDomain\transform.xslt", @".\XmlUtilities\Saxon\Transform.exe"), Is.EqualTo (0));
+        transformer.GenerateHtmlFromXml (xmlInput, @".\output.html", @".\TestDomain\transform.xslt", @".\XmlUtilities\Saxon\Transform.exe");
       }
 
       _fileSystemHelperMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void GeneateHtmlFromXml ()
+    {
+      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2.xml")))
+      {
+        var xmlInput = XDocument.Load (reader);
+        
+        var transformer = new XmlTransformer (new FileSystemHelper());
+
+        Assert.That (transformer.GenerateHtmlFromXml (xmlInput, @".\output.html", @".\TestDomain\transform.xslt", @".\XmlUtilities\Saxon\Transform.exe"), Is.EqualTo (0));
+
+        using (var resultReader = new StreamReader (ResourceManager.GetResourceStream ("XmlTransformerTest.html")))
+        {
+          Assert.That (File.ReadAllText (@".\output.html"), Is.EqualTo(resultReader.ReadToEnd()));
+        }
+      }
     }
   }
 }
