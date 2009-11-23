@@ -61,16 +61,14 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
         Console.Error.Write (webException);
         return 1;
       }
-
-      var outputDirectory = Path.GetDirectoryName (outputFile);
       
-      if (!Directory.Exists (outputDirectory))
-        Directory.CreateDirectory (outputDirectory);
-
+      var outputDirectory = Path.GetDirectoryName (outputFile);    
       var xmlInputFile = Path.Combine (outputDirectory, "JiraIssues_v" + version + ".xml");
-      issues.Save (xmlInputFile);
       
-      var transformerExitCode = _xmlTransformer.GenerateHtmlFromXml (xmlInputFile, outputFile);
+      string xsltStyleSheetPath = _configuration.XsltProcessorPath;
+      const string xsltProcessorPath = @"XmlUtilities\Saxon\Transform.exe";
+
+      var transformerExitCode = _xmlTransformer.GenerateHtmlFromXml (issues, outputFile, _configuration.XsltStyleSheetPath, _configuration.XsltProcessorPath);
 
       return transformerExitCode;
     }

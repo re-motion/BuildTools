@@ -21,42 +21,35 @@
 using System;
 using System.IO;
 using System.Xml.Linq;
-using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.TestDomain;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
-using Rhino.Mocks;
 
-namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
+namespace Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities
 {
-  [TestFixture]
-  public class XmlTransformerTest
+  public class FileSystemHelper : IFileSystemHelper
   {
-    private IFileSystemHelper _fileSystemHelperMock;
-
-    [SetUp]
-    public void SetUp ()
+    public void CheckOrCreateDirectory (string path)
     {
-      _fileSystemHelperMock = MockRepository.GenerateMock<IFileSystemHelper>();
+      ArgumentUtility.CheckNotNull ("path", path);
+
+      path = Path.GetDirectoryName (path);
+
+      if (!Directory.Exists (path))
+        Directory.CreateDirectory (path);
     }
 
-    [Ignore ("need to be refactored")]
-    [Test]
-    public void GeneateHtmlFromXml_ValidXmlInputFile ()
+    public void SaveXml (XDocument content, string path)
     {
-      const string fileName = @".\output.html";
-      
-      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2.xml")))
-      {
-        var xmlInput = XDocument.Load (reader);
-        _fileSystemHelperMock.Expect (mock => mock.SaveXml (xmlInput, fileName));
+      ArgumentUtility.CheckNotNull ("content", content);
+      ArgumentUtility.CheckNotNull ("path", path);
 
-        var transfomer = new XmlTransformer (_fileSystemHelperMock);
-        
-        Assert.That (transfomer.GenerateHtmlFromXml (xmlInput, fileName, @".\TestDomain\transform.xslt", @".\XmlUtilities\Saxon\Transform.exe"), Is.EqualTo (0));
-      }
+      CheckOrCreateDirectory (path);
+      content.Save (path);
+    }
 
-      _fileSystemHelperMock.VerifyAllExpectations();
+    public void Delete (string path)
+    {
+      ArgumentUtility.CheckNotNull ("path", path);
+
+      File.Delete (path);
     }
   }
 }

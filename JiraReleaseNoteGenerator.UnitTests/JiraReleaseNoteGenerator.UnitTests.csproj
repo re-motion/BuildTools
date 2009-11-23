@@ -77,6 +77,9 @@
     <EmbeddedResource Include="TestDomain\Issues_v2.0.2.xml" />
     <EmbeddedResource Include="TestDomain\Issues_v2.0.2_complete.xml" />
     <EmbeddedResource Include="TestDomain\Issues_v2.0.2_withConfig.xml" />
+    <Content Include="TestDomain\Transform.xslt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="TestDomain\ReleaseNotes_FixVersion_2.0.2.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

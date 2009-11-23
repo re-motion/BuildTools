@@ -19,42 +19,14 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.Xml.Linq;
 
-namespace Remotion.BuildTools.JiraReleaseNoteGenerator
+namespace Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities
 {
-  public class Configuration
+  public interface IFileSystemHelper
   {
-    public static Configuration Current = new Configuration();
-
-    public string Url
-    {
-      get { return "https://dev-53-isa-1.int.rubicon-it.com/jira"; }
-    }
-
-    public string Project
-    {
-      get { return "UUU"; }
-    }
-
-    public string OutputFileName
-    {
-      get { return @".\Output\ReleaseNotes.html"; }
-      set { OutputFileName = value; }
-    }
-
-    public string ConfigFile
-    {
-      get { return "Config.xml"; }
-    }
-
-    public string XsltStyleSheetPath
-    {
-      get { return @"XmlUtilities\Main.xslt"; }
-    }
-
-    public string XsltProcessorPath
-    {
-      get { return @"XmlUtilities\Saxon\Transform.exe"; }
-    }
+    void CheckOrCreateDirectory (string path);
+    void SaveXml (XDocument content, string path);
+    void Delete (string path);
   }
 }

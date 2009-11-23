@@ -20,28 +20,34 @@
 // 
 using System;
 using System.Diagnostics;
-using System.IO;
+using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public class XmlTransformer : IXmlTransformer
   {
-    // stylesheet path
-    private const string _xsltStyleSheetPath = @"XmlUtilities\Main.xslt";
-    // xslt processor path
-    private const string xsltProcessorPath = @"XmlUtilities\Saxon\Transform.exe";
-
-
-    public int GenerateHtmlFromXml (string xmlInputFile, string outputFile)
+    private readonly IFileSystemHelper _fileSystemHelper;
+    
+    public XmlTransformer (IFileSystemHelper fileSystemHelper)
     {
-      ArgumentUtility.CheckNotNull ("xmlInputFile", xmlInputFile);
-      ArgumentUtility.CheckNotNull ("outputFile", outputFile);
+      ArgumentUtility.CheckNotNull ("fileSystemHelper", fileSystemHelper);
 
-      var _xmlInputFile = xmlInputFile;
-      var _outputFile = outputFile;
-   
-      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", _xmlInputFile, _xsltStyleSheetPath, _outputFile);
+      _fileSystemHelper = fileSystemHelper;
+    }
+
+    public int GenerateHtmlFromXml (XDocument xmlInput, string outputFile, string xsltStyleSheetPath, string xsltProcessorPath)
+    {
+      ArgumentUtility.CheckNotNull ("xmlInputFile", xmlInput);
+      ArgumentUtility.CheckNotNull ("outputFile", outputFile);
+      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", xsltStyleSheetPath);
+      ArgumentUtility.CheckNotNull ("xsltStyleSheetPath", xsltStyleSheetPath);
+
+      const string inputFilePath = @".\issuesForSaxon.xml";
+      _fileSystemHelper.SaveXml (xmlInput, inputFilePath);
+      _fileSystemHelper.CheckOrCreateDirectory (outputFile);
+
+      var arguments = String.Format ("-s:{0} -xsl:{1} -o:{2}", inputFilePath, xsltStyleSheetPath, outputFile);
 
       var xsltProcessor = new Process();
       xsltProcessor.StartInfo.FileName = xsltProcessorPath;
@@ -54,6 +60,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       Console.Error.Write (xsltProcessor.StandardError.ReadToEnd());
       Console.Out.Write (xsltProcessor.StandardOutput.ReadToEnd());
       xsltProcessor.WaitForExit();
+
+      //_fileSystemHelper.Delete (inputFilePath);
 
       return xsltProcessor.ExitCode;
     }

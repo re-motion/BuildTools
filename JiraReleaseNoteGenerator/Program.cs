@@ -56,7 +56,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       get
       {
         if (s_XmlTransformer == null)
-          s_XmlTransformer = new XmlTransformer();
+          s_XmlTransformer = new XmlTransformer(new FileSystemHelper());
 
         return s_XmlTransformer;
       }

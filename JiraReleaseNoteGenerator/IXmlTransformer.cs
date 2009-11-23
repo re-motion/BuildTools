@@ -19,11 +19,13 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.Xml.Linq;
+using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   public interface IXmlTransformer
   {
-    int GenerateHtmlFromXml (string xmlInputFile, string outputFile);
+    int GenerateHtmlFromXml (XDocument xmlInput, string outputFile, string xsltStyleSheetPath, string xsltProcessorPath);
   }
 }
