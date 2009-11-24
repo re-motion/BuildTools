@@ -53,6 +53,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       {
         issues = _jiraIssueAggregator.GetXml (version);
         var config = XDocument.Load (_configuration.ConfigFile);
+        config.Root.Add (new XElement ("generatedForVersion", version));
         issues.Root.AddFirst (config.Elements());
       }
       catch (WebException webException)

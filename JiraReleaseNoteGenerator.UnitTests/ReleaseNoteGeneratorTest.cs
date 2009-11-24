@@ -55,6 +55,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
         _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (issues);
 
         var config = XDocument.Load (_configuration.ConfigFile);
+        config.Root.Add (new XElement ("generatedForVersion", "2.0.2"));
         issues.Root.AddFirst (config.Elements());
         _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (issues, outputFile)).Return (0);
       }

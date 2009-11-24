@@ -32,6 +32,14 @@
     <xsl:sequence select="$value = $seq"/>
   </xsl:function>
 
+  <xsl:function name="functx:value-intersect" as="xs:anyAtomicType*" >
+    <xsl:param name="arg1" as="xs:anyAtomicType*"/>
+    <xsl:param name="arg2" as="xs:anyAtomicType*"/>
+
+    <xsl:sequence select="distinct-values($arg1[.=$arg2])"/>
+  </xsl:function>
+
+
   <xsl:function name="ru:contains">
     <xsl:param name="sequence" />
     <xsl:param name="searchItem" />
@@ -120,7 +128,7 @@
         </head>
         <body>
           <h1>
-            Release Notes
+            Remotion Release Notes for version <xsl:value-of select="/rss/outputConfiguration/generatedForVersion"/>
           </h1>
           <h2>List of Issues</h2>
           <div class="releaseNoteList">
@@ -172,9 +180,7 @@
           <xsl:with-param name="visibleStatus" select="current()"/>
         </xsl:call-template>
       </xsl:if>
-
-
-
+      
     </xsl:for-each>
   </xsl:template>
 
@@ -183,7 +189,7 @@
     <xsl:param name="issues" />
     <xsl:param name="visibleStatus" />
 
-    <xsl:if test="count($issues) = 0">
+    <xsl:if test="count(functx:value-intersect($issues/status, $root//issueVisibility/visibleStatus)) = 0">
       <div class="listEntry">(none)</div>
     </xsl:if>
 
