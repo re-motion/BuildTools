@@ -189,7 +189,7 @@
     <xsl:param name="issues" />
     <xsl:param name="visibleStatus" />
 
-    <xsl:if test="count(functx:value-intersect($issues/status, $root//issueVisibility/visibleStatus)) = 0">
+    <xsl:if test="count(functx:value-intersect($issues/status, $root//issueVisibility/visibleStatus)) = 0 and count($root//rss/channel/item[parent = $issues/key and ru:contains($root//issueVisibility/visibleStatus, status)]) = 0">
       <div class="listEntry">(none)</div>
     </xsl:if>
 
