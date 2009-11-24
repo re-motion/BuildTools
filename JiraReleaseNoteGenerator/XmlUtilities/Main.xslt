@@ -6,7 +6,8 @@
 	xmlns:fn="http://www.w3.org/2005/xpath-functions"
 	xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:ru="http://www.rubicon-it.com"
-	exclude-result-prefixes="xs fn ru"
+  xmlns:functx="http://www.functx.com"
+	exclude-result-prefixes="xs fn ru functx"
 	>
 
   <xsl:output
@@ -24,7 +25,7 @@
     </xsl:call-template>
   </xsl:template>
 
-  <xsl:function name="ru:is-value-in-sequence" as="xs:boolean" >
+  <xsl:function name="functx:is-value-in-sequence" as="xs:boolean" >
     <xsl:param name="value" as="xs:anyAtomicType?"/>
     <xsl:param name="seq" as="xs:anyAtomicType*"/>
 
@@ -49,40 +50,71 @@
           <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
           <!-- include resources -->
           <style type="text/css">
+            body
+            {
+            background-image: url(images/bg.png);
+            background-position: top left;
+            background-repeat: repeat-x;
+
+            margin-top: 15px;
+            font-family: "Trebuchet MS", Arial, Verdana, Helvectica;
+            font-size: 0.9em;
+            overflow:scroll;
+            }
+
+            a
+            {
+            color: #00327d;
+            text-decoration: none;
+            }
+
+            a:hover
+            {
+            text-decoration: underline;
+            }
+
+            h2{
+            text-decoration:underline;
+            }
+
             .detailNotVisible, .detailNotVisible h4, .listEntry .notVisible a
             {
-              color: Gray;
+            color: Gray;
             }
 
             .children
             {
-              margin-left:30px;
+            margin-left:30px;
             }
 
             .label
             {
-              min-width: 11em;
-              font-weight: bold;
+            min-width: 11em;
+            font-weight: bold;
             }
 
-            .detailEntry
+            .detailEntry, .listEntryGroup
             {
-              padding-bottom: 20px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: dashed 1px #999999;
+            background-color: #EEEEEE;
             }
 
             .releaseNoteList
             {
-              padding-bottom: 30px;
+            padding-bottom: 30px;
             }
 
             .description, .component, .issueType, .status, .resolution
             {
-              margin-left:10px;
+            margin-left:10px;
             }
 
             h4
             {
-              color: #000080;
+            margin-top: 0px;
+            color: #000080;
             }
           </style>
         </head>
@@ -90,15 +122,16 @@
           <h1>
             Release Notes
           </h1>
+          <h2>List of Issues</h2>
           <div class="releaseNoteList">
             <xsl:call-template name="printConfiguredTypes">
               <xsl:with-param name="outputType" select="'list'"/>
             </xsl:call-template>
           </div>
 
-          <h1>
+          <h2>
             Details
-          </h1>
+          </h2>
           <xsl:call-template name="printConfiguredTypes">
             <xsl:with-param name="outputType" select="'details'"/>
           </xsl:call-template>
@@ -123,11 +156,13 @@
 
 
       <xsl:if test="$outputType = 'list'">
-        <xsl:call-template name="issueListForType">
-          <xsl:with-param name="root" select="/" />
-          <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
-          <xsl:with-param name="visibleStatus" select="current()"/>
-        </xsl:call-template>
+        <div class="listEntryGroup">
+          <xsl:call-template name="issueListForType">
+            <xsl:with-param name="root" select="/" />
+            <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
+            <xsl:with-param name="visibleStatus" select="current()"/>
+          </xsl:call-template>
+        </div>
       </xsl:if>
 
       <xsl:if test="$outputType = 'details'">
@@ -153,17 +188,17 @@
     </xsl:if>
 
     <xsl:for-each select="$issues">
-      <!-- select="ru:is-value-in-sequence(current()/status, $root//rss/channel/item[parent = current()/key]/status)" -->
+      <!-- select="functx:is-value-in-sequence(current()/status, $root//rss/channel/item[parent = current()/key]/status)" -->
 
       <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
 
       <div class="listEntry">
-        <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true()">
+        <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true()">
           <a href="#{key}">
             <xsl:value-of select="title"/>
           </a>
         </xsl:if>
-        <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() and $hasValidChildren = true()">
+        <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() and $hasValidChildren = true()">
           <span class="notVisible">
             <a href="#{key}">
               <xsl:value-of select="title"/>
@@ -190,9 +225,9 @@
 
     <xsl:for-each select="$issues">
       <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
-      <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true() or $hasValidChildren = true()">
+      <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true() or $hasValidChildren = true()">
         <xsl:variable name="visibilityTag">
-          <xsl:if test="ru:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false()">
+          <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false()">
             detailNotVisible
           </xsl:if>
         </xsl:variable>
