@@ -128,7 +128,7 @@
         </head>
         <body>
           <h1>
-            Remotion Release Notes for version <xsl:value-of select="/rss/outputConfiguration/generatedForVersion"/>
+            <xsl:value-of select="/rss/outputConfiguration/projectTitle"/> Release Notes for version <xsl:value-of select="/rss/outputConfiguration/generatedForVersion"/>
           </h1>
           <h2>List of Issues</h2>
           <div class="releaseNoteList">
