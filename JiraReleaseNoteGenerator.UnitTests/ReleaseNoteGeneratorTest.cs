@@ -19,7 +19,6 @@
 // THE SOFTWARE.
 // 
 using System;
-using System.Collections;
 using System.IO;
 using System.Xml.Linq;
 using NUnit.Framework;
@@ -35,13 +34,13 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     private ReleaseNoteGenerator _releaseNoteGenerator;
     private IJiraIssueAggregator _jiraIssueAggregatorStub;
     private IXmlTransformer _xmlTransformerStub;
-    private Configuration _configuration = Configuration.Current;
+    private readonly Configuration _configuration = Configuration.Current;
 
     [SetUp]
     public void SetUp ()
     {
       _jiraIssueAggregatorStub = MockRepository.GenerateStub<IJiraIssueAggregator>();
-      _xmlTransformerStub = MockRepository.GenerateMock<IXmlTransformer> ();
+      _xmlTransformerStub = MockRepository.GenerateMock<IXmlTransformer>();
       _releaseNoteGenerator = new ReleaseNoteGenerator (_configuration, _jiraIssueAggregatorStub, _xmlTransformerStub);
     }
 
@@ -56,14 +55,14 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
         _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (issues);
 
         var config = XDocument.Load (_configuration.ConfigFile);
-        issues.Root.AddFirst (config.Elements ());  
+        issues.Root.AddFirst (config.Elements());
         _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (issues, outputFile)).Return (0);
       }
 
       var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2", outputFile);
 
       Assert.That (exitCode, Is.EqualTo (0));
-      
+
       _xmlTransformerStub.VerifyAllExpectations();
     }
   }

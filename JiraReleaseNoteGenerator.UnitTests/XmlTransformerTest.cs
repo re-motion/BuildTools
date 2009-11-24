@@ -24,8 +24,6 @@ using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.TestDomain;
-using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
-using Rhino.Mocks;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {
@@ -33,19 +31,19 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
   public class XmlTransformerTest
   {
     [Test]
-    public void GeneateHtmlFromXml ()
+    public void GenerateHtmlFromXml ()
     {
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2.xml")))
       {
         var xmlInput = XDocument.Load (reader);
-        
+
         var transformer = new XmlTransformer (@".\TestDomain\transform.xslt", @".\XmlUtilities\Saxon\Transform.exe");
 
         Assert.That (transformer.GenerateHtmlFromXml (xmlInput, @".\output.html"), Is.EqualTo (0));
 
         using (var resultReader = new StreamReader (ResourceManager.GetResourceStream ("XmlTransformerTest.html")))
         {
-          Assert.That (File.ReadAllText (@".\output.html"), Is.EqualTo(resultReader.ReadToEnd()));
+          Assert.That (File.ReadAllText (@".\output.html"), Is.EqualTo (resultReader.ReadToEnd()));
         }
       }
     }

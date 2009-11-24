@@ -59,7 +59,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       builder.FixVersion = version;
       builder.Keys = keys;
 
-      if (builder.IsValidQuery ())
+      if (builder.IsValidQuery())
       {
         var url = builder.Build();
 
