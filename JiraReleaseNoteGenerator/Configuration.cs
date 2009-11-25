@@ -48,27 +48,27 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       get { return (string) this["project"]; }
     }
 
-    [ConfigurationProperty ("outputFile", IsRequired = true, DefaultValue = @".\Output\ReleaseNotes.html")]
+    [ConfigurationProperty ("outputFile", DefaultValue = @".\Output\ReleaseNotes.html")]
     [StringValidator (InvalidCharacters = " ~!@#$%^&*()[]{}/;'\"|", MinLength = 1, MaxLength = 60)]
     public string OutputFileName
     {
       get { return (string) this["outputFile"]; }
     }
 
-    [ConfigurationProperty ("xsltConfigFile", IsRequired = true, DefaultValue = @".\XmlUtilities\Config.xml")]
+    [ConfigurationProperty ("xsltConfigFile", DefaultValue = @".\XmlUtilities\Config.xml")]
     [StringValidator (InvalidCharacters = " ~!@#$%^&*()[]{}/;'\"|", MinLength = 1, MaxLength = 60)]
     public string ConfigFile
     {
       get { return (string) this["xsltConfigFile"]; }
     }
 
-    [ConfigurationProperty ("xsltStyleSheetPath", IsRequired = true, DefaultValue = @"XmlUtilities\Main.xslt")]
+    [ConfigurationProperty ("xsltStyleSheetPath", DefaultValue = @"XmlUtilities\Main.xslt")]
     public string XsltStyleSheetPath
     {
       get {  return (string) this["xsltStyleSheetPath"]; } 
     }
 
-    [ConfigurationProperty ("xsltProcessorPath", IsRequired = true, DefaultValue = @"XmlUtilities\Saxon\Transform.exe")]
+    [ConfigurationProperty ("xsltProcessorPath", DefaultValue = @"XmlUtilities\Saxon\Transform.exe")]
     public string XsltProcessorPath
     {
       get { return (string) this["xsltProcessorPath"]; }
