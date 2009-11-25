@@ -20,7 +20,6 @@
 // 
 using System;
 using System.IO;
-using System.Net;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -79,23 +78,5 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
         Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
       }
     }
-
-    [Test]
-    public void GetXml_WrongVersion_WebException ()
-    {
-      _jiraClientStub.Stub (stub => stub.GetIssuesByVersion ("1.2.3")).Throw (
-          new WebException ("The remote server returned an error: (400) Bad Request."));
-
-      try
-      {
-        _jiraIssueAggregator.GetXml ("1.2.3");
-        Assert.Fail ("Expected exception not thrown");
-      }
-      catch (WebException ex)
-      {
-        Assert.That (ex.Message, Is.EqualTo ("The remote server returned an error: (400) Bad Request."));
-      }
-    }
-
   }
 }

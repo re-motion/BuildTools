@@ -20,6 +20,7 @@
 // 
 using System;
 using System.IO;
+using System.Net;
 using System.Xml.Linq;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -66,5 +67,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       _xmlTransformerStub.VerifyAllExpectations();
     }
+
+    [Test]
+    public void GenerateReleaseNotes_InvalidVersion ()
+    {
+      const string outputFile = @".\ReleaseNoteGenerator-UnitTest\output.html";
+      _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("unknownVersion")).Throw (new WebException ("The remote server returned an error: (400) Bad Request."));
+      
+      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("unknownVersion", outputFile);
+      
+      Assert.That (exitCode, Is.EqualTo (1));
+    }
+
   }
 }
