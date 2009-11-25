@@ -19,6 +19,8 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.Configuration;
+using System.Diagnostics;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using Remotion.Development.UnitTesting.Configuration;
@@ -49,6 +51,40 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       Assert.That (configuration.Url, Is.EqualTo ("http://myJira"));
       Assert.That (configuration.XsltStyleSheetPath, Is.EqualTo ("myStyleSheet.xslt"));
       Assert.That (configuration.XsltProcessorPath, Is.EqualTo ("myXsltProcessor.exe"));
+    }
+
+    [Test]
+    public void Deserialize_MissingUrl ()
+    {
+      var configuration = new Configuration();
+      const string xmlFragment = @"<root project = ""myProject"" />";
+
+      try
+      {
+        ConfigurationHelper.DeserializeSection (configuration, xmlFragment);
+        Assert.Fail ("Expected exception not thrown.");
+      }
+      catch (ConfigurationErrorsException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("Required attribute 'url' not found."));
+      }
+    }
+
+    [Test]
+    public void Deserialize_MissingProject ()
+    {
+      var configuration = new Configuration ();
+      const string xmlFragment = @"<root url = ""http://myJira"" />";
+
+      try
+      {
+        ConfigurationHelper.DeserializeSection (configuration, xmlFragment);
+        Assert.Fail ("Expected exception not thrown.");
+      }
+      catch (ConfigurationErrorsException ex)
+      {
+        Assert.That (ex.Message, Is.EqualTo ("Required attribute 'project' not found."));
+      }
     }
   }
 }
