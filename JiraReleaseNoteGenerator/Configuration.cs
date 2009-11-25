@@ -19,42 +19,59 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.Configuration;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
-  public class Configuration
+  public class Configuration : ConfigurationSection
   {
-    public static Configuration Current = new Configuration();
+    private static Configuration _current;
 
+    public static Configuration Current
+    {
+      get {
+        if (_current == null)
+          _current = (Configuration) ConfigurationManager.GetSection ("requestUrlBuilder");
+        return _current; 
+      }
+    }
+
+    [ConfigurationProperty ("url", IsRequired = true)]
     public string Url
     {
-      get { return "https://dev-53-isa-1.int.rubicon-it.com/jira"; }
+      get { return (string) this["url"]; }
     }
 
+    [ConfigurationProperty ("project", IsRequired = true)]
     public string Project
     {
-      get { return "UUU"; }
+      get { return (string) this["project"]; }
     }
 
+    [ConfigurationProperty ("outputFile", IsRequired = true, DefaultValue = @".\Output\ReleaseNotes.html")]
+    [StringValidator (InvalidCharacters = " ~!@#$%^&*()[]{}/;'\"|", MinLength = 1, MaxLength = 60)]
     public string OutputFileName
     {
-      get { return @".\Output\ReleaseNotes.html"; }
-      set { OutputFileName = value; }
+      get { return (string) this["outputFile"]; }
     }
 
+    [ConfigurationProperty ("xsltConfigFile", IsRequired = true, DefaultValue = @".\XmlUtilities\Config.xml")]
+    [StringValidator (InvalidCharacters = " ~!@#$%^&*()[]{}/;'\"|", MinLength = 1, MaxLength = 60)]
     public string ConfigFile
     {
-      get { return @".\XmlUtilities\Config.xml"; }
+      get { return (string) this["xsltConfigFile"]; }
     }
 
+    [ConfigurationProperty ("xsltStyleSheetPath", IsRequired = true, DefaultValue = @"XmlUtilities\Main.xslt")]
     public string XsltStyleSheetPath
     {
-      get { return @"XmlUtilities\Main.xslt"; }
+      get {  return (string) this["xsltStyleSheetPath"]; } 
     }
 
+    [ConfigurationProperty ("xsltProcessorPath", IsRequired = true, DefaultValue = @"XmlUtilities\Saxon\Transform.exe")]
     public string XsltProcessorPath
     {
-      get { return @"XmlUtilities\Saxon\Transform.exe"; }
+      get { return (string) this["xsltProcessorPath"]; }
     }
   }
 }
