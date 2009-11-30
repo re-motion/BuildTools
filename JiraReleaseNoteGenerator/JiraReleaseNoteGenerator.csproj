@@ -72,16 +72,25 @@
     <Content Include="XmlUtilities\Main.xslt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="XmlUtilities\Saxon\charsets.dll">
+    <Content Include="XmlUtilities\Saxon\IKVM.OpenJDK.Charsets.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="XmlUtilities\Saxon\IKVM.OpenJDK.ClassLibrary.dll">
+    <Content Include="XmlUtilities\Saxon\IKVM.OpenJDK.Core.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="XmlUtilities\Saxon\IKVM.OpenJDK.Text.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="XmlUtilities\Saxon\IKVM.OpenJDK.Util.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="XmlUtilities\Saxon\IKVM.OpenJDK.XML.API.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="XmlUtilities\Saxon\IKVM.Runtime.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="XmlUtilities\Saxon\saxon9.dll">
+    <Content Include="XmlUtilities\Saxon\saxon9he.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="XmlUtilities\Saxon\Transform.exe">
