@@ -23,6 +23,10 @@ using System.Net;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Default implementation of <see cref="IWebClient"/>, derived from <see cref="WebClient"/>.
+  /// Enables UnsafeAuthenticatedConnectionSharing to enable ntlm authenticated connections.
+  /// </summary>
   public class NtlmAuthenticatedWebClient : WebClient, IWebClient
   {
     protected override WebRequest GetWebRequest (Uri address)

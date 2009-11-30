@@ -23,6 +23,10 @@ using System.Xml.Linq;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Defines the functionallity to get a xml document with all issues affected by this version.
+  /// Used by the <see cref="ReleaseNoteGenerator"/>.
+  /// </summary>
   public interface IJiraIssueAggregator
   {
     XDocument GetXml (string version);

@@ -22,6 +22,9 @@ using System;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Defines the functionallity to validate and build urls, which are used by the <see cref="JiraClient"/> to receive issues from jira.
+  /// </summary>
   public interface IJiraRequestUrlBuilder
   {
     string FixVersion { get; set; }

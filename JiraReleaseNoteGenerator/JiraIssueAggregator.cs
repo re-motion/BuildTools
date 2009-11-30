@@ -28,7 +28,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   /// <summary>
   /// Default implementation of <see cref="IJiraIssueAggregator"/>.
-  /// GetXml returns a xml document with all issues affected by this version including a config section for the transformation.
+  /// Used by the <see cref="JiraClient"/> to build the request urls for jira.
   /// </summary>
   public class JiraIssueAggregator : IJiraIssueAggregator
   {
@@ -44,6 +44,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     public XDocument GetXml (string version)
     {
       ArgumentUtility.CheckNotNull ("version", version);
+
       var xmlForVersion = _jiraClient.GetIssuesByVersion (version);
       var keys = FindUnknownParentKeys (xmlForVersion);
       var xmlWithMissingParents = _jiraClient.GetIssuesByKeys (keys);

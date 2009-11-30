@@ -23,6 +23,10 @@ using System.IO;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Defines the functionallity to open a stream for reading from a specific address (url).
+  /// Used by the <see cref="JiraClient"/> to receive the issues from jira.
+  /// </summary>
   public interface IWebClient
   {
     Stream OpenRead (string address);

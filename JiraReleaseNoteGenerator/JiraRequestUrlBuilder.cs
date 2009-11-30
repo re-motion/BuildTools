@@ -24,6 +24,9 @@ using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Default implementation of <see cref="IJiraRequestUrlBuilder"/>.
+  /// </summary>
   public class JiraRequestUrlBuilder : IJiraRequestUrlBuilder
   {
     private readonly Configuration _configuration;
@@ -34,6 +37,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     public JiraRequestUrlBuilder (Configuration configuration)
     {
       ArgumentUtility.CheckNotNull ("configuration", configuration);
+
       _configuration = configuration;
     }
 
