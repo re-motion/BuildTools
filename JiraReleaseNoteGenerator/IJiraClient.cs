@@ -23,6 +23,9 @@ using System.Xml.Linq;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Defines the access to jira. Used by the <see cref="JiraIssueAggregator"/> for retrieving the issues.
+  /// </summary>
   public interface IJiraClient
   {
     XDocument GetIssuesByVersion (string version);

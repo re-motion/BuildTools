@@ -25,6 +25,24 @@ using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary> Default implementation of the <see cref="IJiraClient"/>.
+  /// </summary>
+  /// <example>
+  /// The issues returned from JIRA have the following structure:
+  /// <![CDATA[
+  /// <rss>
+  ///   <channel>
+  ///     <item>
+  ///       <title>
+  ///       <project>
+  ///       ...
+  ///     </item>
+  ///     <item>
+  ///     ...
+  ///    </channel>
+  ///  </rss>
+  /// ]]>
+  /// </example>
   public class JiraClient : IJiraClient
   {
     private readonly IWebClient _webClient;
@@ -62,19 +80,42 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       if (builder.IsValidQuery())
       {
         var url = builder.Build();
-
-        using (var data = _webClient.OpenRead (url))
+        return GetIssuesFromUrl(url);
+      }
+      else
+      {
+        return CreateEmptyDocumentStructure();
+      }
+    }
+    
+    private XDocument GetIssuesFromUrl (string url)
+    {
+      using (var data = _webClient.OpenRead (url))
+      {
+        using (var reader = new StreamReader (data))
         {
-          using (var reader = new StreamReader (data))
-          {
-            return XDocument.Parse (reader.ReadToEnd());
-          }
+          var result = XDocument.Parse (reader.ReadToEnd());
+
+          if (IsValidXml (result))
+            return result;
+          else
+            return CreateEmptyDocumentStructure();
         }
       }
+    }
 
+    private XDocument CreateEmptyDocumentStructure ()
+    {
       var result = new XDocument();
       result.Add (new XElement ("rss", new XElement ("channel")));
       return result;
+    }
+
+    private bool IsValidXml (XDocument result)
+    {
+      return result.Root != null
+        && result.Element ("rss") != null 
+        && result.Element ("rss").Element("channel") != null;
     }
   }
 }
