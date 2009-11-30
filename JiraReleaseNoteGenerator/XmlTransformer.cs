@@ -28,7 +28,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
   /// <summary>
   /// Default implementation of <see cref="IXmlTransformer"/>.
-  /// Using saxon as xslt processor to transform xml input into html output.
+  /// Using <b>Saxon</b> as xslt processor to transform xml input into html output.
   /// </summary>
   public class XmlTransformer : IXmlTransformer
   {
