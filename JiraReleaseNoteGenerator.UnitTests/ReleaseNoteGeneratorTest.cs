@@ -52,13 +52,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
       {
-        var issues = XDocument.Load (reader);
-        _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (issues);
+        _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (XDocument.Load (reader));
+      }
 
+      using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
+      {
+        var issues = XDocument.Load (reader);
         var config = XDocument.Load (_configuration.ConfigFile);
         config.Root.Add (new XElement ("generatedForVersion", "2.0.2"));
         issues.Root.AddFirst (config.Elements());
-        _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (issues, outputFile)).Return (0);
+        _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (
+          Arg<XDocument>.Matches (d => d.ToString() == issues.ToString()), Arg.Is (outputFile))).Return (0);
       }
 
       var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2", outputFile);
