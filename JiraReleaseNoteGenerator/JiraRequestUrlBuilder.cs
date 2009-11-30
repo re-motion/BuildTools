@@ -45,32 +45,11 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       var url = new StringBuilder();
       url.Append (_configuration.Url);
-      url.Append ("/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=project+%3D+%22");
-      url.Append (_configuration.Project);
-      url.Append ("%22");
+      url.Append ("/sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml?jqlQuery=");
 
-      if (FixVersion != null)
-      {
-        url.Append ("+and+fixVersion+%3D+%22");
-        url.Append (FixVersion);
-        url.Append ("%22");
-      }
-
-      if (Keys != null)
-      {
-        url.Append ("+and+(");
-
-        for (int i = 0; i < Keys.Length; i++)
-        {
-          if (i != 0)
-            url.Append ("+or");
-
-          url.Append ("+key+%3D+%22");
-          url.Append (Keys[i]);
-          url.Append ("%22");
-        }
-        url.Append ("+)");
-      }
+      AddProjectToRequest(url, true);
+      AddFixVersionToRequest(url, false);
+      AddKeysToRequest(url, false);
 
       url.Append ("&tempMax=1000");
 
@@ -83,6 +62,52 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
         return false;
 
       return true;
+    }
+
+    private void AddProjectToRequest (StringBuilder url, bool isFirstRequestParameter)
+    {
+      if (!isFirstRequestParameter)
+        url.Append ("+and+");
+
+      url.Append ("project+%3D+%22");
+      url.Append (_configuration.Project);
+      url.Append ("%22");
+    }
+
+    private void AddKeysToRequest (StringBuilder url, bool isFirstRequestParameter)
+    {
+      if (ArrayUtility.IsNullOrEmpty(Keys))
+        return;
+
+      if (!isFirstRequestParameter)
+        url.Append ("+and+");
+
+      url.Append ("(");
+
+      for (int i = 0; i < Keys.Length; i++)
+      {
+        if (i != 0)
+          url.Append ("+or");
+
+        url.Append ("+key+%3D+%22");
+        url.Append (Keys[i]);
+        url.Append ("%22");
+      }
+
+      url.Append ("+)");
+    }
+
+    private void AddFixVersionToRequest (StringBuilder url, bool isFirstRequestParameter)
+    {
+      if (String.IsNullOrEmpty(FixVersion))
+        return;
+      
+      if (!isFirstRequestParameter)
+        url.Append ("+and+");
+
+      url.Append ("fixVersion+%3D+%22");
+      url.Append (FixVersion);
+      url.Append ("%22");
     }
   }
 }
