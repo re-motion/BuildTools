@@ -23,8 +23,11 @@ using System.Xml.Linq;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Defines the transformation of the xml input into a specific output file.
+  /// </summary>
   public interface IXmlTransformer
   {
-    int GenerateHtmlFromXml (XDocument xmlInput, string outputFile);
+    int GenerateResultFromXml (XDocument xmlInput, string outputFile);
   }
 }

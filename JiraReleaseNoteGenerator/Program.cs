@@ -45,7 +45,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
       var requestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
       var jiraClient = new JiraClient (webClient, () => requestUrlBuilder);
-      var jiraIssueAggregator = new JiraIssueAggregator (s_Configuration, jiraClient);
+      var jiraIssueAggregator = new JiraIssueAggregator (jiraClient);
       var xmlTransformer = new XmlTransformer (s_Configuration.XsltStyleSheetPath, s_Configuration.XsltProcessorPath);
       var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator, xmlTransformer);
 

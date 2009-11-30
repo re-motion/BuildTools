@@ -19,7 +19,6 @@
 // THE SOFTWARE.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -27,59 +26,42 @@ using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Default implementation of <see cref="IJiraIssueAggregator"/>.
+  /// GetXml returns a xml document with all issues affected by this version including a config section for the transformation.
+  /// </summary>
   public class JiraIssueAggregator : IJiraIssueAggregator
   {
-    private readonly Configuration _configuration;
     private readonly IJiraClient _jiraClient;
 
-
-    public JiraIssueAggregator (Configuration configuration, IJiraClient jiraClient)
+    public JiraIssueAggregator (IJiraClient jiraClient)
     {
-      ArgumentUtility.CheckNotNull ("configuration", configuration);
       ArgumentUtility.CheckNotNull ("jiraClient", jiraClient);
 
-      _configuration = configuration;
       _jiraClient = jiraClient;
     }
 
     public XDocument GetXml (string version)
     {
+      ArgumentUtility.CheckNotNull ("version", version);
       var xmlForVersion = _jiraClient.GetIssuesByVersion (version);
       var keys = FindUnknownParentKeys (xmlForVersion);
       var xmlWithMissingParents = _jiraClient.GetIssuesByKeys (keys);
       return MergeXml (xmlForVersion, xmlWithMissingParents);
     }
 
-
     private string[] FindUnknownParentKeys (XDocument xmlDocument)
     {
-      var issueKeyList = new HashSet<string>();
-      var parentKeyList = new HashSet<string>();
-
       var pathNavigator = xmlDocument.CreateNavigator();
-      var issueNodeIterator = pathNavigator.Select ("//key");
-      var parentNodeIterator = pathNavigator.Select ("//parent");
-
-      while (issueNodeIterator.MoveNext())
-        issueKeyList.Add (issueNodeIterator.Current.Value);
-
-      while (parentNodeIterator.MoveNext())
-      {
-        if (!issueKeyList.Contains (parentNodeIterator.Current.Value))
-          parentKeyList.Add (parentNodeIterator.Current.Value);
-      }
-      return parentKeyList.ToArray();
+      var issueKeyList = pathNavigator.Select ("//key").Cast<XPathNavigator>().Select (n => n.Value).Distinct();
+      var parentKeyList = pathNavigator.Select ("//parent").Cast<XPathNavigator>().Select (n => n.Value).Distinct();
+      return parentKeyList.Except (issueKeyList).ToArray();
     }
-
 
     private XDocument MergeXml (XDocument xDocument1, XDocument xDocument2)
     {
       var result = new XDocument (xDocument1);
-
-      if (result.Root == null || xDocument2.Root == null)
-        throw new ArgumentException ("Both xml documents must have a root element.");
-      
-      result.Root.Elements ().First ().Add (xDocument2.Root.Elements ().First ().Elements ());
+      result.Element ("rss").Element ("channel").Add (xDocument2.Element ("rss").Element ("channel").Elements("item"));
       return result;
     }
   }

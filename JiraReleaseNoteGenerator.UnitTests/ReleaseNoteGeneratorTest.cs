@@ -61,7 +61,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
         var config = XDocument.Load (_configuration.ConfigFile);
         config.Root.Add (new XElement ("generatedForVersion", "2.0.2"));
         issues.Root.AddFirst (config.Elements());
-        _xmlTransformerStub.Expect (mock => mock.GenerateHtmlFromXml (
+        _xmlTransformerStub.Expect (mock => mock.GenerateResultFromXml (
           Arg<XDocument>.Matches (d => d.ToString() == issues.ToString()), Arg.Is (outputFile))).Return (0);
       }
 

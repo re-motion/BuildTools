@@ -40,7 +40,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       _xsltProcessorPath = xsltProcessorPath;
     }
 
-    public int GenerateHtmlFromXml (XDocument xmlInput, string outputFile)
+    public int GenerateResultFromXml (XDocument xmlInput, string outputFile)
     {
       ArgumentUtility.CheckNotNull ("xmlInputFile", xmlInput);
       ArgumentUtility.CheckNotNull ("outputFile", outputFile);
@@ -49,7 +49,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       CheckOrCreateDirectory (inputFile);
       xmlInput.Save (inputFile);
       CheckOrCreateDirectory (outputFile);
-
+      
       var xsltProcessor = CreateXsltProcessor (inputFile, outputFile);
       xsltProcessor.Start();
       Console.Error.Write (xsltProcessor.StandardError.ReadToEnd());
@@ -76,12 +76,10 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     private void CheckOrCreateDirectory (string path)
     {
-      ArgumentUtility.CheckNotNull ("path", path);
+      var directoryName = Path.GetDirectoryName (path);
 
-      path = Path.GetDirectoryName (path);
-
-      if (!Directory.Exists (path))
-        Directory.CreateDirectory (path);
+      if (!Directory.Exists (directoryName))
+        Directory.CreateDirectory (directoryName);
     }
   }
 }

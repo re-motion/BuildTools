@@ -38,7 +38,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     public void SetUp ()
     {
       _jiraClientStub = MockRepository.GenerateStub<IJiraClient>();
-      _jiraIssueAggregator = new JiraIssueAggregator (Configuration.Current, _jiraClientStub);
+      _jiraIssueAggregator = new JiraIssueAggregator (_jiraClientStub);
     }
 
     [Test]

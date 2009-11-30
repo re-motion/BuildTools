@@ -62,7 +62,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
         return 1;
       }
 
-      var transformerExitCode = _xmlTransformer.GenerateHtmlFromXml (issues, outputFile);
+      var transformerExitCode = _xmlTransformer.GenerateResultFromXml (issues, outputFile);
 
       return transformerExitCode;
     }

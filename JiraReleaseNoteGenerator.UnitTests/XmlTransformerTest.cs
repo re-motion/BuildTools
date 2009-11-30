@@ -39,7 +39,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
         var transformer = new XmlTransformer (@".\TestDomain\transform.xslt", @".\XmlUtilities\Saxon\Transform.exe");
 
-        Assert.That (transformer.GenerateHtmlFromXml (xmlInput, @".\output.html"), Is.EqualTo (0));
+        Assert.That (transformer.GenerateResultFromXml (xmlInput, @".\output.html"), Is.EqualTo (0));
 
         using (var resultReader = new StreamReader (ResourceManager.GetResourceStream ("XmlTransformerTest.html")))
         {

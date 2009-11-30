@@ -201,17 +201,6 @@ http://localhost:8080/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchReque
       <attachments></attachments>
       <subtasks></subtasks>
     </item>
-    <title>rubicon</title>
-    <link>http://localhost:8080/jira/secure/IssueNavigator.jspa?reset=true&amp;jqlQuery=key+%3D+%22COMMONS-4%22</link>
-    <description>An XML representation of a search request</description>
-    <language>de-at</language>
-    <issue start="0" end="1" total="1" />
-    <build-info>
-      <version>4.0</version>
-      <build-number>466</build-number>
-      <build-date>28-09-2009</build-date>
-      <edition>enterprise</edition>
-    </build-info>
     <item>
       <title>[COMMONS-4] Bug #3</title>
       <link>http://localhost:8080/jira/browse/COMMONS-4</link>
