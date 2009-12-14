@@ -4,7 +4,6 @@
     <issue>
       <title>Bugfixes</title>
       <type>Bug</type>
-      <fieldname>status</fieldname>
     </issue>
     <issue>
       <title>Breaking Changes</title>
@@ -30,5 +29,5 @@
   <issueVisibility>
     <visibleStatus>Closed</visibleStatus>
   </issueVisibility>
-  <projectTitle>Re-motion</projectTitle>
+  <projectTitle>Release notes for re-motion</projectTitle>
 </outputConfiguration>

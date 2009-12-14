@@ -128,7 +128,7 @@
         </head>
         <body>
           <h1>
-            <xsl:value-of select="/rss/outputConfiguration/projectTitle"/> Release Notes for version <xsl:value-of select="/rss/outputConfiguration/generatedForVersion"/>
+            <xsl:value-of select="/rss/outputConfiguration/projectTitle"/> version <xsl:value-of select="/rss/outputConfiguration/generatedForVersion"/>
           </h1>
           <h2>List of Issues</h2>
           <div class="releaseNoteList">
@@ -201,13 +201,13 @@
       <div class="listEntry">
         <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true()">
           <a href="#{key}">
-            [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>: <xsl:value-of select="summary"/>
+            <b>[<xsl:value-of select="key"/>] <xsl:value-of select="component"/>: </b> <xsl:value-of select="summary"/>
           </a>
         </xsl:if>
         <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() and $hasValidChildren = true()">
           <span class="notVisible">
             <a href="#{key}">
-              [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>: <xsl:value-of select="summary"/>
+              <b>[<xsl:value-of select="key"/>] <xsl:value-of select="component"/>: </b> <xsl:value-of select="summary"/>
             </a>
           </span>
         </xsl:if>
@@ -316,7 +316,7 @@
     <xsl:for-each select="$root//rss/channel/item[parent = $key]">
       <div class="children">
         <a href="#{key}">
-          [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>: <xsl:value-of select="summary"/>
+          <b>[<xsl:value-of select="key"/>] <xsl:value-of select="component"/>: </b> <xsl:value-of select="summary"/>
         </a>
       </div>
     </xsl:for-each>

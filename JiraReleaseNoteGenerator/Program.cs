@@ -48,8 +48,9 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var jiraIssueAggregator = new JiraIssueAggregator (jiraClient);
       var xmlTransformer = new XmlTransformer (s_Configuration.XsltStyleSheetPath, s_Configuration.XsltProcessorPath);
       var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator, xmlTransformer);
+      var outputFile = s_Configuration.OutputFileName.Replace(".html", "_v" + version + ".html");
 
-      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], s_Configuration.OutputFileName);
+      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], outputFile);
 
       if (exitCode == WebServiceError)
         return 3;
