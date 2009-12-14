@@ -22,6 +22,10 @@
       <title>New Features</title>
       <type>New Feature</type>
     </issue>
+    <issue>
+      <title>Performance</title>
+      <type>Performance</type>
+    </issue>
   </issueOrder>
   <issueVisibility>
     <visibleStatus>Closed</visibleStatus>
