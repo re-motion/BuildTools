@@ -19,6 +19,7 @@
 // THE SOFTWARE.
 // 
 using System;
+using System.IO;
 using System.Net;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
@@ -39,8 +40,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
         return (argumentCheckResult);
 
       var version = args[0];
-      Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
 
+      if (args.Length == 2)
+      {
+        var outputDirectory = Path.GetFullPath (args[1]);
+        s_Configuration.OutputFileName = Path.Combine (outputDirectory, "ReleaseNotes.html");;
+      }
+      
+      Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
+      
       var webClient = new NtlmAuthenticatedWebClient ();
       webClient.Credentials = CredentialCache.DefaultNetworkCredentials;
       var requestUrlBuilder = new JiraRequestUrlBuilder (s_Configuration);
@@ -68,10 +76,10 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      if (arguments.Length != 1)
+      if (arguments.Length != 1 && arguments.Length != 2)
       {
         Console.Error.WriteLine ("Wrong number of arguments.");
-        Console.Error.WriteLine ("usage: JiraReleaseNoteGenerator versionNumber");
+        Console.Error.WriteLine ("usage: JiraReleaseNoteGenerator versionNumber <outputDirectory>");
         return 1;
       }
       if (string.IsNullOrEmpty (arguments[0]))

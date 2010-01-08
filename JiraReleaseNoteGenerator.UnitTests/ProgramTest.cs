@@ -46,9 +46,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     }
 
     [Test]
-    public void CheckArguments_True ()
+    public void CheckArguments_OnlyVersion_True ()
     {
       var result = Program.CheckArguments (new[] { "2.0.2" });
+
+      Assert.That (result, Is.EqualTo (0));
+    }
+
+    [Test]
+    public void CheckArguments_VersionAndOutputDirectory_True ()
+    {
+      var result = Program.CheckArguments (new[] { "2.0.2", @".\output" });
 
       Assert.That (result, Is.EqualTo (0));
     }
