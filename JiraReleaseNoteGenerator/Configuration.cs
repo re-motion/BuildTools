@@ -26,7 +26,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public class Configuration : ConfigurationSection
   {
     private static Configuration _current;
-    private string outputDirectory = null;
 
     public static Configuration Current
     {
@@ -47,14 +46,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     public string Project
     {
       get { return (string) this["project"]; }
-    }
-
-    [ConfigurationProperty ("outputFile", DefaultValue = @".\Output\ReleaseNotes.html")]
-    [StringValidator (InvalidCharacters = " ~!@#$%^&*()[]{}/;'\"|", MinLength = 1, MaxLength = 60)]
-    public string OutputFileName
-    {
-      get { return outputDirectory ?? (string) this["outputFile"]; }
-      set { outputDirectory = value; }
     }
 
     [ConfigurationProperty ("xsltConfigFile", DefaultValue = @".\XmlUtilities\Config.xml")]

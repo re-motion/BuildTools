@@ -37,7 +37,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       const string xmlFragment =
           @"<root project = ""myProject"" 
             xsltConfigFile = ""myfile.cfg"" 
-            outputFile = ""myReleaseNotes.html"" 
             url = ""http://myJira"" 
             xsltStyleSheetPath = ""myStyleSheet.xslt"" 
             xsltProcessorPath = ""myXsltProcessor.exe""
@@ -47,7 +46,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       Assert.That (configuration.Project, Is.EqualTo ("myProject"));
       Assert.That (configuration.ConfigFile, Is.EqualTo ("myfile.cfg"));
-      Assert.That (configuration.OutputFileName, Is.EqualTo ("myReleaseNotes.html"));
       Assert.That (configuration.Url, Is.EqualTo ("http://myJira"));
       Assert.That (configuration.XsltStyleSheetPath, Is.EqualTo ("myStyleSheet.xslt"));
       Assert.That (configuration.XsltProcessorPath, Is.EqualTo ("myXsltProcessor.exe"));

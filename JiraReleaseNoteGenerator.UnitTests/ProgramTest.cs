@@ -40,17 +40,9 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     [Test]
     public void CheckArguments_WrongArgument_False ()
     {
-      var result = Program.CheckArguments (new string[] { "" });
+      var result = Program.CheckArguments (new string[] { "", "." });
 
       Assert.That (result, Is.EqualTo (2));
-    }
-
-    [Test]
-    public void CheckArguments_OnlyVersion_True ()
-    {
-      var result = Program.CheckArguments (new[] { "2.0.2" });
-
-      Assert.That (result, Is.EqualTo (0));
     }
 
     [Test]

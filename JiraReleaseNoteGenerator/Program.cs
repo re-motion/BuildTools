@@ -40,13 +40,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
         return (argumentCheckResult);
 
       var version = args[0];
+      var outputDirectory = Path.GetFullPath (args[1]);
+      var outputFile = Path.Combine (outputDirectory, "ReleaseNotes_v" + version + ".html");;
+      string customJQuery = null;
 
-      if (args.Length == 2)
+      if (args.Length == 3)
       {
-        var outputDirectory = Path.GetFullPath (args[1]);
-        s_Configuration.OutputFileName = Path.Combine (outputDirectory, "ReleaseNotes.html");;
+        customJQuery = args[2];
       }
-      
+
       Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
       
       var webClient = new NtlmAuthenticatedWebClient ();
@@ -56,8 +58,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var jiraIssueAggregator = new JiraIssueAggregator (jiraClient);
       var xmlTransformer = new XmlTransformer (s_Configuration.XsltStyleSheetPath, s_Configuration.XsltProcessorPath);
       var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator, xmlTransformer);
-      var outputFile = s_Configuration.OutputFileName.Replace(".html", "_v" + version + ".html");
-
+      
       var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], outputFile);
 
       if (exitCode == WebServiceError)
@@ -76,19 +77,36 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      if (arguments.Length != 1 && arguments.Length != 2)
+      const string usage = "usage: JiraReleaseNoteGenerator versionNumber outputDirectory <jqlExpression>";
+
+      if (arguments.Length != 2 && arguments.Length != 3)
       {
         Console.Error.WriteLine ("Wrong number of arguments.");
-        Console.Error.WriteLine ("usage: JiraReleaseNoteGenerator versionNumber <outputDirectory>");
+        Console.Error.WriteLine (usage);
         return 1;
       }
+      
       if (string.IsNullOrEmpty (arguments[0]))
       {
         Console.Error.WriteLine ("versionNumber must not be empty.");
-        Console.Error.WriteLine ("usage: JiraReleaseNoteGenerator versionNumber");
+        Console.Error.WriteLine (usage);
         return 2;
       }
 
+      if (string.IsNullOrEmpty (arguments[1]))
+      {
+        Console.Error.WriteLine ("outputDirectory must be specified.");
+        Console.Error.WriteLine (usage);
+        return 2;
+      }
+      /*
+      if (arguments.Length == 3 && !File.Exists(arguments[1]))
+      {
+        Console.Error.WriteLine ("Config file " + arguments[1] + " does not exist.");
+        Console.Error.WriteLine (usage);
+        return 3;
+      }
+//*/
       return 0;
     }
   }
