@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="CustomConstraints.cs" />
     <Compile Include="IJiraClient.cs" />
     <Compile Include="IJiraIssueAggregator.cs" />
     <Compile Include="IJiraRequestUrlBuilder.cs" />
