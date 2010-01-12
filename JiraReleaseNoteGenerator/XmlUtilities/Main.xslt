@@ -47,19 +47,6 @@
     <xsl:copy-of select=" exists( index-of( $sequence, $searchItem ) )" />
   </xsl:function>
 
-  <xsl:function name="ru:allOrSelected">
-    <xsl:param name="all" />
-    <xsl:param name="selected" />
-
-    <xsl:if  test="count($selected)>0">
-      <xsl:copy-of select="$selected" />
-    </xsl:if>
-    <xsl:if  test="count($selected)=0">
-      <xsl:copy-of select="$all" />
-    </xsl:if>
-
-  </xsl:function>
-
   <xsl:template name="htmlSite">
     <xsl:param name="siteTitle" />
     <xsl:result-document format="standardHtmlOutputFormat">
@@ -127,7 +114,7 @@
             padding-bottom: 30px;
             }
 
-            .description, .component, .issueType, .status, .resolution
+            .description, .component, .issueType, .status, .resolution, .fixVersion
             {
             margin-left:10px;
             }
@@ -174,13 +161,13 @@
 
       <xsl:variable name="selectingType" select="type"/>
 
-      <xsl:variable name="selectingComponents" select="ru:allOrSelected(//component, /rss/outputConfiguration/components/component)"/>
+
 
       <xsl:if test="$outputType = 'list'">
         <div class="listEntryGroup">
           <xsl:call-template name="issueListForType">
             <xsl:with-param name="root" select="/" />
-            <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType and ru:contains($selectingComponents, component)]"/>
+            <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
             <xsl:with-param name="visibleStatus" select="current()"/>
           </xsl:call-template>
         </div>
@@ -189,7 +176,7 @@
       <xsl:if test="$outputType = 'details'">
         <xsl:call-template name="issueDetailsForType">
           <xsl:with-param name="root" select="/" />
-          <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType and ru:contains($selectingComponents, component)]"/>
+          <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
           <xsl:with-param name="visibleStatus" select="current()"/>
         </xsl:call-template>
       </xsl:if>
@@ -205,14 +192,14 @@
     <xsl:if test="count(functx:value-intersect($issues/status, $root//issueVisibility/visibleStatus)) = 0 and count($root//rss/channel/item[parent = $issues/key and ru:contains($root//issueVisibility/visibleStatus, status)]) = 0">
       <div class="listEntry">(none)</div>
     </xsl:if>
-    <!-- $issues[ru:contains($root//components/component, component)] -->
+
     <xsl:for-each select="$issues">
       <!-- select="functx:is-value-in-sequence(current()/status, $root//rss/channel/item[parent = current()/key]/status)" -->
 
       <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
 
       <div class="listEntry">
-        <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true()">
+        <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true() and exists(invisible) = false()">
           <a href="#{key}">
             <b>
               [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>:
@@ -220,7 +207,7 @@
             <xsl:value-of select="summary"/>
           </a>
         </xsl:if>
-        <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() and $hasValidChildren = true()">
+        <xsl:if test="exists(invisible) = true() and $hasValidChildren = true()">
           <span class="notVisible">
             <a href="#{key}">
               <b>
@@ -252,7 +239,7 @@
       <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
       <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true() or $hasValidChildren = true()">
         <xsl:variable name="visibilityTag">
-          <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false()">
+          <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() or exists(invisible) = true()">
             detailNotVisible
           </xsl:if>
         </xsl:variable>
@@ -296,6 +283,15 @@
           <!--
           </xsl:if>
           -->
+
+          <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() or exists(invisible) = true()">
+            <div class="fixVersion">
+              <span class="label">FixVersion: </span>
+              <span class="value">
+                <xsl:value-of select="fixVersion"/>
+              </span>
+            </div>
+          </xsl:if>
           <br/>
           <div class="description">
             <xsl:if test="description = ''">
