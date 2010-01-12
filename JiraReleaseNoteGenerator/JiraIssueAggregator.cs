@@ -41,13 +41,14 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       _jiraClient = jiraClient;
     }
 
-    public XDocument GetXml (string version)
+    public XDocument GetXml (CustomConstraints customConstraints)
     {
-      ArgumentUtility.CheckNotNull ("version", version);
+      ArgumentUtility.CheckNotNull ("customConstraints", customConstraints);
 
-      var xmlForVersion = _jiraClient.GetIssuesByVersion (version);
+      var xmlForVersion = _jiraClient.GetIssuesByCustomConstraints (customConstraints);
       var keys = FindUnknownParentKeys (xmlForVersion);
-      var xmlWithMissingParents = _jiraClient.GetIssuesByKeys (keys);
+      var xmlWithMissingParents = SetIssuesInvisible(_jiraClient.GetIssuesByKeys (keys));
+      
       return MergeXml (xmlForVersion, xmlWithMissingParents);
     }
 
@@ -64,6 +65,12 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var result = new XDocument (xDocument1);
       result.Element ("rss").Element ("channel").Add (xDocument2.Element ("rss").Element ("channel").Elements("item"));
       return result;
+    }
+
+    private XDocument SetIssuesInvisible (XDocument document)
+    {
+      var tmp = document.ToString ().Replace ("</status>", "</status><invisible/>");
+      return XDocument.Parse (tmp);
     }
   }
 }

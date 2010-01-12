@@ -212,6 +212,7 @@ http://localhost:8080/jira/sr/jira.issueviews:searchrequest-xml/temp/SearchReque
       <type id="1" iconUrl="http://localhost:8080/jira/images/icons/bug.gif">Bug</type>
       <priority id="3" iconUrl="http://localhost:8080/jira/images/icons/priority_major.gif">Major</priority>
       <status id="4" iconUrl="http://localhost:8080/jira/images/icons/status_reopened.gif">Reopened</status>
+      <invisible/>
       <resolution id="-1">Unresolved</resolution>
       <assignee username="admin">Administrator</assignee>
       <reporter username="patrick.groess">Größ, Patrick</reporter>

@@ -49,10 +49,11 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     public void GenerateReleaseNotes ()
     {
       const string outputFile = @".\ReleaseNoteGenerator-UnitTest\output.html";
+      var constraints = new CustomConstraints ("2.0.2", null);
 
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
       {
-        _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("2.0.2")).Return (XDocument.Load (reader));
+        _jiraIssueAggregatorStub.Stub (stub => stub.GetXml (constraints)).Return (XDocument.Load (reader));
       }
 
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
@@ -65,7 +66,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
           Arg<XDocument>.Matches (d => d.ToString() == issues.ToString()), Arg.Is (outputFile))).Return (0);
       }
 
-      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("2.0.2", outputFile);
+      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes (constraints, outputFile);
 
       Assert.That (exitCode, Is.EqualTo (0));
 
@@ -76,9 +77,11 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     public void GenerateReleaseNotes_InvalidVersion ()
     {
       const string outputFile = @".\ReleaseNoteGenerator-UnitTest\output.html";
-      _jiraIssueAggregatorStub.Stub (stub => stub.GetXml ("unknownVersion")).Throw (new WebException ("The remote server returned an error: (400) Bad Request."));
-      
-      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes ("unknownVersion", outputFile);
+      var constraints = new CustomConstraints ("unknownVersion", null);
+
+      _jiraIssueAggregatorStub.Stub (stub => stub.GetXml (constraints)).Throw (new WebException ("The remote server returned an error: (400) Bad Request."));
+
+      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes (constraints, outputFile);
       
       Assert.That (exitCode, Is.EqualTo (1));
     }

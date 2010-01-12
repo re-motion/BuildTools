@@ -57,35 +57,26 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       _builderFactory = builderFactory;
     }
 
-    public XDocument GetIssuesByVersion (string version)
+    public XDocument GetIssuesByCustomConstraints (CustomConstraints customConstraints)
     {
-      ArgumentUtility.CheckNotNull ("version", version);
+      ArgumentUtility.CheckNotNull ("customConstraints", customConstraints);
 
-      return GetIssues (version, null, null);
+      return GetIssues (customConstraints, null);
     }
-
-    public XDocument GetIssuesByVersionWithAdditionalConstraint (string version, string jqlExpression)
-    {
-      ArgumentUtility.CheckNotNull ("version", version);
-      ArgumentUtility.CheckNotNull ("jqlExpression", jqlExpression);
-
-      return GetIssues (version, null, jqlExpression);
-    }
-
 
     public XDocument GetIssuesByKeys (string[] keys)
     {
       ArgumentUtility.CheckNotNull ("keys", keys);
 
-      return GetIssues (null, keys, null);
+      return GetIssues (null, keys);
     }
 
-    private XDocument GetIssues (string version, string[] keys, string additionalJQuery)
+    private XDocument GetIssues (CustomConstraints customConstraints, string[] keys)
     {
       var builder = _builderFactory();
-      builder.FixVersion = version;
+      builder.FixVersion = customConstraints == null ? null : customConstraints.Version;
       builder.Keys = keys;
-      builder.JqlExpression = additionalJQuery;
+      builder.AdditionalConstraint = customConstraints == null ? null : customConstraints.AdditionalConstraint;
 
       if (builder.IsValidQuery())
       {

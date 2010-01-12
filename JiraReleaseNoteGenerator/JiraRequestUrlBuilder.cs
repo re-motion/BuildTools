@@ -33,7 +33,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     public string FixVersion { get; set; }
     public string[] Keys { get; set; }
-    public string JqlExpression { get; set; }
+    public string AdditionalConstraint { get; set; }
 
     public JiraRequestUrlBuilder (Configuration configuration)
     {
@@ -114,13 +114,13 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     private void AddJQueryToRequest (StringBuilder url, bool isFirstRequestParameter)
     {
-      if (String.IsNullOrEmpty (JqlExpression))
+      if (String.IsNullOrEmpty (AdditionalConstraint))
         return;
 
       if (!isFirstRequestParameter)
         url.Append ("+and+");
 
-      url.Append (JqlExpression);
+      url.Append (AdditionalConstraint);
     }
   }
 }

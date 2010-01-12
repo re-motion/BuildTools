@@ -44,9 +44,11 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
     [Test]
     public void GetXml_VersionWithMissingParents ()
     {
+      var constraints = new CustomConstraints ("2.0.2", null);
+
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2.xml")))
       {
-        _jiraClientStub.Stub (stub => stub.GetIssuesByVersion ("2.0.2")).Return (XDocument.Load (reader));
+        _jiraClientStub.Stub (stub => stub.GetIssuesByCustomConstraints (constraints)).Return (XDocument.Load (reader));
       }
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_COMMONS-4.xml")))
       {
@@ -55,7 +57,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       using (var resultReader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v2.0.2_complete.xml")))
       {
-        var output = _jiraIssueAggregator.GetXml ("2.0.2");
+        var output = _jiraIssueAggregator.GetXml (constraints);
         var expectedOutput = XDocument.Load (resultReader);
 
         Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));
@@ -68,11 +70,12 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v1.2_closed.xml")))
       {
         var xmlFile = XDocument.Load (reader);
-        _jiraClientStub.Stub (stub => stub.GetIssuesByVersion ("1.2")).Return (xmlFile);
+        var constraints = new CustomConstraints ("1.2", null);
+        _jiraClientStub.Stub (stub => stub.GetIssuesByCustomConstraints (constraints)).Return (xmlFile);
         var emptyXml = new XDocument (new XElement ("rss", new XElement ("channel")));
         _jiraClientStub.Stub (stub => stub.GetIssuesByKeys (new string[0])).Return (emptyXml);
 
-        var output = _jiraIssueAggregator.GetXml ("1.2");
+        var output = _jiraIssueAggregator.GetXml (constraints);
         var expectedOutput = xmlFile;
 
         Assert.That (output.ToString(), Is.EqualTo (expectedOutput.ToString()));

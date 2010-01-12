@@ -23,6 +23,9 @@ using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 {
+  /// <summary>
+  /// Contains the constraints, for which the release notes will be requested.
+  /// </summary>
   public class CustomConstraints
   {
     private readonly string _version;

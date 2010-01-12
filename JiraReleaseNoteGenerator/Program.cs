@@ -39,6 +39,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       if (argumentCheckResult != 0)
         return (argumentCheckResult);
 
+      
       var version = args[0];
       var outputDirectory = Path.GetFullPath (args[1]);
       var outputFile = Path.Combine (outputDirectory, "ReleaseNotes_v" + version + ".html");;
@@ -49,6 +50,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
         customJQuery = args[2];
       }
 
+      var customConstraints = new CustomConstraints (version, customJQuery);
+
       Console.Out.WriteLine ("Starting Remotion.BuildTools for version " + version);
       
       var webClient = new NtlmAuthenticatedWebClient ();
@@ -58,8 +61,8 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var jiraIssueAggregator = new JiraIssueAggregator (jiraClient);
       var xmlTransformer = new XmlTransformer (s_Configuration.XsltStyleSheetPath, s_Configuration.XsltProcessorPath);
       var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator, xmlTransformer);
-      
-      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (args[0], outputFile);
+
+      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (customConstraints, outputFile);
 
       if (exitCode == WebServiceError)
         return 3;
@@ -99,14 +102,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
         Console.Error.WriteLine (usage);
         return 2;
       }
-      /*
-      if (arguments.Length == 3 && !File.Exists(arguments[1]))
-      {
-        Console.Error.WriteLine ("Config file " + arguments[1] + " does not exist.");
-        Console.Error.WriteLine (usage);
-        return 3;
-      }
-//*/
+
       return 0;
     }
   }

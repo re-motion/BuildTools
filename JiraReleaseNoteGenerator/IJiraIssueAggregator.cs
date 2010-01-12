@@ -29,6 +29,6 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   /// </summary>
   public interface IJiraIssueAggregator
   {
-    XDocument GetXml (string version);
+    XDocument GetXml (CustomConstraints customConstraints);
   }
 }

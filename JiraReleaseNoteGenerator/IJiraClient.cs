@@ -28,8 +28,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   /// </summary>
   public interface IJiraClient
   {
-    XDocument GetIssuesByVersion (string version);
-    XDocument GetIssuesByVersionWithAdditionalConstraint (string version, string jqlExpression);
+    XDocument GetIssuesByCustomConstraints (CustomConstraints customConstraints);
     XDocument GetIssuesByKeys (string[] keys);
   }
 }

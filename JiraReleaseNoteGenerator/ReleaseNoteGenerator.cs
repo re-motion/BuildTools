@@ -46,16 +46,16 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       _xmlTransformer = xmlTransformer;
     }
 
-    public int GenerateReleaseNotes (string version, string outputFile)
+    public int GenerateReleaseNotes (CustomConstraints customConstraints, string outputFile)
     {
-      ArgumentUtility.CheckNotNull ("version", version);
+      ArgumentUtility.CheckNotNull ("customConstraints", customConstraints);
       ArgumentUtility.CheckNotNull ("outputFile", outputFile);
 
       XDocument issues;
 
       try
       {
-        issues = GetXmlWithConfigSection(version);
+        issues = GetXmlWithConfigSection (customConstraints);
       }
       catch (WebException webException)
       {
@@ -68,11 +68,11 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       return transformerExitCode;
     }
 
-    private XDocument GetXmlWithConfigSection (string version)
+    private XDocument GetXmlWithConfigSection (CustomConstraints customConstraints)
     {
-      var issues = _jiraIssueAggregator.GetXml (version);
+      var issues = _jiraIssueAggregator.GetXml (customConstraints);
       var config = XDocument.Load (_configuration.ConfigFile);
-      config.Root.Add (new XElement ("generatedForVersion", version));
+      config.Root.Add (new XElement ("generatedForVersion", customConstraints.Version));
       issues.Root.AddFirst (config.Elements());
       return issues;
     }

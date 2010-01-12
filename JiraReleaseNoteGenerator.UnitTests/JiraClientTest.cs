@@ -50,7 +50,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         _builderMock.Expect (mock => mock.FixVersion = "1.2");
         _builderMock.Expect (mock => mock.Keys = null);
-        _builderMock.Expect (mock => mock.JqlExpression = null);
+        _builderMock.Expect (mock => mock.AdditionalConstraint = null);
         _builderMock.Expect (mock => mock.IsValidQuery()).Return (true);
         _builderMock.Expect (mock => mock.Build()).Return ("JiraUrl");
       }
@@ -59,7 +59,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
 
-        _jiraClient.GetIssuesByVersion ("1.2");
+        _jiraClient.GetIssuesByCustomConstraints (new CustomConstraints ("1.2", null));
       }
 
       _builderMock.VerifyAllExpectations();
@@ -72,7 +72,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         _builderMock.Expect (mock => mock.FixVersion = "1.2");
         _builderMock.Expect (mock => mock.Keys = null);
-        _builderMock.Expect (mock => mock.JqlExpression = "abc");
+        _builderMock.Expect (mock => mock.AdditionalConstraint = "abc");
         _builderMock.Expect (mock => mock.IsValidQuery ()).Return (true);
         _builderMock.Expect (mock => mock.Build ()).Return ("JiraUrl");
       }
@@ -81,7 +81,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
 
-        _jiraClient.GetIssuesByVersionWithAdditionalConstraint ("1.2", "abc");
+        _jiraClient.GetIssuesByCustomConstraints (new CustomConstraints ("1.2", "abc"));
       }
 
       _builderMock.VerifyAllExpectations ();
@@ -94,6 +94,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         _builderMock.Expect (mock => mock.FixVersion = null);
         _builderMock.Expect (mock => mock.Keys = new[] { "UUU-116" });
+        _builderMock.Expect (mock => mock.AdditionalConstraint = null);
         _builderMock.Expect (mock => mock.IsValidQuery ()).Return (true);
         _builderMock.Expect (mock => mock.Build ()).Return ("JiraUrl");
       }
@@ -117,7 +118,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       using (var stream = ResourceManager.GetResourceStream ("Issues_v1.2.xml"))
       {
         _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
-        var output = _jiraClient.GetIssuesByVersion ("1.2");
+        var output = _jiraClient.GetIssuesByCustomConstraints (new CustomConstraints ("1.2", null));
 
         using (var reader = new StreamReader (ResourceManager.GetResourceStream ("Issues_v1.2.xml")))
         {

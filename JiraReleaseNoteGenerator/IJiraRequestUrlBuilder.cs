@@ -29,7 +29,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   {
     string FixVersion { get; set; }
     string[] Keys { get; set; }
-    string JqlExpression { get; set; }
+    string AdditionalConstraint { get; set; }
 
     string Build ();
     bool IsValidQuery ();
