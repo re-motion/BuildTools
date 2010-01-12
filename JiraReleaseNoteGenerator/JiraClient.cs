@@ -61,21 +61,31 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       ArgumentUtility.CheckNotNull ("version", version);
 
-      return GetIssues (version, null);
+      return GetIssues (version, null, null);
     }
+
+    public XDocument GetIssuesByVersionWithAdditionalConstraint (string version, string jqlExpression)
+    {
+      ArgumentUtility.CheckNotNull ("version", version);
+      ArgumentUtility.CheckNotNull ("jqlExpression", jqlExpression);
+
+      return GetIssues (version, null, jqlExpression);
+    }
+
 
     public XDocument GetIssuesByKeys (string[] keys)
     {
       ArgumentUtility.CheckNotNull ("keys", keys);
 
-      return GetIssues (null, keys);
+      return GetIssues (null, keys, null);
     }
 
-    private XDocument GetIssues (string version, string[] keys)
+    private XDocument GetIssues (string version, string[] keys, string additionalJQuery)
     {
       var builder = _builderFactory();
       builder.FixVersion = version;
       builder.Keys = keys;
+      builder.JqlExpression = additionalJQuery;
 
       if (builder.IsValidQuery())
       {

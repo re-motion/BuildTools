@@ -50,6 +50,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       {
         _builderMock.Expect (mock => mock.FixVersion = "1.2");
         _builderMock.Expect (mock => mock.Keys = null);
+        _builderMock.Expect (mock => mock.JqlExpression = null);
         _builderMock.Expect (mock => mock.IsValidQuery()).Return (true);
         _builderMock.Expect (mock => mock.Build()).Return ("JiraUrl");
       }
@@ -62,6 +63,28 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
       }
 
       _builderMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void GetIssuesByVersionWithAdditionalConstraint_BuildsUrlFromInputParameters ()
+    {
+      using (_builderMock.GetMockRepository ().Ordered ())
+      {
+        _builderMock.Expect (mock => mock.FixVersion = "1.2");
+        _builderMock.Expect (mock => mock.Keys = null);
+        _builderMock.Expect (mock => mock.JqlExpression = "abc");
+        _builderMock.Expect (mock => mock.IsValidQuery ()).Return (true);
+        _builderMock.Expect (mock => mock.Build ()).Return ("JiraUrl");
+      }
+
+      using (var stream = ResourceManager.GetResourceStream ("Issues_v1.2.xml"))
+      {
+        _webClientStub.Stub (stub => stub.OpenRead ("JiraUrl")).Return (stream);
+
+        _jiraClient.GetIssuesByVersionWithAdditionalConstraint ("1.2", "abc");
+      }
+
+      _builderMock.VerifyAllExpectations ();
     }
 
     [Test]

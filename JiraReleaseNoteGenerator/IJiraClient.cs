@@ -29,6 +29,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
   public interface IJiraClient
   {
     XDocument GetIssuesByVersion (string version);
+    XDocument GetIssuesByVersionWithAdditionalConstraint (string version, string jqlExpression);
     XDocument GetIssuesByKeys (string[] keys);
   }
 }

@@ -33,6 +33,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
     public string FixVersion { get; set; }
     public string[] Keys { get; set; }
+    public string JqlExpression { get; set; }
 
     public JiraRequestUrlBuilder (Configuration configuration)
     {
@@ -50,6 +51,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       AddProjectToRequest(url, true);
       AddFixVersionToRequest(url, false);
       AddKeysToRequest(url, false);
+      AddJQueryToRequest (url, false);
 
       url.Append ("&tempMax=1000");
 
@@ -108,6 +110,17 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       url.Append ("fixVersion+%3D+%22");
       url.Append (FixVersion);
       url.Append ("%22");
+    }
+
+    private void AddJQueryToRequest (StringBuilder url, bool isFirstRequestParameter)
+    {
+      if (String.IsNullOrEmpty (JqlExpression))
+        return;
+
+      if (!isFirstRequestParameter)
+        url.Append ("+and+");
+
+      url.Append (JqlExpression);
     }
   }
 }
