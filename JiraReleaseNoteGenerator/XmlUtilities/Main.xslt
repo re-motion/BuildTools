@@ -153,24 +153,17 @@
 
     <xsl:for-each select="/rss/outputConfiguration/issueOrder/issue">
 
-      <xsl:if test="$outputType = 'list'">
-        <h3>
-          <xsl:value-of select="title"/>
-        </h3>
-      </xsl:if>
-
       <xsl:variable name="selectingType" select="type"/>
 
-
-
       <xsl:if test="$outputType = 'list'">
-        <div class="listEntryGroup">
-          <xsl:call-template name="issueListForType">
-            <xsl:with-param name="root" select="/" />
-            <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
-            <xsl:with-param name="visibleStatus" select="current()"/>
-          </xsl:call-template>
-        </div>
+
+        <xsl:call-template name="issueListForType">
+          <xsl:with-param name="root" select="/" />
+          <xsl:with-param name="issues" select="/rss/channel/item[type=$selectingType]"/>
+          <xsl:with-param name="visibleStatus" select="current()"/>
+          <xsl:with-param name="title" select="title"/>
+        </xsl:call-template>
+
       </xsl:if>
 
       <xsl:if test="$outputType = 'details'">
@@ -188,45 +181,51 @@
     <xsl:param name="root" />
     <xsl:param name="issues" />
     <xsl:param name="visibleStatus" />
+    <xsl:param name="title" />
 
-    <xsl:if test="count(functx:value-intersect($issues/status, $root//issueVisibility/visibleStatus)) = 0 and count($root//rss/channel/item[parent = $issues/key and ru:contains($root//issueVisibility/visibleStatus, status)]) = 0">
-      <div class="listEntry">(none)</div>
-    </xsl:if>
+    <xsl:if test="count(functx:value-intersect($issues/status, $root//issueVisibility/visibleStatus)) > 0 or count($root//rss/channel/item[parent = $issues/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0">
+      <h3>
+        <xsl:value-of select="$title"/>
+      </h3>
 
-    <xsl:for-each select="$issues">
-      <!-- select="functx:is-value-in-sequence(current()/status, $root//rss/channel/item[parent = current()/key]/status)" -->
+      <div class="listEntryGroup">
 
-      <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
+        <xsl:for-each select="$issues">
+          <!-- select="functx:is-value-in-sequence(current()/status, $root//rss/channel/item[parent = current()/key]/status)" -->
 
-      <div class="listEntry">
-        <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true() and exists(invisible) = false()">
-          <a href="#{key}">
-            <b>
-              [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>:
-            </b>
-            <xsl:value-of select="summary"/>
-          </a>
-        </xsl:if>
-        <xsl:if test="exists(invisible) = true() and $hasValidChildren = true()">
-          <span class="notVisible">
-            <a href="#{key}">
-              <b>
-                [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>:
-              </b>
-              <xsl:value-of select="summary"/>
-            </a>
-          </span>
-        </xsl:if>
+          <xsl:variable name="hasValidChildren" select="count($root//rss/channel/item[parent = current()/key and ru:contains($root//issueVisibility/visibleStatus, status)]) > 0" />
+
+          <div class="listEntry">
+            <xsl:if test="functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = true() and exists(invisible) = false()">
+              <a href="#{key}">
+                <b>
+                  [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>:
+                </b>
+                <xsl:value-of select="summary"/>
+              </a>
+            </xsl:if>
+            <xsl:if test="exists(invisible) = true() and $hasValidChildren = true()">
+              <span class="notVisible">
+                <a href="#{key}">
+                  <b>
+                    [<xsl:value-of select="key"/>] <xsl:value-of select="component"/>:
+                  </b>
+                  <xsl:value-of select="summary"/>
+                </a>
+              </span>
+            </xsl:if>
+          </div>
+
+          <xsl:if test="$hasValidChildren = true()">
+            <xsl:call-template name="listChildren">
+              <xsl:with-param name="root" select="$root" />
+              <xsl:with-param name="key" select="key" />
+            </xsl:call-template>
+          </xsl:if>
+
+        </xsl:for-each>
       </div>
-
-      <xsl:if test="$hasValidChildren = true()">
-        <xsl:call-template name="listChildren">
-          <xsl:with-param name="root" select="$root" />
-          <xsl:with-param name="key" select="key" />
-        </xsl:call-template>
-      </xsl:if>
-
-    </xsl:for-each>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="issueDetailsForType">
