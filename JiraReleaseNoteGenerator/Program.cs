@@ -47,7 +47,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
       if (args.Length == 3)
       {
-        customJQuery = args[2];
+        customJQuery = Uri.EscapeDataString(args[2]);
       }
 
       var customConstraints = new CustomConstraints (version, customJQuery);
@@ -80,7 +80,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      const string usage = "usage: JiraReleaseNoteGenerator versionNumber outputDirectory <jqlExpression>";
+      const string usage = "usage: JiraReleaseNoteGenerator versionNumber outputDirectory <additionalConstraint>";
 
       if (arguments.Length != 2 && arguments.Length != 3)
       {

@@ -20,6 +20,7 @@
 // 
 using System;
 using System.IO;
+using System.Net;
 using System.Xml.Linq;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.Utilities;
 
@@ -91,17 +92,24 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     
     private XDocument GetIssuesFromUrl (string url)
     {
-      using (var data = _webClient.OpenRead (url))
+      try
       {
-        using (var reader = new StreamReader (data))
+        using (var data = _webClient.OpenRead (url))
         {
-          var result = XDocument.Parse (reader.ReadToEnd());
+          using (var reader = new StreamReader (data))
+          {
+            var result = XDocument.Parse (reader.ReadToEnd());
 
-          if (IsValidXml (result))
-            return result;
-          else
-            return CreateEmptyDocumentStructure();
+            if (IsValidXml (result))
+              return result;
+            else
+              return CreateEmptyDocumentStructure();
+          }
         }
+      }
+      catch (WebException ex)
+      {
+        throw new WebException (ex.Message + "\nURL: " + url);
       }
     }
 

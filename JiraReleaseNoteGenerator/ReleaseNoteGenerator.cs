@@ -59,7 +59,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       }
       catch (WebException webException)
       {
-        Console.Error.Write (webException);
+        Console.Error.Write (webException.Message);
         return 1;
       }
 
