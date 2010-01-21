@@ -204,7 +204,7 @@
                 <xsl:value-of select="summary"/>
               </a>
             </xsl:if>
-            <xsl:if test="exists(invisible) = true() and $hasValidChildren = true()">
+            <xsl:if test="(functx:is-value-in-sequence(status, $root//issueVisibility/visibleStatus) = false() or  exists(invisible) = true() )and $hasValidChildren = true()">
               <span class="notVisible">
                 <a href="#{key}">
                   <b>

@@ -60,7 +60,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       Console.Out.Write (xsltProcessor.StandardOutput.ReadToEnd());
       xsltProcessor.WaitForExit();
 
-      // File.Delete (inputFile);
+      File.Delete (inputFile);
 
       return xsltProcessor.ExitCode;
     }
