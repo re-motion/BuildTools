@@ -20,9 +20,7 @@
 // 
 using System;
 using System.Configuration;
-using System.Diagnostics;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Remotion.Development.UnitTesting.Configuration;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests

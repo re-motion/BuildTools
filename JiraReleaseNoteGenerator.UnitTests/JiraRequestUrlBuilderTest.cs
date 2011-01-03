@@ -21,7 +21,6 @@
 using System;
 using System.Text;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {

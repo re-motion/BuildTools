@@ -3,7 +3,6 @@
 //
 using System;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 {

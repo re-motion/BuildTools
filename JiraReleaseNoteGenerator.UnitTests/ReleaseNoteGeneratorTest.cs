@@ -23,7 +23,6 @@ using System.IO;
 using System.Net;
 using System.Xml.Linq;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.TestDomain;
 using Rhino.Mocks;
 

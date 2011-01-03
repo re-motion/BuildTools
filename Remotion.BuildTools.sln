@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraReleaseNoteGenerator", "JiraReleaseNoteGenerator\JiraReleaseNoteGenerator.csproj", "{AC553DCA-2EEA-4552-9312-0E576951AA39}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraReleaseNoteGenerator.UnitTests", "JiraReleaseNoteGenerator.UnitTests\JiraReleaseNoteGenerator.UnitTests.csproj", "{60E144DD-F016-4456-8E2C-4B611E515240}"

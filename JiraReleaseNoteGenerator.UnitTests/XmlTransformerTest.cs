@@ -22,7 +22,6 @@ using System;
 using System.IO;
 using System.Xml.Linq;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests.TestDomain;
 
 namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
