@@ -1,6 +1,4 @@
-// Copyright (C) 2005 - 2009 rubicon informationstechnologie gmbh
-// All rights reserved.
-//
+using System;
 using NUnit.Framework;
 using Remotion.Text.CommandLine;
 using Rhino.Mocks;
@@ -19,17 +17,17 @@ namespace CodeplexReleaseTool.UnitTests
       _serviceMock = MockRepository.GenerateMock<ICodeplexWebService>();
       _command = new CreateReleaseCommand (_serviceMock);
     }
-    
+
     [Test]
     public void ValidParameters ()
     {
       var args = "/projectName:ProjectName /releaseName:ReleaseName /description:Description /status:Status /releaseDate:ReleaseDate "
-        +"/showToPublic:+ /isDefaultRelease:- /username:Username /password:Password";
+                 + "/showToPublic:+ /isDefaultRelease:- /username:Username /password:Password";
 
       _serviceMock.Expect (
           mock =>
           mock.CreateARelease (
-              Arg.Is("ProjectName"),
+              Arg.Is ("ProjectName"),
               Arg.Is ("ReleaseName"),
               Arg.Is ("Description"),
               Arg.Is ("ReleaseDate"),
@@ -56,7 +54,7 @@ namespace CodeplexReleaseTool.UnitTests
     [ExpectedException (typeof (InvalidCommandLineArgumentNameException))]
     public void InvalidParameters ()
     {
-      _command.Execute (new[]{"/sdfsd"});
+      _command.Execute (new[] { "/sdfsd" });
     }
   }
 }
