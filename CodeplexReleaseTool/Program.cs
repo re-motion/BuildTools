@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Remotion.Text.CommandLine;
 
 namespace CodeplexReleaseTool
 {
@@ -7,9 +8,11 @@ namespace CodeplexReleaseTool
   {
     private static int Main (string[] args)
     {
-      //TODO
-      //if (args.Length == 0)
-      //  ShowUsage ();
+      if (args.Length == 0)
+      {
+        ShowUsage();
+        return 1;
+      }
 
       var service = new CodeplexWebService (Configuration.Current.Url);
 
@@ -20,11 +23,11 @@ namespace CodeplexReleaseTool
       {
         command.Execute (args.Skip (1).ToArray ());
       }
-      //catch (CommandLineArgumentException ex)
-      //{
-      //  Console.Error.WriteLine (ex.Message);
-      //  //TODO: ShowUsage ();
-      //}
+      catch (CommandLineArgumentException ex)
+      {
+        Console.Error.WriteLine (ex.Message);
+        ShowUsage ();
+      }
       catch (Exception ex)
       {
         Console.Error.WriteLine (ex);
@@ -32,6 +35,17 @@ namespace CodeplexReleaseTool
       }
 
       return 0;
+    }
+
+    private static void ShowUsage ()
+    {
+      Console.WriteLine ("Usage:");
+      
+      var createReleaseParser = new CommandLineClassParser<CreateReleaseParameter> ();
+      Console.WriteLine (createReleaseParser.GetAsciiSynopsis (Environment.GetCommandLineArgs ()[0]+" createRelease", System.Console.BufferWidth));
+
+      var uploadReleaseParser = new CommandLineClassParser<UploadReleaseFilesParameter> ();
+      Console.WriteLine (uploadReleaseParser.GetAsciiSynopsis (Environment.GetCommandLineArgs ()[0]+" uploadReleaseFiles", System.Console.BufferWidth));
     }
 
     private static ICommand GetCommand (string commandString, CodeplexWebService service)

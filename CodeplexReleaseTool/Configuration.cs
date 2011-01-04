@@ -22,5 +22,6 @@ namespace CodeplexReleaseTool
     {
       get { return (string) this["url"]; }
     }
+   
   }
 }

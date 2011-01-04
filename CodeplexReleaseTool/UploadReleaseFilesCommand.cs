@@ -1,17 +1,28 @@
 using System;
+using Remotion.Text.CommandLine;
+using Remotion.Utilities;
 
 namespace CodeplexReleaseTool
 {
   public class UploadReleaseFilesCommand : ICommand
   {
-    public UploadReleaseFilesCommand (CodeplexWebService service)
+    private ICodeplexWebService _service;
+
+    public UploadReleaseFilesCommand (ICodeplexWebService service)
     {
-      
+      ArgumentUtility.CheckNotNull ("service", service);
+
+      _service = service;
     }
 
     public void Execute (string[] args)
     {
-      throw new NotImplementedException();
+      ArgumentUtility.CheckNotNull ("args", args);
+
+      var parser = new CommandLineClassParser<UploadReleaseFilesParameter> ();
+      var commandParameters = parser.Parse (args);
+
+
     }
   }
 }

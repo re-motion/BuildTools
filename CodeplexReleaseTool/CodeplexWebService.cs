@@ -19,7 +19,8 @@ namespace CodeplexReleaseTool
   [System.Diagnostics.DebuggerStepThroughAttribute()]
   [System.ComponentModel.DesignerCategoryAttribute("code")]
   [System.Web.Services.WebServiceBindingAttribute(Name="ReleaseServiceSoap", Namespace="http://www.codeplex.com/services/ReleaseService/v1.0")]
-  public class CodeplexWebService : System.Web.Services.Protocols.SoapHttpClientProtocol {
+  public class CodeplexWebService : System.Web.Services.Protocols.SoapHttpClientProtocol, ICodeplexWebService
+  {
     
     private System.Threading.SendOrPostCallback CreateProjectReleaseOperationCompleted;
     
