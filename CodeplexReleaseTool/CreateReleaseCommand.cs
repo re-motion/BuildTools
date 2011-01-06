@@ -23,7 +23,7 @@ namespace CodeplexReleaseTool
       var parser = new CommandLineClassParser<CreateReleaseParameter> ();
       var commandParameters = parser.Parse (args);
 
-      _service.CreateARelease (
+      _service.CreateARelease(
           commandParameters.ProjectName,
           commandParameters.ReleaseName,
           commandParameters.Description,

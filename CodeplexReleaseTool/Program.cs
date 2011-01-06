@@ -16,8 +16,7 @@ namespace CodeplexReleaseTool
       }
 
       var service = new CodeplexWebService (Configuration.Current.Url);
-      //service.Credentials = new NetworkCredential ("relinq_buildagent", "1255!rlnq");
-     
+      
       var commandString = args[0];
       var command = GetCommand (commandString, service);
 

@@ -33,7 +33,7 @@ namespace CodeplexReleaseTool
     [CommandLineStringArgument ("fileType", false,
        Description = "The type of file in the release. Valid values are RuntimeBinary, SourceCode, Documentation, Example.",
        Placeholder = "fileType")]
-    public string FileType = "application/octet-stream";
+    public string FileType = string.Empty;
 
     [CommandLineStringArgument ("username", false,
         Description = "The codeplex user name.",
