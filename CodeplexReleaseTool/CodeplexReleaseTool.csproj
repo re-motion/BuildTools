@@ -60,6 +60,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="CreateReleaseCommand.cs" />
     <Compile Include="CreateReleaseParameter.cs" />
+    <Compile Include="ICodeplexWebService.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
