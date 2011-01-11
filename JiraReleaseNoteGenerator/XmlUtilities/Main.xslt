@@ -19,10 +19,24 @@
     doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
     />
 
+  <xsl:output
+	name="emptyFileFormat"
+	method="text"
+	indent="no"
+	omit-xml-declaration="yes"
+    />
+
   <xsl:template match="/">
-    <xsl:call-template name="htmlSite">
-      <xsl:with-param name="siteTitle" />
-    </xsl:call-template>
+    <xsl:choose>
+      <xsl:when test ="//item">
+        <xsl:call-template name="htmlSite">
+          <xsl:with-param name="siteTitle" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:result-document format="emptyFileFormat"></xsl:result-document>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:function name="functx:is-value-in-sequence" as="xs:boolean" >
