@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using Remotion.Text.CommandLine;
 
 namespace CodeplexReleaseTool
@@ -16,6 +17,7 @@ namespace CodeplexReleaseTool
       }
 
       var service = new CodeplexWebService (Configuration.Current.Url);
+      service.Timeout = Timeout.Infinite; 
       
       var commandString = args[0];
       var command = GetCommand (commandString, service);
