@@ -30,11 +30,12 @@ namespace CodeplexReleaseTool
       {
         Console.Error.WriteLine (ex.Message);
         ShowUsage ();
+        return 1;
       }
       catch (Exception ex)
       {
         Console.Error.WriteLine (ex);
-        return 1;
+        return 2;
       }
 
       return 0;
@@ -43,12 +44,14 @@ namespace CodeplexReleaseTool
     private static void ShowUsage ()
     {
       Console.WriteLine ("Usage:");
-      
+
+      var exeFileName = Environment.GetCommandLineArgs ()[0];
+
       var createReleaseParser = new CommandLineClassParser<CreateReleaseParameter> ();
-      Console.WriteLine (createReleaseParser.GetAsciiSynopsis (Environment.GetCommandLineArgs ()[0]+" createRelease", System.Console.BufferWidth));
+      Console.WriteLine (createReleaseParser.GetAsciiSynopsis (exeFileName + " createRelease", System.Console.BufferWidth));
 
       var uploadReleaseParser = new CommandLineClassParser<UploadReleaseFilesParameter> ();
-      Console.WriteLine (uploadReleaseParser.GetAsciiSynopsis (Environment.GetCommandLineArgs ()[0]+" uploadReleaseFiles", System.Console.BufferWidth));
+      Console.WriteLine (uploadReleaseParser.GetAsciiSynopsis (exeFileName + " uploadReleaseFiles", System.Console.BufferWidth));
     }
 
     private static ICommand GetCommand (string commandString, CodeplexWebService service)
