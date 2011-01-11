@@ -200,7 +200,7 @@ namespace CodeplexReleaseTool
     void GetReleaseAsync(string projectName, string releaseName, string username, string password, object userState);
 
     /// <remarks/>
-    new void CancelAsync(object userState);
+    void CancelAsync(object userState);
 
     void Discover ();
     void Abort ();
