@@ -8,9 +8,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("JiraReleaseNoteGenerator")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Microsoft")]
+[assembly: AssemblyCompany ("rubicon informationstechnologie gmbh")]
+[assembly: AssemblyCopyright ("(c) 2011 rubicon informationstechnologie gmbh, www.rubicon.eu")]
+[assembly: AssemblyTrademark ("")]
 [assembly: AssemblyProduct ("JiraReleaseNoteGenerator")]
-[assembly: AssemblyCopyright ("Copyright © Microsoft 2009")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

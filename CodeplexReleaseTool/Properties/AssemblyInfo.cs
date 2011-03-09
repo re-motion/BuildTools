@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle ("CodeplexReleaseTool")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("Microsoft")]
 [assembly: AssemblyProduct ("CodeplexReleaseTool")]
-[assembly: AssemblyCopyright ("Copyright © Microsoft 2011")]
+[assembly: AssemblyCompany ("rubicon informationstechnologie gmbh")]
+[assembly: AssemblyCopyright ("(c) 2011 rubicon informationstechnologie gmbh, www.rubicon.eu")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
