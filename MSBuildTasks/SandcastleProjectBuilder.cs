@@ -9,6 +9,8 @@ namespace Remotion.BuildTools.MSBuildTasks
 {
   public class SandcastleProjectBuilder : Task
   {
+    private readonly XNamespace _namespace = "http://schemas.microsoft.com/developer/msbuild/2003";
+
     [Required]
     public ITaskItem File { get; set; }
 
@@ -24,7 +26,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       {
         projectFile = XDocument.Load (File.ItemSpec, LoadOptions.None);
         
-        var propertyGroup = projectFile.Descendants ("PropertyGroup").Single ();
+        var propertyGroup = projectFile.Descendants (_namespace + "PropertyGroup").Single ();
         propertyGroup.Add (GetDocumentationSources ());
 
         projectFile.Save (File.ItemSpec, SaveOptions.None);
@@ -43,7 +45,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     {
       try
       {
-        var sources = new XElement ("DocumentationSources");
+        var sources = new XElement (_namespace + "DocumentationSources");
 
         foreach (var assembly in Assemblies)
         {
@@ -72,7 +74,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private XElement GetDocumentationSource (string path)
     {
-      return new XElement("DocumentationSource", new XAttribute("sourceFile", path));
+      return new XElement(_namespace + "DocumentationSource", new XAttribute("sourceFile", path));
     }
 
     private string GetAssemblyDocumentation (ITaskItem assembly)
