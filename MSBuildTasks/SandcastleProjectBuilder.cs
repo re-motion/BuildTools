@@ -25,9 +25,12 @@ namespace Remotion.BuildTools.MSBuildTasks
       try
       {
         projectFile = XDocument.Load (File.ItemSpec, LoadOptions.None);
-        
-        var propertyGroup = projectFile.Descendants (_namespace + "PropertyGroup").Single ();
-        propertyGroup.Add (GetDocumentationSources ());
+
+        var propertyGroup = new XElement (_namespace + "PropertyGroup");
+        propertyGroup.Add (GetDocumentationSources());
+
+        var project = projectFile.Descendants (_namespace + "Project").Single ();
+        project.Add (propertyGroup);
 
         projectFile.Save (File.ItemSpec, SaveOptions.None);
         
