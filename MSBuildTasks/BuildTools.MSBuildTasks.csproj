@@ -33,6 +33,9 @@
   <ItemGroup>
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,10 +43,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Jira\IJiraProjectVersionService.cs" />
+    <Compile Include="Jira\JiraException.cs" />
+    <Compile Include="Jira\JiraGetLatestUnreleasedVersion.cs" />
+    <Compile Include="Jira\JiraProjectVersion.cs" />
+    <Compile Include="Jira\JiraProjectVersionService.cs" />
     <Compile Include="NDocProjectBuilder.cs" />
     <Compile Include="NuGet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SandcastleProjectBuilder.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Jira\ServiceFacade\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
