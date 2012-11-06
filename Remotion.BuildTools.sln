@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraReleaseNoteGenerator", "JiraReleaseNoteGenerator\JiraReleaseNoteGenerator.csproj", "{AC553DCA-2EEA-4552-9312-0E576951AA39}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraReleaseNoteGenerator.UnitTests", "JiraReleaseNoteGenerator.UnitTests\JiraReleaseNoteGenerator.UnitTests.csproj", "{60E144DD-F016-4456-8E2C-4B611E515240}"
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeplexReleaseTool.UnitTests", "CodeplexReleaseTool.UnitTests\CodeplexReleaseTool.UnitTests.csproj", "{C4C6C9B3-2167-4804-9DE4-B26F2E698F05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTools.MSBuildTasks", "MSBuildTasks\BuildTools.MSBuildTasks.csproj", "{A31E3D60-D615-455E-B167-2404C8012C71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTools.MSBuildTasks.UnitTests", "MSBuildTasks.UnitTests\BuildTools.MSBuildTasks.UnitTests.csproj", "{051721D4-2570-4FE4-B517-B2D86ED5339F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +73,16 @@ Global
 		{A31E3D60-D615-455E-B167-2404C8012C71}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{A31E3D60-D615-455E-B167-2404C8012C71}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A31E3D60-D615-455E-B167-2404C8012C71}.Release|x86.ActiveCfg = Release|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{051721D4-2570-4FE4-B517-B2D86ED5339F}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
