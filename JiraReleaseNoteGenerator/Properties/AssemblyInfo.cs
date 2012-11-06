@@ -12,7 +12,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright ("(c) 2011 rubicon informationstechnologie gmbh, www.rubicon.eu")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyProduct ("JiraReleaseNoteGenerator")]
-[assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
