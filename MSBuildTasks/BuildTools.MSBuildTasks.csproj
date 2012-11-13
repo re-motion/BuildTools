@@ -43,11 +43,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Jira\IJiraProjectVersionService.cs" />
-    <Compile Include="Jira\JiraException.cs" />
-    <Compile Include="Jira\JiraGetLatestUnreleasedVersion.cs" />
-    <Compile Include="Jira\JiraProjectVersion.cs" />
-    <Compile Include="Jira\JiraProjectVersionService.cs" />
+    <Compile Include="Jira\JiraCreateNewVersion.cs" />
+    <Compile Include="Jira\JiraReleaseVersion.cs" />
+    <Compile Include="Jira\ServiceFacade\IJiraProjectVersionService.cs" />
+    <Compile Include="Jira\ServiceFacade\JiraException.cs" />
+    <Compile Include="Jira\JiraGetEarliestUnreleasedVersion.cs" />
+    <Compile Include="Jira\ServiceFacade\JiraIssue.cs" />
+    <Compile Include="Jira\ServiceFacade\JiraProjectVersion.cs" />
+    <Compile Include="Jira\ServiceFacade\JiraProjectVersionService.cs" />
     <Compile Include="NDocProjectBuilder.cs" />
     <Compile Include="NuGet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,9 +59,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Jira\ServiceFacade\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets. 

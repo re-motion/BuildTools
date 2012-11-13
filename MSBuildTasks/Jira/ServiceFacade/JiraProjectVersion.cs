@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira
+namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
 {
   public class JiraProjectVersion
   {

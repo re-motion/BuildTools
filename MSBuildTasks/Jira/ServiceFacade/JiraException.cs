@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira
+namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
 {
   public class JiraException : Exception
   {
