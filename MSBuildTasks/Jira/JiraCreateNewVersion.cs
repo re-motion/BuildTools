@@ -26,15 +26,21 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     [Required]
     public int VersionComponentToIncrement { get; set; }
 
+    private DayOfWeek _versionReleaseWeekday;
+
     [Required]
-    public DayOfWeek VersionReleaseWeekday { get; set; }
+    public string VersionReleaseWeekday
+    {
+      get { return _versionReleaseWeekday.ToString(); }
+      set { _versionReleaseWeekday = (DayOfWeek)Enum.Parse (typeof (DayOfWeek), value, true); }
+    }
 
     public override bool Execute ()
     {
       try
       {
         IJiraProjectVersionService service = new JiraProjectVersionService (JiraUrl, JiraUsername, JiraPassword);
-        service.CreateSubsequentVersion (JiraProject, VersionPattern, VersionComponentToIncrement, VersionReleaseWeekday);
+        service.CreateSubsequentVersion (JiraProject, VersionPattern, VersionComponentToIncrement, _versionReleaseWeekday);
 
         return true;
       }
