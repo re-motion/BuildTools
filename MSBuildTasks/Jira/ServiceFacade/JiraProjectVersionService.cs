@@ -26,7 +26,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     {
       var request = CreateRestRequest ("version", Method.POST);
 
-      var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = releaseDate };
+      var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = releaseDate.AddDays(1) };
       request.AddBody (projectVersion);
 
       var newProjectVersion = DoRequest<JiraProjectVersion> (request, HttpStatusCode.Created);
@@ -40,7 +40,10 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       var nextVersionName = IncrementVersion (lastUnreleasedVersion.name, versionComponentToIncrement);
 
       // Determine next release day
-      var nextReleaseDay = DateTime.Today.AddDays(1);
+      if (!lastUnreleasedVersion.releaseDate.HasValue)
+        throw new JiraException ("releaseDate of lastUnreleasedVersion must have a value but is null");
+
+      var nextReleaseDay = lastUnreleasedVersion.releaseDate.Value.AddDays(1);
       while(nextReleaseDay.DayOfWeek != versionReleaseWeekday)
         nextReleaseDay = nextReleaseDay.AddDays (1);
 
@@ -88,7 +91,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       var resource = "version/" + versionID;
       var request = CreateRestRequest (resource, Method.PUT);
 
-      var projectVersion = new JiraProjectVersion { id = versionID, released = true, releaseDate = DateTime.Today };
+      var projectVersion = new JiraProjectVersion { id = versionID, released = true, releaseDate = DateTime.Today.AddDays(1) };
       request.AddBody (projectVersion);
 
       DoRequest (request, HttpStatusCode.OK);
