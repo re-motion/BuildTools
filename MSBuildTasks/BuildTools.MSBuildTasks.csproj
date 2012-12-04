@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Jira\JiraCreateNewVersion.cs" />
+    <Compile Include="Jira\JiraGetLatestReleasedVersion.cs" />
     <Compile Include="Jira\JiraReleaseVersion.cs" />
     <Compile Include="Jira\ServiceFacade\IJiraProjectVersionService.cs" />
     <Compile Include="Jira\ServiceFacade\JiraException.cs" />

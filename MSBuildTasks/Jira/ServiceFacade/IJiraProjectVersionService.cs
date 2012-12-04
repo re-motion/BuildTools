@@ -29,6 +29,13 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     void DeleteVersion (string projectKey, string versionName);
 
     /// <summary>
+    /// Returns all versions of the project.
+    /// Filters by Regex.IsMatch(name, versionPattern) if versionPattern is not null.
+    /// </summary
+    /// <returns>List of project versions or empty sequence</returns>
+    IEnumerable<JiraProjectVersion> FindVersions (string projectKey, string versionPattern);
+
+    /// <summary>
     /// Returns all unreleased versions of the project.
     /// Filters by Regex.IsMatch(name, versionPattern) if versionPattern is not null.
     /// </summary
