@@ -26,7 +26,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     {
       var request = CreateRestRequest ("version", Method.POST);
 
-      var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = releaseDate.AddDays(1) };
+      var adjustedReleaseDate = AdjustReleaseDateForJira(releaseDate);
+      var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = adjustedReleaseDate };
       request.AddBody (projectVersion);
 
       var newProjectVersion = DoRequest<JiraProjectVersion> (request, HttpStatusCode.Created);
@@ -91,7 +92,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       var resource = "version/" + versionID;
       var request = CreateRestRequest (resource, Method.PUT);
 
-      var projectVersion = new JiraProjectVersion { id = versionID, released = true, releaseDate = DateTime.Today.AddDays(1) };
+      var adjustedReleaseDate = AdjustReleaseDateForJira(DateTime.Today);
+      var projectVersion = new JiraProjectVersion { id = versionID, released = true, releaseDate = adjustedReleaseDate };
       request.AddBody (projectVersion);
 
       DoRequest (request, HttpStatusCode.OK);
@@ -146,6 +148,14 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
 
       var response = DoRequest<List<JiraProjectVersion>> (request, HttpStatusCode.OK);
       return response.Data;
+    }
+
+    private static DateTime AdjustReleaseDateForJira (DateTime releaseDate)
+    {
+      var releaseDateAsUtcTime = releaseDate.ToUniversalTime();
+      var difference = releaseDate - releaseDateAsUtcTime;
+      var adjustedReleaseDate = releaseDate + difference;
+      return adjustedReleaseDate;
     }
 
     private IRestRequest CreateRestRequest (string resource, Method method)

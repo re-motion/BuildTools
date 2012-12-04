@@ -20,13 +20,13 @@ namespace BuildTools.MSBuildTasks.UnitTests
     private JiraProjectVersionService _service;
 
     [SetUp]
-    public void setUp ()
+    public void SetUp ()
     {
       _service = new JiraProjectVersionService (c_jiraUrl, c_jiraUsername, c_jiraPassword);
     }
 
     [Test]
-    public void integrationTest ()
+    public void IntegrationTest ()
     {
       DeleteVersionsIfExistent (c_jiraProjectKey, "4.1.0", "4.1.1", "4.1.2", "4.2.0");
 
@@ -37,7 +37,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       _service.CreateVersion (c_jiraProjectKey, "4.2.0", DateTime.Today.AddDays(7));
 
       // Get latest unreleased version
-      var versions = _service.FindUnreleasedVersions (c_jiraProjectKey, "4.1.");
+      var versions = _service.FindUnreleasedVersions (c_jiraProjectKey, "4.1.").ToList();
       Assert.That (versions.Count(), Is.EqualTo (3));
 
       var toRelease = versions.First();
@@ -57,7 +57,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       _service.ReleaseVersion (toRelease.id, toMove.id);
 
       // Get latest unreleased version again
-      versions = _service.FindUnreleasedVersions(c_jiraProjectKey, "4.1.");
+      versions = _service.FindUnreleasedVersions(c_jiraProjectKey, "4.1.").ToList();
       Assert.That (versions.Count(), Is.EqualTo (2));
 
       toRelease = versions.First();
@@ -105,7 +105,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void testGetUnreleasedVersionsWithNonExistentPattern ()
+    public void TestGetUnreleasedVersionsWithNonExistentPattern ()
     {
       DeleteVersionsIfExistent (c_jiraProjectKey, "a.b.c.d");
 
@@ -115,7 +115,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void testCannotCreateVersionTwice ()
+    public void TestCannotCreateVersionTwice ()
     {
       DeleteVersionsIfExistent (c_jiraProjectKey, "5.0.0");
 
@@ -129,7 +129,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void testDeleteVersion ()
+    public void TestDeleteVersion ()
     {
       DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.0.0");
 
@@ -138,7 +138,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void testDeleteNonExistentVersion ()
+    public void TestDeleteNonExistentVersion ()
     {
       DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.0.0");
 
