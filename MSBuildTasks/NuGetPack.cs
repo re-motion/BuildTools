@@ -4,22 +4,25 @@ using Microsoft.Build.Framework;
 
 namespace Remotion.BuildTools.MSBuildTasks
 {
-  public class NuGet : ToolTask
+  public class NuGetPack : ToolTask
   {
     [Required]
     public ITaskItem NuSpecFile { get; set; }
-    
+
     [Required]
-    public ITaskItem NuGetPath { get; set; }
+    public string Version { get; set; }
+
+    [Required]
+    public ITaskItem OutputDirectory { get; set; }
 
     protected override string GenerateFullPathToTool ()
     {
-      return NuGetPath.ItemSpec;
+      return ToolPath;
     }
 
     protected override string GenerateCommandLineCommands ()
     {
-      return String.Format("pack {0} -sym", NuSpecFile.ItemSpec);
+      return string.Format("pack -sym \"{0}\" -Version {1} -OutputDirectory \"{2}\" -NonInteractive", NuSpecFile.ItemSpec, Version, OutputDirectory);
     }
 
     protected override string ToolName

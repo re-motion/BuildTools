@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NuGetPush.cs" />
     <Compile Include="Jira\JiraCreateNewVersion.cs" />
     <Compile Include="Jira\JiraGetLatestReleasedVersion.cs" />
     <Compile Include="Jira\JiraReleaseVersion.cs" />
@@ -53,7 +54,7 @@
     <Compile Include="Jira\ServiceFacade\JiraProjectVersion.cs" />
     <Compile Include="Jira\ServiceFacade\JiraProjectVersionService.cs" />
     <Compile Include="NDocProjectBuilder.cs" />
-    <Compile Include="NuGet.cs" />
+    <Compile Include="NuGetPack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SandcastleProjectBuilder.cs" />
   </ItemGroup>
