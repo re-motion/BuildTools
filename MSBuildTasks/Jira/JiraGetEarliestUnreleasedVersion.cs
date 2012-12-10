@@ -6,7 +6,7 @@ using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
-  public class JiraGetEarliestUnreleasedVersions : Task
+  public class JiraGetEarliestUnreleasedVersion : Task
   {
     [Required]
     public string JiraUrl { get; set; }
