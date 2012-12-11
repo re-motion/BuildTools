@@ -19,12 +19,12 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     protected override string GenerateCommandLineCommands ()
     {
-      return string.Format("push \"{0}\" {1} -Timeout 60  -NonInteractive", PackageFile, ApiKey);
+      return string.Format("push \"{0}\" {1} -NonInteractive -Timeout 60", PackageFile, ApiKey);
     }
 
     protected override string ToolName
     {
-      get { return "NuGet"; }
+      get { return "NuGet.exe"; }
     }
   }
 }

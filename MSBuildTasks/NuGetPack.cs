@@ -22,12 +22,12 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     protected override string GenerateCommandLineCommands ()
     {
-      return string.Format("pack -sym \"{0}\" -Version {1} -OutputDirectory \"{2}\" -NonInteractive", NuSpecFile.ItemSpec, Version, OutputDirectory);
+      return string.Format("pack \"{0}\" -NonInteractive -Symbols -Version {1} -OutputDirectory \"{2}\"", NuSpecFile.ItemSpec, Version, OutputDirectory);
     }
 
     protected override string ToolName
     {
-      get { return "NuGet"; }
+      get { return "NuGet.exe"; }
     }
   }
 }
