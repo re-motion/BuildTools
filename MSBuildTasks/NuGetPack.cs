@@ -22,7 +22,8 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     protected override string GenerateCommandLineCommands ()
     {
-      return string.Format("pack \"{0}\" -NonInteractive -Symbols -Version {1} -OutputDirectory \"{2}\"", NuSpecFile.ItemSpec, Version, OutputDirectory);
+      var outputDirectory = OutputDirectory.ToString().TrimEnd ('\\');
+      return string.Format("pack \"{0}\" -NonInteractive -Symbols -Version {1} -OutputDirectory \"{2}\"", NuSpecFile.ItemSpec, Version, outputDirectory);
     }
 
     protected override string ToolName
