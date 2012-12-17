@@ -15,6 +15,9 @@ namespace Remotion.BuildTools.MSBuildTasks
     [Required]
     public ITaskItem OutputDirectory { get; set; }
 
+    [Required]
+    public string Properties { get; set; }
+
     protected override string GenerateFullPathToTool ()
     {
       return ToolPath;
@@ -23,7 +26,13 @@ namespace Remotion.BuildTools.MSBuildTasks
     protected override string GenerateCommandLineCommands ()
     {
       var outputDirectory = OutputDirectory.ToString().TrimEnd ('\\');
-      return string.Format("pack \"{0}\" -NonInteractive -Symbols -Version {1} -OutputDirectory \"{2}\"", NuSpecFile.ItemSpec, Version, outputDirectory);
+      return string.Format("pack \"{0}\" -NonInteractive -Symbols -Version {1} -OutputDirectory \"{2}\" -Properties \"{3}\"", NuSpecFile.ItemSpec, Version, outputDirectory, Properties);
+    }
+
+    public override bool Execute ()
+    {
+      EnvironmentVariables = new [] { "EnableNuGetPackageRestore=true" };
+      return base.Execute ();
     }
 
     protected override string ToolName
