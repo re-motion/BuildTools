@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -26,7 +27,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     protected override string GenerateCommandLineCommands ()
     {
       var outputDirectory = OutputDirectory.ToString().TrimEnd ('\\');
-      var properties = Properties.Replace (Environment.NewLine, "");
+      var properties = Regex.Replace (Properties, ";\\s*", ";").Replace("\"", "");
       return string.Format("pack \"{0}\" -NonInteractive -Symbols -Version {1} -OutputDirectory \"{2}\" -Properties \"{3}\"", NuSpecFile.ItemSpec, Version, outputDirectory, properties);
     }
 
