@@ -62,7 +62,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (toRelease.name, Is.EqualTo ("4.1.1"));
 
       // Check whether the new toRelease version has the issue from before
-      var issues = _service.FindAllOpenIssues (toRelease.id);
+      var issues = _service.FindAllNonClosedIssues (toRelease.id);
       Assert.That (issues.Count(), Is.EqualTo (1));
 
       DeleteVersionsIfExistent (c_jiraProjectKey, "4.1.0", "4.1.1", "4.1.2", "4.2.0");

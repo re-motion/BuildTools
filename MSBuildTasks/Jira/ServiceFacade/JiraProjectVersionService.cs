@@ -80,8 +80,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     {
       if(versionID != nextVersionID)
       {
-        var openIssues = FindAllOpenIssues (versionID);
-        MoveIssuesToVersion (openIssues, nextVersionID);
+        var nonClosedIssues = FindAllNonClosedIssues (versionID);
+        MoveIssuesToVersion (nonClosedIssues, nextVersionID);
       }
 
       ReleaseVersion (versionID);
@@ -113,9 +113,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       }
     }
 
-    public IEnumerable<JiraIssue> FindAllOpenIssues(string versionId)
+    public IEnumerable<JiraIssue> FindAllNonClosedIssues(string versionId)
     {
-      var jql = "fixVersion=" + versionId + " and status = \"open\"";
+      var jql = "fixVersion=" + versionId + " and status != \"closed\"";
       var resource = "search?jql=" + jql + "&fields=id,fixVersions";
       var request = CreateRestRequest (resource, Method.GET);
 
