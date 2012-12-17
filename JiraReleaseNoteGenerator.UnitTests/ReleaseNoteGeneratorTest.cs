@@ -65,7 +65,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
           Arg<XDocument>.Matches (d => d.ToString() == issues.ToString()), Arg.Is (outputFile))).Return (0);
       }
 
-      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes (constraints, outputFile);
+      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes (constraints, outputFile, null);
 
       Assert.That (exitCode, Is.EqualTo (0));
 
@@ -80,7 +80,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
 
       _jiraIssueAggregatorStub.Stub (stub => stub.GetXml (constraints)).Throw (new WebException ("The remote server returned an error: (400) Bad Request."));
 
-      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes (constraints, outputFile);
+      var exitCode = _releaseNoteGenerator.GenerateReleaseNotes (constraints, outputFile, null);
       
       Assert.That (exitCode, Is.EqualTo (1));
     }

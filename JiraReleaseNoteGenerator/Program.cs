@@ -44,10 +44,23 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var outputDirectory = Path.GetFullPath (args[1]);
       var outputFile = Path.Combine (outputDirectory, "ReleaseNotes_v" + version + ".html");;
       string customJQuery = null;
+      string title = null;
 
-      if (args.Length == 3)
+      if (args.Length == 4)
       {
-        customJQuery = Uri.EscapeDataString(args[2]);
+        title = args[2].Substring(2);
+        customJQuery = Uri.EscapeDataString(args[3]);
+      }
+      else if (args.Length == 3)
+      {
+        if (args[2].StartsWith ("t:"))
+        {
+          title = args[2].Substring (2);
+        }
+        else
+        {
+          customJQuery = Uri.EscapeDataString(args[2]);
+        }
       }
 
       var customConstraints = new CustomConstraints (version, customJQuery);
@@ -62,7 +75,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       var xmlTransformer = new XmlTransformer (s_Configuration.XsltStyleSheetPath, s_Configuration.XsltProcessorPath);
       var releaseNoteGenerator = new ReleaseNoteGenerator (s_Configuration, jiraIssueAggregator, xmlTransformer);
 
-      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (customConstraints, outputFile);
+      var exitCode = releaseNoteGenerator.GenerateReleaseNotes (customConstraints, outputFile, title);
 
       if (exitCode == WebServiceError)
         return 3;
@@ -80,9 +93,9 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
     {
       ArgumentUtility.CheckNotNull ("arguments", arguments);
 
-      const string usage = "usage: JiraReleaseNoteGenerator versionNumber outputDirectory <additionalConstraint>";
+      const string usage = "usage: JiraReleaseNoteGenerator versionNumber outputDirectory <t:title> <additionalConstraint>";
 
-      if (arguments.Length != 2 && arguments.Length != 3)
+      if (arguments.Length != 2 && arguments.Length != 3 && arguments.Length != 4)
       {
         Console.Error.WriteLine ("Wrong number of arguments.");
         Console.Error.WriteLine (usage);

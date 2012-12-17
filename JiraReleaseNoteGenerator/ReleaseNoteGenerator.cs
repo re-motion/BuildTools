@@ -46,7 +46,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       _xmlTransformer = xmlTransformer;
     }
 
-    public int GenerateReleaseNotes (CustomConstraints customConstraints, string outputFile)
+    public int GenerateReleaseNotes (CustomConstraints customConstraints, string outputFile, string overriddenTitle)
     {
       ArgumentUtility.CheckNotNull ("customConstraints", customConstraints);
       ArgumentUtility.CheckNotNull ("outputFile", outputFile);
@@ -55,7 +55,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
 
       try
       {
-        issues = GetXmlWithConfigSection (customConstraints);
+        issues = GetXmlWithConfigSection (customConstraints, overriddenTitle);
       }
       catch (WebException webException)
       {
@@ -68,11 +68,15 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator
       return transformerExitCode;
     }
 
-    private XDocument GetXmlWithConfigSection (CustomConstraints customConstraints)
+    private XDocument GetXmlWithConfigSection (CustomConstraints customConstraints, string overriddenTitle)
     {
       var issues = _jiraIssueAggregator.GetXml (customConstraints);
       var config = XDocument.Load (_configuration.ConfigFile);
       config.Root.Add (new XElement ("generatedForVersion", customConstraints.Version));
+      if (overriddenTitle != null)
+      {
+        config.Root.SetElementValue ("projectTitle", overriddenTitle);
+      }
       issues.Root.AddFirst (config.Elements());
       return issues;
     }

@@ -35,7 +35,7 @@ namespace Remotion.BuildTools.JiraReleaseNoteGenerator.UnitTests
         new CustomConstraints (null, "abc");
         Assert.Fail();
       }
-      catch (ArgumentNullException exception)
+      catch (ArgumentNullException)
       {
       }
     }
