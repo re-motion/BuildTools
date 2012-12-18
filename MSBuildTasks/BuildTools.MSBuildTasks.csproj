@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeplexCreateRelease.cs" />
+    <Compile Include="CodeplexUploadFiles.cs" />
     <Compile Include="NuGetPush.cs" />
     <Compile Include="Jira\JiraCreateNewVersion.cs" />
     <Compile Include="Jira\JiraGetLatestReleasedVersion.cs" />
