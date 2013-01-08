@@ -1,6 +1,0 @@
-C:\Development\Remotion.BuildTools\trunk\BuildTools.MSBuildTasks.Jira\bin\Debug\Remotion.BuildTools.MSBuildTasks.Jira.dll
-C:\Development\Remotion.BuildTools\trunk\BuildTools.MSBuildTasks.Jira\bin\Debug\Remotion.BuildTools.MSBuildTasks.Jira.pdb
-C:\Development\Remotion.BuildTools\trunk\BuildTools.MSBuildTasks.Jira\bin\Debug\RestSharp.dll
-C:\Development\Remotion.BuildTools\trunk\BuildTools.MSBuildTasks.Jira\bin\Debug\RestSharp.xml
-C:\Development\Remotion.BuildTools\trunk\BuildTools.MSBuildTasks.Jira\obj\Debug\Remotion.BuildTools.MSBuildTasks.Jira.dll
-C:\Development\Remotion.BuildTools\trunk\BuildTools.MSBuildTasks.Jira\obj\Debug\Remotion.BuildTools.MSBuildTasks.Jira.pdb
