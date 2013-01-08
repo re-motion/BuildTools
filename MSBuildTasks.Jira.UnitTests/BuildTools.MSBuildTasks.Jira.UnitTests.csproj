@@ -49,7 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BuildTools.MSBuildTasks.Jira\BuildTools.MSBuildTasks.Jira.csproj">
+    <ProjectReference Include="..\MSBuildTasks.Jira\BuildTools.MSBuildTasks.Jira.csproj">
       <Project>{05225e08-375c-4b69-b117-21cb49fddd7d}</Project>
       <Name>BuildTools.MSBuildTasks.Jira</Name>
     </ProjectReference>
