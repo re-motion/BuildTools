@@ -81,7 +81,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       if(versionID != nextVersionID)
       {
         var nonClosedIssues = FindAllNonClosedIssues (versionID);
-        MoveIssuesToVersion (nonClosedIssues, nextVersionID);
+        MoveIssuesToVersion (nonClosedIssues, versionID, nextVersionID);
       }
 
       ReleaseVersion (versionID);
@@ -99,27 +99,31 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       DoRequest (request, HttpStatusCode.OK);
     }
 
-    private void MoveIssuesToVersion (IEnumerable<JiraIssue> issues, string versionId)
+    private void MoveIssuesToVersion (IEnumerable<JiraNonClosedIssue> issues, string oldVersionId, string newVersionId)
     {
       foreach(var issue in issues)
       {
         var resource = "issue/" + issue.id;
         var request = CreateRestRequest (resource, Method.PUT);
 
-        var body = new { fields = new { fixVersions = new[]{ new { id = versionId } } } };
+        var newFixVersions = issue.fields.fixVersions;
+        newFixVersions.RemoveAll(v => v.id == oldVersionId);
+        newFixVersions.Add(new JiraVersion{id = newVersionId});
+        
+        var body = new { fields = new { fixVersions = newFixVersions.Select(v => new{v.id}) } };
         request.AddBody (body);
 
         DoRequest<JiraIssue> (request, HttpStatusCode.NoContent);
       }
     }
 
-    public IEnumerable<JiraIssue> FindAllNonClosedIssues(string versionId)
+    public IEnumerable<JiraNonClosedIssue> FindAllNonClosedIssues(string versionId)
     {
       var jql = "fixVersion=" + versionId + " and status != \"closed\"";
       var resource = "search?jql=" + jql + "&fields=id,fixVersions";
       var request = CreateRestRequest (resource, Method.GET);
 
-      var response = DoRequest<JiraIssues> (request, HttpStatusCode.OK);
+      var response = DoRequest<JiraNonClosedIssues> (request, HttpStatusCode.OK);
       return response.Data.issues;
     }
 
