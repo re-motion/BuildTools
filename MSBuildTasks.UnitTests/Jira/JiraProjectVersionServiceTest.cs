@@ -5,7 +5,7 @@ using NUnit.Framework;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade;
 using RestSharp;
 
-namespace BuildTools.MSBuildTasks.UnitTests
+namespace BuildTools.MSBuildTasks.UnitTests.Jira
 {
   [TestFixture]
   public class JiraProjectVersionServiceTest
