@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle ("BuildTasks")]
+[assembly: AssemblyTitle ("Remotion MSBuildTasks")]
 [assembly: AssemblyDescription ("")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyProduct ("Remotion BuildTasks")]
-[assembly: AssemblyCompany ("rubicon informationstechnologie gmbh")]
-[assembly: AssemblyCopyright ("(c) 2011 rubicon informationstechnologie gmbh, www.rubicon.eu")]
+[assembly: AssemblyProduct ("Remotion MSBuildTasks")]
+[assembly: AssemblyCompany ("rubicon IT GmbH")]
+[assembly: AssemblyCopyright ("(c) 2011 rubicon it GmbH, www.rubicon.eu")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
