@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle ("Remotion MSBuildTasks")]
-[assembly: AssemblyDescription ("")]
+[assembly: AssemblyDescription ("Various MSBuild tasks used by the re-motion build.")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyProduct ("Remotion MSBuildTasks")]
 [assembly: AssemblyCompany ("rubicon IT GmbH")]

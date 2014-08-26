@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Build.Framework" />
@@ -68,7 +68,9 @@
       <Link>BuildTools Apache-2.0.licenseheader</Link>
     </None>
     <None Include="packages.config" />
-    <None Include="Remotion.BuildTools.MSBuildTasks.nuspec" />
+    <None Include="Remotion.BuildTools.MSBuildTasks.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

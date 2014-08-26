@@ -4,12 +4,12 @@
     <id>Remotion.BuildTools.MSBuildTasks</id>
     <version>$version$</version>
     <title>re-motion MSBuild Tasks</title>
-    <authors>rubicon IT GmbH</authors>
-    <owners>rubicon IT GmbH</owners>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
     <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
     <projectUrl>http://www.re-motion.org</projectUrl>
     <description>Various MSBuild tasks used by the re-motion build.</description>
-    <copyright>Copyright (c) rubicon IT GmbH, www.rubicon.eu - Licensed under Apache License, Version 2.0</copyright>
+    <copyright>$copyright$</copyright>
     <tags>re-motion MSBuild Task Tasks Automation</tags>
     <developmentDependency>true</developmentDependency>
   </metadata>
