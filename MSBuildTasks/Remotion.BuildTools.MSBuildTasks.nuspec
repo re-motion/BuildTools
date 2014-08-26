@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Remotion.BuildTools.MSBuildTasks</id>
+    <id>$id$</id>
     <version>$version$</version>
     <title>re-motion MSBuild Tasks</title>
     <authors>$author$</authors>
@@ -15,6 +15,6 @@
   </metadata>
   <files>
     <file src="bin\RestSharp.dll" target="tools" />
-    <file src="bin\*.pdb" target="tools" />
+    <file src="bin\$id$.pdb" target="tools" />
   </files>
 </package>
