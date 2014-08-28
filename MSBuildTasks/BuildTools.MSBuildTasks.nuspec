@@ -14,7 +14,7 @@
     <developmentDependency>true</developmentDependency>
   </metadata>
   <files>
-    <file src="bin\RestSharp.dll" target="tools" />
-    <file src="bin\$id$.pdb" target="tools" />
+    <file src="bin\$configuration$\RestSharp.dll" target="tools" />
+    <file src="bin\$configuration$\SourceLink.dll" target="tools" />
   </files>
 </package>
