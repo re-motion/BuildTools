@@ -79,7 +79,8 @@ namespace Remotion.BuildTools.MSBuildTasks
         }
       }
 
-      if (GetIndexedFilesCount (GetPdbFile(), ToolPath) > 0)
+      string pdbFile = GetPdbFile();
+      if (GetIndexedFilesCount (pdbFile, ToolPath) > 0)
       {
         Log.LogWarning ("Could not insert source links for '{0}' because the PDB-file has already been indexed.", BuildOutputFile);
         return true;
@@ -87,8 +88,9 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       string rawUrl = string.Format (VcsUrlTemplate, "%var2%");
       string revision = "";
-      var sourceFiles = GetSourceFiles (GetPdbFile(), ToolPath);
-      File.WriteAllBytes (GetSrcsrvFile(), SrcSrv.create (rawUrl, revision, sourceFiles));
+      var sourceFiles = GetSourceFiles (pdbFile, ToolPath);
+      string srcsrvFile = GetSrcsrvFile();
+      File.WriteAllBytes (srcsrvFile, SrcSrv.create (rawUrl, revision, sourceFiles));
 
       try
       {
@@ -96,7 +98,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       }
       finally
       {
-       // File.Delete (srcsrvPath);
+       File.Delete (srcsrvFile);
       }
     }
 
