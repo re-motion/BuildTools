@@ -18,12 +18,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Win32;
-using SourceLink;
-using Process = System.Diagnostics.Process;
 
 namespace Remotion.BuildTools.MSBuildTasks
 {
@@ -37,6 +34,8 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     [Required]
     public ITaskItem BuildOutputFile { get; set; }
+
+    public string VcsCommandTemplate { get; set; }
 
     protected override string GenerateFullPathToTool ()
     {
@@ -79,18 +78,23 @@ namespace Remotion.BuildTools.MSBuildTasks
         }
       }
 
-      string pdbFile = GetPdbFile();
-      if (GetIndexedFilesCount (pdbFile, ToolPath) > 0)
+      var pdbFile = GetPdbFile();
+      if (!File.Exists (pdbFile))
       {
-        Log.LogWarning ("Could not insert source links for '{0}' because the PDB-file has already been indexed.", BuildOutputFile);
-        return true;
+        Log.LogError ("No PDB-files was found for BuildOutputFile '{0}'.", BuildOutputFile);
+        return false;
       }
 
-      string rawUrl = string.Format (VcsUrlTemplate, "%var2%");
-      string revision = "";
-      var sourceFiles = GetSourceFiles (pdbFile, ToolPath);
-      string srcsrvFile = GetSrcsrvFile();
-      File.WriteAllBytes (srcsrvFile, SrcSrv.create (rawUrl, revision, sourceFiles));
+      string srcsrvFile;
+      try
+      {
+        srcsrvFile = CreateSrcsrvFile (pdbFile, ToolPath);
+      }
+      catch (Exception ex)
+      {
+        Log.LogErrorFromException (ex);
+        return false;
+      }
 
       try
       {
@@ -98,7 +102,8 @@ namespace Remotion.BuildTools.MSBuildTasks
       }
       finally
       {
-       File.Delete (srcsrvFile);
+        if (File.Exists (srcsrvFile))
+          File.Delete (srcsrvFile);
       }
     }
 
@@ -117,28 +122,90 @@ namespace Remotion.BuildTools.MSBuildTasks
       return Path.ChangeExtension (BuildOutputFile.ToString(), ".pdb");
     }
 
-    private IEnumerable<Tuple<string,string>> GetSourceFiles (string pdbFile, string toolsPath)
+    /// <summary>
+    /// See http://msdn.microsoft.com/en-us/library/windows/hardware/ff551958.aspx for specification of file format.
+    /// Note: Version 2 does not seem to work.
+    /// </summary>
+    private string CreateSrcsrvFile (string pdbFile, string toolPath)
     {
-      int exitCode;
-      string extractedCommandOutput = Execute (Path.Combine (toolsPath, "srctool.exe"), "-r " + pdbFile, true, out exitCode);
-      var sourceFiles = extractedCommandOutput.Split (new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-      return sourceFiles.Take (sourceFiles.Length - 1) // last line is srctool.exe summary
-          .Select (f => Tuple.Create (f, MakeRelativeFile (f)));
+      string srcsrvFile = GetSrcsrvFile();
+      try
+      {
+        using (var fileStream = File.CreateText (srcsrvFile))
+        {
+          var sourceServerFileUrl = string.Format (VcsUrlTemplate, "%var2%");
+          var sourceServerCommandTemplate = string.IsNullOrEmpty (VcsCommandTemplate)
+              ? "powershell.exe -Command \"& {{(New-Object System.Net.WebClient).DownloadFile('{0}','{1}')}}\""
+              : VcsCommandTemplate;
+
+          fileStream.WriteLine ("SRCSRV: ini ------------------------------------------------");
+          fileStream.WriteLine ("VERSION=1");
+          fileStream.WriteLine ("SRCSRV: variables ------------------------------------------");
+          fileStream.WriteLine ("SRCSRVTRG=%targ%\\{0}\\%fnbksl%(%var2%)", Guid.NewGuid());
+          fileStream.WriteLine ("SRCSRVCMD=" + string.Format (sourceServerCommandTemplate, sourceServerFileUrl, "%SRCSRVTRG%"));
+          fileStream.WriteLine ("SRCSRV: source files ---------------------------------------");
+
+          var sourceFileCount = 0;
+          foreach (var kvp in GetSourceFiles (pdbFile, toolPath))
+          {
+            fileStream.Write (kvp.Key);
+            fileStream.Write ('*');
+            fileStream.Write (kvp.Value); // represents the value for %var2%
+            fileStream.WriteLine();
+            sourceFileCount++;
+          }
+          if (sourceFileCount == 0)
+          {
+            Log.LogWarning (
+                "No source files have been indexed for BuildOutputFile '{0}' and ProjectBaseDirectory '{1}'.",
+                BuildOutputFile,
+                ProjectBaseDirectory);
+          }
+          else
+          {
+            Log.LogMessage ("Applied source indices for {0} source files of BuildOutputFile '{1}'.", sourceFileCount, BuildOutputFile);
+          }
+          fileStream.WriteLine ("SRCSRV: end ------------------------------------------------");
+        }
+        return srcsrvFile;
+      }
+      catch
+      {
+        File.Delete (srcsrvFile);
+        throw;
+      }
     }
 
-    private int GetIndexedFilesCount (string pdbFile, string toolsPath)
+    private IEnumerable<KeyValuePair<string,string>> GetSourceFiles (string pdbFile, string toolPath)
     {
+      var projectBaseUrl = new Uri (Path.GetFullPath (ProjectBaseDirectory + "\\"));
+
       int exitCode;
-      Execute (Path.Combine (toolsPath, "srctool.exe"), "-c " + pdbFile, true, out exitCode);
-      return exitCode;
-    }
+      string extractedCommandOutput = Execute (Path.Combine (toolPath, "srctool.exe"), "-r " + pdbFile, true, out exitCode);
 
+      using (var reader = new StringReader (extractedCommandOutput))
+      {
+        while (true)
+        {
+          var line = reader.ReadLine();
+          if (line == null)
+            yield break;
 
-    private string MakeRelativeFile (string sourceFile)
-    {
-      var projectBaseUrl = new Uri ("file:///" + Path.GetFullPath (ProjectBaseDirectory + "\\"));
-      var fileUrl = new Uri ("file:///" + sourceFile);
-      return projectBaseUrl.MakeRelativeUri (fileUrl).ToString();
+          if (string.IsNullOrWhiteSpace (line))
+            continue;
+
+          // last line is srctool.exe summary.
+          Uri sourceFileUrl;
+          if (!Uri.TryCreate (line, UriKind.Absolute, out sourceFileUrl))
+            continue;
+
+          if (!projectBaseUrl.IsBaseOf (sourceFileUrl))
+            continue;
+
+          var relativeSourceFileUrl = projectBaseUrl.MakeRelativeUri (sourceFileUrl);
+          yield return new KeyValuePair<string, string> (line, relativeSourceFileUrl.ToString());
+        }
+      }
     }
 
     private string Execute (string cmd, string args, bool ignoreExitCode, out int exitCode)
