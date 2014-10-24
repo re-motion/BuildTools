@@ -135,7 +135,7 @@ namespace Remotion.BuildTools.MSBuildTasks
         {
           var sourceServerFileUrl = string.Format (VcsUrlTemplate, "%var2%");
           var sourceServerCommandTemplate = string.IsNullOrEmpty (VcsCommandTemplate)
-              ? "powershell.exe -Command \"& {{(New-Object System.Net.WebClient).DownloadFile('{0}','{1}')}}\""
+              ? "powershell.exe -NoProfile -Command \"& {{(New-Object System.Net.WebClient).DownloadFile('{0}','{1}')}}\""
               : VcsCommandTemplate;
 
           fileStream.WriteLine ("SRCSRV: ini ------------------------------------------------");
