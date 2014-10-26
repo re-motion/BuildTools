@@ -15,5 +15,6 @@
   </metadata>
   <files>
     <file src="bin\$configuration$\RestSharp.dll" target="tools" />
+    <file src="$id$.tasks" target="tools" />
   </files>
 </package>

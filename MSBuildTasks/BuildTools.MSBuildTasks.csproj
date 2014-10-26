@@ -75,8 +75,11 @@
     <None Include="..\BuildTools Apache-2.0.licenseheader">
       <Link>BuildTools Apache-2.0.licenseheader</Link>
     </None>
-    <None Include="BuildTools.MSBuildTasks.nuspec" />
+    <None Include="BuildTools.MSBuildTasks.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
+    <None Include="Remotion.BuildTools.MSBuildTasks.tasks" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
