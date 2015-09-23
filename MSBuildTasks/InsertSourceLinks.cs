@@ -24,6 +24,9 @@ using Microsoft.Win32;
 
 namespace Remotion.BuildTools.MSBuildTasks
 {
+  /// <summary>
+  /// Inserts links to a source server into .pdb files. Those are used to download the source files, when the pdb is used externally. 
+  /// </summary>
   public class InsertSourceLinks : ToolTask
   {
     [Required]
@@ -34,6 +37,12 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     [Required]
     public ITaskItem BuildOutputFile { get; set; }
+
+    /// <summary>
+    /// If true the windows credentials are submitted to the source server when requesting the source code.
+    /// This flag is ignored when the <see cref="VcsCommandTemplate"/> is overridden. 
+    /// </summary>
+    public bool UseWindowsCredentials { get; set; }
 
     public string VcsCommandTemplate { get; set; }
 
@@ -134,8 +143,13 @@ namespace Remotion.BuildTools.MSBuildTasks
         using (var fileStream = File.CreateText (srcsrvFile))
         {
           var sourceServerFileUrl = string.Format (VcsUrlTemplate, "%var2%");
+          var useWindowsCredentialsPowershellString = UseWindowsCredentials ? "$True" : "$False";
+
           var sourceServerCommandTemplate = string.IsNullOrEmpty (VcsCommandTemplate)
-              ? "powershell.exe -NoProfile -Command \"& {{(New-Object System.Net.WebClient).DownloadFile('{0}','{1}')}}\""
+              ? "powershell.exe -NoProfile -Command \"& "
+                + "{{$wc = (New-Object System.Net.WebClient); $wc.UseDefaultCredentials = "
+                + useWindowsCredentialsPowershellString
+                + "; $wc.DownloadFile('{0}','{1}')}}\""
               : VcsCommandTemplate;
 
           fileStream.WriteLine ("SRCSRV: ini ------------------------------------------------");
