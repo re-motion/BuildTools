@@ -38,13 +38,18 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       _client = new RestClient (jiraUrl) { Authenticator = new HttpBasicAuthenticator (jiraUsername, jiraPassword) };
     }
 
-    public string CreateVersion (string projectKey, string versionName, DateTime releaseDate)
+    public string CreateVersion (string projectKey, string versionName, DateTime? releaseDate)
     {
       var request = CreateRestRequest ("version", Method.POST);
 
-      var adjustedReleaseDate = AdjustReleaseDateForJira(releaseDate);
-      var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = adjustedReleaseDate };
-      request.AddBody (projectVersion);
+      //TODO
+      if (releaseDate != null)
+      {
+          releaseDate = AdjustReleaseDateForJira(releaseDate.Value);
+      }
+
+      var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = releaseDate };
+      request.AddBody(projectVersion);
 
       var newProjectVersion = DoRequest<JiraProjectVersion> (request, HttpStatusCode.Created);
       return newProjectVersion.Data.id;

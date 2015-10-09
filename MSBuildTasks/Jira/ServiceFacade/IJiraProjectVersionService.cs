@@ -25,7 +25,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     /// Creates a project version.
     /// </summary>
     /// <returns>New project version ID</returns>
-    string CreateVersion (string projectKey, string versionName, DateTime releaseDate);
+    string CreateVersion (string projectKey, string versionName, DateTime? releaseDate);
 
     /// <summary>
     /// Creates a subsequent project version.
