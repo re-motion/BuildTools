@@ -15,27 +15,15 @@
 // under the License.
 // 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
-  public class JiraCreateNewVersionWithVersionNumber : Task
+  public class JiraCreateNewVersionWithVersionNumber : JiraTask
   {
-    [Required]
-    public string JiraUrl { get; set; }
-
-    [Required]
-    public string JiraUsername { get; set; }
-
-    [Required]
-    public string JiraPassword { get; set; }
-
     [Required]
     public string JiraProjectKey { get; set; }
 
@@ -49,9 +37,10 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     {
       try
       {
-        IJiraProjectVersionService service = new JiraProjectVersionService (JiraUrl, JiraUsername, JiraPassword);
-        
-        var versions = service.FindVersions (JiraProjectKey, "(?s).*");
+        IJiraProjectVersionService service = new JiraProjectVersionService (JiraUrl, Authenticator);
+        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(JiraUrl, Authenticator);
+
+        var versions = finder.FindVersions (JiraProjectKey, "(?s).*");
         var jiraProject = versions.Where(x => x.name == VersionNumber).DefaultIfEmpty().First();
         
         if (jiraProject != null)

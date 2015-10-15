@@ -14,33 +14,33 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
+using Remotion.BuildTools.MSBuildTasks.Jira.Semver;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 using RestSharp;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
+namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 {
   public class JiraProjectVersionService : IJiraProjectVersionService
   {
-    private readonly RestClient _client;
+    private readonly JiraRestClient jiraClient;
+    private readonly JiraIssueService jiraIssueService;
+    private readonly JiraProjectVersionFinder jiraProjectVersionFinder;
 
-    public RestClient RestClient
+    public JiraProjectVersionService(string jiraUrl, IAuthenticator authenticator)
     {
-      get { return _client; }
-    }
-
-    public JiraProjectVersionService(string jiraUrl, string jiraUsername, string jiraPassword)
-    {
-      _client = new RestClient (jiraUrl) { Authenticator = new HttpBasicAuthenticator (jiraUsername, jiraPassword) };
+      jiraClient = new JiraRestClient(jiraUrl, authenticator);
+      jiraIssueService = new JiraIssueService(jiraClient);
+      jiraProjectVersionFinder = new JiraProjectVersionFinder(jiraUrl, authenticator);
     }
 
     public string CreateVersion (string projectKey, string versionName, DateTime? releaseDate)
     {
-      var request = CreateRestRequest ("version", Method.POST);
+      var request = jiraClient.CreateRestRequest ("version", Method.POST);
 
       //TODO
       if (releaseDate != null)
@@ -51,14 +51,14 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = releaseDate };
       request.AddBody(projectVersion);
 
-      var newProjectVersion = DoRequest<JiraProjectVersion> (request, HttpStatusCode.Created);
+      var newProjectVersion = jiraClient.DoRequest<JiraProjectVersion> (request, HttpStatusCode.Created);
       return newProjectVersion.Data.id;
     }
 
     public string CreateSubsequentVersion (string projectKey, string versionPattern, int versionComponentToIncrement, DayOfWeek versionReleaseWeekday)
     {
       // Determine next version name
-      var lastUnreleasedVersion = FindUnreleasedVersions (projectKey, versionPattern).Last();
+      var lastUnreleasedVersion = jiraProjectVersionFinder.FindUnreleasedVersions (projectKey, versionPattern).Last ();
       var nextVersionName = IncrementVersion (lastUnreleasedVersion.name, versionComponentToIncrement);
 
       // Determine next release day
@@ -77,11 +77,11 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
 
     private void MoveVersion(string versionId, string afterVersionUrl)
     {
-      var request = CreateRestRequest ("version/" + versionId + "/move", Method.POST);
+      var request = jiraClient.CreateRestRequest ("version/" + versionId + "/move", Method.POST);
 
       request.AddBody (new { after = afterVersionUrl });
 
-      DoRequest (request, HttpStatusCode.OK);
+      jiraClient.DoRequest (request, HttpStatusCode.OK);
     }
 
     private string IncrementVersion (string version, int componentToIncrement)
@@ -101,83 +101,63 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     {
       if(versionID != nextVersionID)
       {
-        var nonClosedIssues = FindAllNonClosedIssues (versionID);
-        MoveIssuesToVersion (nonClosedIssues, versionID, nextVersionID);
+        var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (versionID);
+        jiraIssueService.MoveIssuesToVersion (nonClosedIssues, versionID, nextVersionID);
       }
 
       ReleaseVersion (versionID);
     }
 
+    public void ReleaseVersionAndSquashUnreleased (string versionID, string nextVersionID, string projectKey)
+    {
+      if (versionID != nextVersionID)
+      {
+        var versions = jiraProjectVersionFinder.GetVersions (projectKey);
+        SemVerParser semVerParser = new SemVerParser();
+        foreach (var version in versions)
+        {
+          try
+          {
+            version.Semver = semVerParser.ParseVersion(version.name);
+          }
+          catch (ArgumentException e)
+          {
+            //Empty Catch. What to do on invalid Parse? Make the thing nullable? 
+            //Try an TryParse with out Parameter?
+          }
+        }
+
+        var orderedVersions = versions.OrderBy(x => x.Semver).ToList();
+
+        var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (versionID);
+        jiraIssueService.MoveIssuesToVersion (nonClosedIssues, versionID, nextVersionID);
+      }
+
+      ReleaseVersion (versionID);  
+    }
+
     private void ReleaseVersion(string versionID)
     {
       var resource = "version/" + versionID;
-      var request = CreateRestRequest (resource, Method.PUT);
+      var request = jiraClient.CreateRestRequest (resource, Method.PUT);
 
       var adjustedReleaseDate = AdjustReleaseDateForJira(DateTime.Today);
       var projectVersion = new JiraProjectVersion { id = versionID, released = true, releaseDate = adjustedReleaseDate };
       request.AddBody (projectVersion);
 
-      DoRequest (request, HttpStatusCode.OK);
-    }
-
-    private void MoveIssuesToVersion (IEnumerable<JiraNonClosedIssue> issues, string oldVersionId, string newVersionId)
-    {
-      foreach(var issue in issues)
-      {
-        var resource = "issue/" + issue.id;
-        var request = CreateRestRequest (resource, Method.PUT);
-
-        var newFixVersions = issue.fields.fixVersions;
-        newFixVersions.RemoveAll(v => v.id == oldVersionId);
-        newFixVersions.Add(new JiraVersion{id = newVersionId});
-        
-        var body = new { fields = new { fixVersions = newFixVersions.Select(v => new{v.id}) } };
-        request.AddBody (body);
-
-        DoRequest<JiraIssue> (request, HttpStatusCode.NoContent);
-      }
-    }
-
-    public IEnumerable<JiraNonClosedIssue> FindAllNonClosedIssues(string versionId)
-    {
-      var jql = "fixVersion=" + versionId + " and status != \"closed\"";
-      var resource = "search?jql=" + jql + "&fields=id,fixVersions";
-      var request = CreateRestRequest (resource, Method.GET);
-
-      var response = DoRequest<JiraNonClosedIssues> (request, HttpStatusCode.OK);
-      return response.Data.issues;
+      jiraClient.DoRequest (request, HttpStatusCode.OK);
     }
 
     public void DeleteVersion (string projectKey, string versionName)
     {
-      var versions = GetVersions (projectKey);
+      var versions = jiraProjectVersionFinder.GetVersions (projectKey);
       var versionToDelete = versions.SingleOrDefault (v => v.name == versionName);
       if(versionToDelete == null)
         throw new JiraException (string.Format("Error, version with name '{0}' does not exist in project '{1}'.", versionName, projectKey));
 
       var resource = "version/" + versionToDelete.id;
-      var request = CreateRestRequest (resource, Method.DELETE);
-      DoRequest (request, HttpStatusCode.NoContent);
-    }
-
-    public IEnumerable<JiraProjectVersion> FindVersions (string projectKey, string versionPattern)
-    {
-      var versions = GetVersions (projectKey);
-      return versions.Where (v => Regex.IsMatch (v.name, versionPattern));
-    }
-
-    public IEnumerable<JiraProjectVersion> FindUnreleasedVersions (string projectKey, string versionPattern)
-    {
-      return FindVersions (projectKey, versionPattern).Where (v => v.released != true);
-    }
-
-    private IEnumerable<JiraProjectVersion> GetVersions (string projectKey)
-    {
-      var resource = "project/" + projectKey + "/versions";
-      var request = CreateRestRequest (resource, Method.GET);
-
-      var response = DoRequest<List<JiraProjectVersion>> (request, HttpStatusCode.OK);
-      return response.Data;
+      var request = jiraClient.CreateRestRequest (resource, Method.DELETE);
+      jiraClient.DoRequest (request, HttpStatusCode.NoContent);
     }
 
     private static DateTime AdjustReleaseDateForJira (DateTime releaseDate)
@@ -186,26 +166,6 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
       var difference = releaseDate - releaseDateAsUtcTime;
       var adjustedReleaseDate = releaseDate + difference;
       return adjustedReleaseDate;
-    }
-
-    private IRestRequest CreateRestRequest (string resource, Method method)
-    {
-      var request = new RestRequest() { Method = method, RequestFormat = DataFormat.Json, Resource = resource };
-      return request;
-    }
-
-    private void DoRequest(IRestRequest request, HttpStatusCode successCode)
-    {
-      DoRequest<object> (request, successCode);
-    }
-
-    private IRestResponse<T> DoRequest<T>(IRestRequest request, HttpStatusCode successCode) where T : new()
-    {
-      var response = _client.Execute<T> (request);
-      if(response.StatusCode != successCode)
-        throw new JiraException (string.Format("Error calling REST service, HTTP resonse is: {0}\nReturned content: {1}", response.StatusCode, response.Content));
-
-      return response;
     }
   }
 }

@@ -17,22 +17,13 @@
 using System;
 using System.Linq;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
-  public class JiraGetEarliestUnreleasedVersion : Task
+  public class JiraGetEarliestUnreleasedVersion : JiraTask
   {
-    [Required]
-    public string JiraUrl { get; set; }
-
-    [Required]
-    public string JiraUsername { get; set; }
-
-    [Required]
-    public string JiraPassword { get; set; }
-
     [Required]
     public string JiraProject { get; set; }
 
@@ -57,8 +48,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     {
       try
       {
-        IJiraProjectVersionService service = new JiraProjectVersionService (JiraUrl, JiraUsername, JiraPassword);
-        var versions = service.FindUnreleasedVersions (JiraProject, VersionPattern).ToArray();
+        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder (JiraUrl, Authenticator);
+        var versions = finder.FindUnreleasedVersions (JiraProject, VersionPattern).ToArray();
 
         VersionID = "";
         VersionName = "";

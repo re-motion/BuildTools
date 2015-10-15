@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Net;
 using NUnit.Framework;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 using RestSharp;
 
 namespace BuildTools.MSBuildTasks.UnitTests.Jira
@@ -10,17 +11,23 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
   [TestFixture]
   public class JiraProjectVersionServiceTest
   {
-    private const string c_jiraUrl = "http://s0316:8080/jira/rest/api/2/";
-    private const string c_jiraUsername = "dominik.rauch";
-    private const string c_jiraPassword = "Rubicon01";
-    private const string c_jiraProjectKey = "RM";
+    private const string c_jiraUrl = "https://www.re-motion.org/jira/rest/api/2/";
+    private const string c_jiraProjectKey = "SRCBLDTEST";
 
     private JiraProjectVersionService _service;
+    private JiraProjectVersionFinder _versionFinder;
+    private JiraIssueService _issueService;
+    private JiraRestClient _restClient;
 
     [SetUp]
     public void SetUp ()
     {
-      _service = new JiraProjectVersionService (c_jiraUrl, c_jiraUsername, c_jiraPassword);
+      ICredentials credentials = CredentialCache.DefaultNetworkCredentials;
+      IAuthenticator authenticator = new NtlmAuthenticator();
+      _service = new JiraProjectVersionService (c_jiraUrl, authenticator);
+      _versionFinder = new JiraProjectVersionFinder(c_jiraUrl, authenticator);
+      _issueService = new JiraIssueService(c_jiraUrl, authenticator);
+      _restClient = new JiraRestClient(c_jiraUrl, authenticator);
     }
 
     [Test]
@@ -66,12 +73,12 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       Assert.That (versionThatFollowed.name, Is.EqualTo ("4.1.1"));
 
       // Check whether versionThatFollowed has all the non-closed issues from versionToRelease
-      var issues = _service.FindAllNonClosedIssues (versionThatFollowed.id);
+      var issues = _issueService.FindAllNonClosedIssues (versionThatFollowed.id);
       Assert.That (issues.Count(), Is.EqualTo (2));
       
       // Check whether the additionalVersion still has its issue
-      additionalVersion = _service.FindUnreleasedVersions (c_jiraProjectKey, "4.2.").First();
-      var additionalVersionIssues = _service.FindAllNonClosedIssues (additionalVersion.id);
+      additionalVersion = _versionFinder.FindUnreleasedVersions (c_jiraProjectKey, "4.2.").First();
+      var additionalVersionIssues = _issueService.FindAllNonClosedIssues (additionalVersion.id);
       Assert.That (additionalVersionIssues.Count(), Is.EqualTo (1));
 
       DeleteVersionsIfExistent (c_jiraProjectKey, "4.1.0", "4.1.1", "4.1.2", "4.2.0");
@@ -81,14 +88,13 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
     {
       // Create new issue
       var resource = "issue";
-      var request = new RestRequest { Method = Method.POST, RequestFormat = DataFormat.Json, Resource = resource };
+      var request = new RestRequest { Method = Method.POST, RequestFormat = DataFormat.Json, Resource = resource};
+      request.OnBeforeDeserialization = resp => { resp.ContentType = "application/json"; };
 
       var body = new { fields = new { project = new { key = c_jiraProjectKey }, issuetype = new { name = "Bug" }, summary = summary, fixVersions = toRelease.Select(v=>new{v.id}) } };
       request.AddBody (body);
 
-      var response = _service.RestClient.Execute<JiraIssue> (request);
-      if(response.StatusCode != HttpStatusCode.Created)
-        throw new JiraException (string.Format("Error calling REST service, HTTP resonse is: {0}\nReturned content: {1}", response.StatusCode, response.Content));
+      var response = _restClient.DoRequest<JiraIssue> (request, HttpStatusCode.Created);
 
       // Close issue if necessary
       if(closed)
@@ -106,9 +112,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       var body = new { transition = new { id = 2} };
       request.AddBody (body);
 
-      var response = _service.RestClient.Execute (request);
-      if(response.StatusCode != HttpStatusCode.NoContent)
-        throw new JiraException (string.Format("Error calling REST service, HTTP resonse is: {0}\nReturned content: {1}", response.StatusCode, response.Content));
+      _restClient.DoRequest(request, HttpStatusCode.NoContent);
     }
 
     [Test]
@@ -117,7 +121,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       DeleteVersionsIfExistent (c_jiraProjectKey, "a.b.c.d");
 
       // Try to get an unreleased version with a non-existent pattern
-      var versions = _service.FindUnreleasedVersions (c_jiraProjectKey, "a.b.c.d");
+      var versions = _versionFinder.FindUnreleasedVersions (c_jiraProjectKey, "a.b.c.d");
       Assert.That (versions.Count(), Is.EqualTo (0));
     }
 
