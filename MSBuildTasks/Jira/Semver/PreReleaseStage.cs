@@ -1,6 +1,6 @@
 ﻿namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
 {
-    public enum PreEnum
+    public enum PreReleaseStage
     {
         alpha,
         beta,

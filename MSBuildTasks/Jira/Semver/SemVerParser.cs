@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
@@ -22,11 +23,11 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
 
             if (!match.Groups["pre"].Success) return semVer;
 
-            PreEnum preEnum;
-            Enum.TryParse(match.Groups["pre"].ToString(), out preEnum);
-            semVer.Pre = preEnum;
+            PreReleaseStage preReleaseStage;
+            Enum.TryParse(match.Groups["pre"].ToString(), out preReleaseStage);
+            semVer.Pre = preReleaseStage;
 
-            semVer.PreVersion = int.Parse(match.Groups["preversion"].ToString());
+            semVer.PreReleaseCounter = int.Parse(match.Groups["preversion"].ToString());
 
             return semVer;
         }

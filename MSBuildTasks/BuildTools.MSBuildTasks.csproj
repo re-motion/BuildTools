@@ -80,7 +80,7 @@
     <Compile Include="Jira\ServiceFacadeImplementations\JiraProjectVersion.cs" />
     <Compile Include="Jira\ServiceFacadeImplementations\JiraProjectVersionService.cs" />
     <Compile Include="InsertSourceLinks.cs" />
-    <Compile Include="Jira\Semver\PreEnum.cs" />
+    <Compile Include="Jira\Semver\PreReleaseStage.cs" />
     <Compile Include="Jira\Semver\SemVer.cs" />
     <Compile Include="Jira\Semver\SemVerParser.cs" />
     <Compile Include="Jira\Semver\SemVerUnitTest.cs" />

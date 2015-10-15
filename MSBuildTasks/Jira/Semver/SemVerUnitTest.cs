@@ -26,7 +26,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
             Assert.AreEqual(3, semver.Patch);
 
             Assert.IsNull(semver.Pre);
-            Assert.IsNull(semver.PreVersion);
+            Assert.IsNull(semver.PreReleaseCounter);
         }
 
         [Test]
@@ -39,28 +39,28 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
             Assert.AreEqual(2, semver.Minor);
             Assert.AreEqual(3, semver.Patch);
             
-            Assert.AreEqual(PreEnum.alpha, semver.Pre);
-            Assert.AreEqual(4, semver.PreVersion);
+            Assert.AreEqual(PreReleaseStage.alpha, semver.Pre);
+            Assert.AreEqual(4, semver.PreReleaseCounter);
         }
 
         [Test]
         public void SemVer_InvalidFormat_ShouldThrowArgumentException()
         {
-            Assert.That(() => semVerParser.ParseVersion("TotalInvalidFormat"), 
-                        Throws.ArgumentException
-                              .With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
+            Assert.That(
+              () => semVerParser.ParseVersion("TotalInvalidFormat"), 
+              Throws.ArgumentException.With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
 
-            Assert.That(() => semVerParser.ParseVersion("1.2.3-invalid.4"),
-                        Throws.ArgumentException
-                              .With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
+            Assert.That(
+              () => semVerParser.ParseVersion("1.2.3-invalid.4"),
+              Throws.ArgumentException.With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
 
-            Assert.That(() => semVerParser.ParseVersion("1.2.3.4"),
-                        Throws.ArgumentException
-                              .With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
+            Assert.That(
+              () => semVerParser.ParseVersion("1.2.3.4"),
+              Throws.ArgumentException.With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
 
-            Assert.That(() => semVerParser.ParseVersion("1.2.3.alpha-4"),
-                        Throws.ArgumentException
-                              .With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
+            Assert.That(
+              () => semVerParser.ParseVersion("1.2.3.alpha-4"),
+              Throws.ArgumentException.With.Message.EqualTo("Version has an invalid format. Expected equivalent to '1.2.3' or '1.2.3-alpha.4'"));
         }
 
 
@@ -81,15 +81,19 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
 
             var orderedList = semVerList.OrderBy(x => x).ToList();
 
-            Assert.AreEqual(semVer1, orderedList[0]);
-            Assert.AreEqual(semVer2, orderedList[1]);
-            Assert.AreEqual(semVer3, orderedList[2]);
-            Assert.AreEqual(semVer4, orderedList[3]);
-            Assert.AreEqual(semVer5, orderedList[4]);
-            Assert.AreEqual(semVer6, orderedList[5]);
-            Assert.AreEqual(semVer7, orderedList[6]);
-            Assert.AreEqual(semVer8, orderedList[7]);
-            Assert.AreEqual(semVer9, orderedList[8]);
+          Assert.That(
+            orderedList, Is.EquivalentTo(new List<SemVer>()
+            {
+              semVer1,
+              semVer2,
+              semVer3,
+              semVer4,
+              semVer5,
+              semVer6,
+              semVer7,
+              semVer8,
+              semVer9
+            }));
         }
     }
 }

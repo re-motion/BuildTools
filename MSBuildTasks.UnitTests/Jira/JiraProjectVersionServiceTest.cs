@@ -22,7 +22,6 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
     [SetUp]
     public void SetUp ()
     {
-      ICredentials credentials = CredentialCache.DefaultNetworkCredentials;
       IAuthenticator authenticator = new NtlmAuthenticator();
       _service = new JiraProjectVersionService (c_jiraUrl, authenticator);
       _versionFinder = new JiraProjectVersionFinder(c_jiraUrl, authenticator);
@@ -42,7 +41,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       _service.CreateVersion (c_jiraProjectKey, "4.2.0", DateTime.Today.AddDays(7));
 
       // Get latest unreleased version
-      var versions = _service.FindUnreleasedVersions (c_jiraProjectKey, "4.1.").ToList();
+      var versions = _versionFinder.FindUnreleasedVersions (c_jiraProjectKey, "4.1.").ToList();
       Assert.That (versions.Count(), Is.EqualTo (3));
 
       var versionToRelease = versions.First();
@@ -51,7 +50,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       var versionToFollow = versions.Skip (1).First();
       Assert.That (versionToFollow.name, Is.EqualTo ("4.1.1"));
 
-      var versions2 = _service.FindUnreleasedVersions (c_jiraProjectKey, "4.2.");
+      var versions2 = _versionFinder.FindUnreleasedVersions (c_jiraProjectKey, "4.2.");
       Assert.That (versions2.Count(), Is.EqualTo (1));
 
       var additionalVersion = versions2.First();
@@ -66,7 +65,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       _service.ReleaseVersion (versionToRelease.id, versionToFollow.id);
 
       // Get latest unreleased version again
-      versions = _service.FindUnreleasedVersions(c_jiraProjectKey, "4.1.").ToList();
+      versions = _versionFinder.FindUnreleasedVersions (c_jiraProjectKey, "4.1.").ToList ();
       Assert.That (versions.Count(), Is.EqualTo (2));
 
       var versionThatFollowed = versions.First();
