@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="CodeplexCreateRelease.cs" />
     <Compile Include="CodeplexUploadFiles.cs" />
+    <Compile Include="Jira\JiraCheckAuthentication.cs" />
     <Compile Include="Jira\JiraCreateNewVersion.cs" />
     <Compile Include="Jira\JiraCreateNewVersionWithVersionNumber.cs" />
     <Compile Include="Jira\JiraGetEarliestUnreleasedVersion.cs" />
