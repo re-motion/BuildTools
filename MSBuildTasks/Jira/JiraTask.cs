@@ -39,8 +39,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     [Required]
     public string JiraPassword
     {
-      get { return jiraUsername; } 
-      set { jiraUsername = value; }
+      get { return jiraPassword; } 
+      set { jiraPassword = value; }
     }
 
     protected IAuthenticator Authenticator

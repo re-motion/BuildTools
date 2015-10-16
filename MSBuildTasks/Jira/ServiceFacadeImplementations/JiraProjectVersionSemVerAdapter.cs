@@ -15,21 +15,13 @@
 // under the License.
 // 
 
-using System;
 using Remotion.BuildTools.MSBuildTasks.Jira.Semver;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 {
-  public class JiraProjectVersion
+  public class JiraProjectVersionSemVerAdapter
   {
-    public string self { get; set; }
-    public string id { get; set; }
-    public string description { get; set; }
-    public string name { get; set; }
-    public bool? archived { get; set; }
-    public bool? released { get; set; }
-    public DateTime? releaseDate { get; set; }
-    public bool? overdue { get; set; }
-    public string project { get; set; }
+    public JiraProjectVersion JiraProjectVersion { get; set; }
+    public SemVer SemVer { get; set; }
   }
 }

@@ -189,3 +189,5 @@ remotion.snk
 
 # Named
 GitExtensions.settings.backup
+MSBuildTasks/Properties/Settings.settings
+MSBuildTasks/app.config
