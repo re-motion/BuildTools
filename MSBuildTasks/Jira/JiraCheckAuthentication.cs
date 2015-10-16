@@ -28,7 +28,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
 
     public override bool Execute()
     {
-      IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(JiraUrl, Authenticator);
+      JiraRestClient restClient = new JiraRestClient(JiraUrl, Authenticator);
+
+      IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(restClient);
 
       //Just call any function to send a Request and test Authentication Details
       //Throws JiraException with HttpStatusCode.Forbidden if Authentication fails

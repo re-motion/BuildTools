@@ -37,8 +37,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     {
       try
       {
-        IJiraProjectVersionService service = new JiraProjectVersionService (JiraUrl, Authenticator);
-        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(JiraUrl, Authenticator);
+        JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
+        IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
+        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(restClient);
 
         var versions = finder.FindVersions (JiraProjectKey, "(?s).*");
         var jiraProject = versions.Where(x => x.name == VersionNumber).DefaultIfEmpty().First();

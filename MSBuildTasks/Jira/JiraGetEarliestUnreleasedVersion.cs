@@ -48,7 +48,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     {
       try
       {
-        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder (JiraUrl, Authenticator);
+        JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
+        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder (restClient);
         var versions = finder.FindUnreleasedVersions (JiraProject, VersionPattern).ToArray();
 
         VersionID = "";

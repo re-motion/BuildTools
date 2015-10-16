@@ -31,11 +31,11 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
     private readonly JiraIssueService jiraIssueService;
     private readonly JiraProjectVersionFinder jiraProjectVersionFinder;
 
-    public JiraProjectVersionService(string jiraUrl, IAuthenticator authenticator)
+    public JiraProjectVersionService(JiraRestClient restClient)
     {
-      jiraClient = new JiraRestClient(jiraUrl, authenticator);
-      jiraIssueService = new JiraIssueService(jiraClient);
-      jiraProjectVersionFinder = new JiraProjectVersionFinder(jiraUrl, authenticator);
+      jiraClient = restClient;
+      jiraIssueService = new JiraIssueService (restClient);
+      jiraProjectVersionFinder = new JiraProjectVersionFinder (restClient);
     }
 
     public string CreateVersion (string projectKey, string versionName, DateTime? releaseDate)
@@ -114,20 +114,26 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       {
         var versions = jiraProjectVersionFinder.GetVersions (projectKey);
         SemVerParser semVerParser = new SemVerParser();
+        List<JiraProjectVersionSemVerAdapter> versionList = new List<JiraProjectVersionSemVerAdapter>();
+
         foreach (var version in versions)
         {
           try
           {
-            version.Semver = semVerParser.ParseVersion(version.name);
+            versionList.Add(new JiraProjectVersionSemVerAdapter()
+            {
+              JiraProjectVersion = version,
+              SemVer = semVerParser.ParseVersion(version.name)
+            });
           }
-          catch (ArgumentException e)
+          catch (ArgumentException)
           {
             //Empty Catch. What to do on invalid Parse? Make the thing nullable? 
             //Try an TryParse with out Parameter?
           }
         }
 
-        var orderedVersions = versions.OrderBy(x => x.Semver).ToList();
+        var orderedVersions = versionList.OrderBy(x => x.SemVer).ToList();
 
         var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (versionID);
         jiraIssueService.MoveIssuesToVersion (nonClosedIssues, versionID, nextVersionID);

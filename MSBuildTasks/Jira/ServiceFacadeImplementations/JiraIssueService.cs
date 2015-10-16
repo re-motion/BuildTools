@@ -18,7 +18,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 using RestSharp;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
@@ -27,9 +26,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
   {
     private readonly JiraRestClient jiraClient;
 
-    public JiraIssueService(JiraRestClient jiraClient)
+    public JiraIssueService (JiraRestClient restClient)
     {
-      this.jiraClient = jiraClient;
+      jiraClient = restClient;
     }
 
     public void MoveIssuesToVersion (IEnumerable<JiraToBeMovedIssue> issues, string oldVersionId, string newVersionId)

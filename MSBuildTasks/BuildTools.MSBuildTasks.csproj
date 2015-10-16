@@ -66,6 +66,7 @@
     <Compile Include="Jira\JiraGetLatestReleasedVersion.cs" />
     <Compile Include="Jira\JiraReleaseVersion.cs" />
     <Compile Include="Jira\JiraTask.cs" />
+    <Compile Include="Jira\ServiceFacadeImplementations\JiraProjectVersionSemVerAdapter.cs" />
     <Compile Include="Jira\ServiceFacadeInterfaces\IJiraProjectVersionFinder.cs" />
     <Compile Include="Jira\ServiceFacadeImplementations\JiraIssueService.cs" />
     <Compile Include="Jira\ServiceFacadeImplementations\JiraProjectVersionFinder.cs" />
@@ -74,6 +75,11 @@
     <Compile Include="NDocProjectBuilder.cs" />
     <Compile Include="NuGetPack.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="SandcastleProjectBuilder.cs" />
     <Compile Include="Jira\ServiceFacadeInterfaces\IJiraProjectVersionService.cs" />
     <Compile Include="Jira\ServiceFacadeImplementations\JiraException.cs" />
@@ -94,6 +100,10 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Remotion.BuildTools.MSBuildTasks.tasks" />
   </ItemGroup>
   <ItemGroup>

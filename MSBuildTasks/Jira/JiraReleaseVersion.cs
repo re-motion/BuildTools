@@ -42,7 +42,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     {
       try
       {
-        IJiraProjectVersionService service = new JiraProjectVersionService (JiraUrl, Authenticator);
+        JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
+        IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
         service.ReleaseVersion (VersionID, NextVersionID);
 
         return true;

@@ -28,9 +28,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
   {
     private readonly JiraRestClient jiraClient;
 
-    public JiraProjectVersionFinder(string jiraUrl, IAuthenticator authenticator)
+    public JiraProjectVersionFinder(JiraRestClient restClient)
     {
-      jiraClient = new JiraRestClient(jiraUrl, authenticator);
+      jiraClient = restClient;
     }
 
     public IEnumerable<JiraProjectVersion> FindVersions (string projectKey, string versionPattern)

@@ -53,6 +53,5 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
       return response;
     }
-
   }
 }

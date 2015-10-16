@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Net;
 using NUnit.Framework;
+using Remotion.BuildTools.MSBuildTasks.Jira;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
+using Remotion.BuildTools.MSBuildTasks;
 using RestSharp;
 
 namespace BuildTools.MSBuildTasks.UnitTests.Jira
@@ -22,11 +23,25 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
     [SetUp]
     public void SetUp ()
     {
+      
       IAuthenticator authenticator = new NtlmAuthenticator();
-      _service = new JiraProjectVersionService (c_jiraUrl, authenticator);
-      _versionFinder = new JiraProjectVersionFinder(c_jiraUrl, authenticator);
-      _issueService = new JiraIssueService(c_jiraUrl, authenticator);
-      _restClient = new JiraRestClient(c_jiraUrl, authenticator);
+      _restClient = new JiraRestClient (c_jiraUrl, authenticator);
+      _service = new JiraProjectVersionService (_restClient);
+      _versionFinder = new JiraProjectVersionFinder (_restClient);
+      _issueService = new JiraIssueService (_restClient);
+    }
+
+    [Test]
+    public void Call_JiraCheckAuthentication()
+    {
+      var jiraCheckAuthenticationTask = new JiraCheckAuthentication
+      {
+        JiraProject = c_jiraProjectKey,
+        JiraUrl = c_jiraUrl,
+        //JiraUsername = Remotion.BuildTools.MSBuildTasks.Properties.Settings.Default.Username;
+
+      };
+      jiraCheckAuthenticationTask.Execute();
     }
 
     [Test]
