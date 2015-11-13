@@ -51,7 +51,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
     public IEnumerable<JiraToBeMovedIssue> FindAllNonClosedIssues (string versionId)
     {
-      var jql = "fixVersion=" + versionId + " and status != \"closed\"";
+      var jql = "fixVersion=" + versionId + " and resolution = \"unresolved\"";
       var resource = "search?jql=" + jql + "&fields=id,fixVersions";
       var request = jiraClient.CreateRestRequest (resource, Method.GET);
 
@@ -61,7 +61,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
     public IEnumerable<JiraToBeMovedIssue> FindAllClosedIssues (string versionId)
     {
-      var jql = "fixVersion=" + versionId + " and status = \"closed\"";
+      var jql = "fixVersion=" + versionId + " and resolution != \"unresolved\"";
       var resource = "search?jql=" + jql + "&fields=id,fixVersions";
       var request = jiraClient.CreateRestRequest (resource, Method.GET);
 

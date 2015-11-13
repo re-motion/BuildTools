@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using System.Text;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Remotion.BuildTools.MSBuildTasks.Jira;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
 using Remotion.BuildTools.MSBuildTasks;
 using RestSharp;
+using JsonSerializer = RestSharp.Serializers.JsonSerializer;
 
 namespace BuildTools.MSBuildTasks.UnitTests.Jira
 {
@@ -14,6 +17,8 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
   {
     private const string c_jiraUrl = "https://www.re-motion.org/jira/rest/api/2/";
     private const string c_jiraProjectKey = "SRCBLDTEST";
+    private const string c_jiraUsername = "floriandeckerrubicon";
+    private const string c_jiraPassword = "rubicon01";
 
     private JiraProjectVersionService _service;
     private JiraProjectVersionFinder _versionFinder;
@@ -24,7 +29,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
     public void SetUp ()
     {
       
-      IAuthenticator authenticator = new NtlmAuthenticator();
+      IAuthenticator authenticator = new HttpBasicAuthenticator(c_jiraUsername, c_jiraPassword);
       _restClient = new JiraRestClient (c_jiraUrl, authenticator);
       _service = new JiraProjectVersionService (_restClient);
       _versionFinder = new JiraProjectVersionFinder (_restClient);
@@ -38,7 +43,8 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       {
         JiraProject = c_jiraProjectKey,
         JiraUrl = c_jiraUrl,
-        //JiraUsername = Remotion.BuildTools.MSBuildTasks.Properties.Settings.Default.Username;
+        JiraUsername = c_jiraUsername,
+        JiraPassword = c_jiraPassword
 
       };
       jiraCheckAuthenticationTask.Execute();
@@ -98,16 +104,15 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       DeleteVersionsIfExistent (c_jiraProjectKey, "4.1.0", "4.1.1", "4.1.2", "4.2.0");
     }
 
-    private void AddTestIssueToVersion (string summary, bool closed, params JiraProjectVersion[] toRelease)
+    private void AddTestIssueToVersion (string summaryOfIssue, bool closed, params JiraProjectVersion[] toRelease)
     {
       // Create new issue
       var resource = "issue";
       var request = new RestRequest { Method = Method.POST, RequestFormat = DataFormat.Json, Resource = resource};
-      request.OnBeforeDeserialization = resp => { resp.ContentType = "application/json"; };
 
-      var body = new { fields = new { project = new { key = c_jiraProjectKey }, issuetype = new { name = "Bug" }, summary = summary, fixVersions = toRelease.Select(v=>new{v.id}) } };
+      var body = new { fields = new { project = new { key = c_jiraProjectKey }, issuetype = new { name = "Task" }, summary = summaryOfIssue, description = "testDescription", fixVersions = toRelease.Select(v=>new{v.id}) } };
       request.AddBody (body);
-
+      
       var response = _restClient.DoRequest<JiraIssue> (request, HttpStatusCode.Created);
 
       // Close issue if necessary
@@ -168,6 +173,46 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.0.0");
 
       Assert.Throws (typeof (JiraException), () => _service.DeleteVersion (c_jiraProjectKey, "6.0.0.0"));
+    }
+
+    [Test]
+    public void TestReleaseVersionAndSquashUnreleased ()
+    {
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1", "6.0.1-beta.2");
+    
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.1", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.2", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-beta.1", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-beta.2", null);
+
+      var alpha1Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-alpha.1").First();
+      var alpha2Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1.alpha.2").First();
+      var beta1Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-beta.1").First();
+      var beta2Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-beta.2").First();
+
+      AddTestIssueToVersion ("ClosedIssue", true, alpha1Version);
+      AddTestIssueToVersion ("ClosedIssue", true, alpha2Version);
+      AddTestIssueToVersion ("ClosedIssue", true, beta1Version);
+      AddTestIssueToVersion ("ClosedIssue", true, beta2Version);
+
+      AddTestIssueToVersion ("Open issues", false, alpha1Version);
+      AddTestIssueToVersion ("Open issues", false, alpha2Version);
+      AddTestIssueToVersion ("Open issues", false, beta1Version);
+      AddTestIssueToVersion ("Open issues", false, beta2Version);
+
+      _service.ReleaseVersion(alpha1Version.id, alpha2Version.id);
+
+      _service.ReleaseVersionAndSquashUnreleased(beta1Version.id, beta2Version.id, c_jiraProjectKey);
+
+      Assert.That (_versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-alpha.2").Count(), Is.EqualTo(0));
+      
+      //Assert that the Closed Issue of deleted alpha2Version got moved to beta1Version
+      Assert.That (_issueService.FindAllClosedIssues(beta1Version.id).Count(), Is.EqualTo(2));
+
+      //Assert that the Open Issues of deleted alpha2Version and released beta1Version got moved to beta2Version
+      Assert.That (_issueService.FindAllNonClosedIssues(beta2Version.id).Count(), Is.EqualTo(3));
+
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1", "6.0.1-beta.2");
     }
 
     private void DeleteVersionsIfExistent (string projectName, params string[] versionNames)

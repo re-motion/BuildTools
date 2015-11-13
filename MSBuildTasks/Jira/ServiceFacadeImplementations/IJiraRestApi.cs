@@ -15,38 +15,9 @@
 // under the License.
 // 
 
-using System.Collections.Generic;
-
 namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 {
-  public class JiraIssue
+  interface IJiraRestApi
   {
-    public string id { get; set; }
-    public string summary { get; set; }
-    public List<string> fixVersions { get; set; }
-
-    public string issuetype { get; set; }
-    public string project { get; set; }
-  }
-
-  public class JiraNonClosedIssues
-  {
-    public List<JiraToBeMovedIssue> issues { get; set; }
-  }
-
-  public class JiraToBeMovedIssue
-  {
-    public string id { get; set; }
-    public JiraNonClosedIssueFields fields { get; set; }
-  }
-
-  public class JiraNonClosedIssueFields
-  {
-    public List<JiraVersion> fixVersions { get; set; }
-  }
-
-  public class JiraVersion
-  {
-    public string id { get; set; }
   }
 }

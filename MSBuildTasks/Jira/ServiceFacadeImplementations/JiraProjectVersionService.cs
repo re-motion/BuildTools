@@ -42,7 +42,6 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
     {
       var request = jiraClient.CreateRestRequest ("version", Method.POST);
 
-      //TODO
       if (releaseDate != null)
       {
           releaseDate = AdjustReleaseDateForJira(releaseDate.Value);
@@ -113,6 +112,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       if (versionID != nextVersionID)
       {
         var versions = jiraProjectVersionFinder.GetVersions (projectKey);
+        
         SemVerParser semVerParser = new SemVerParser();
         List<JiraProjectVersionSemVerAdapter> versionList = new List<JiraProjectVersionSemVerAdapter>();
 
@@ -128,18 +128,55 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
           }
           catch (ArgumentException)
           {
-            //Empty Catch. What to do on invalid Parse? Make the thing nullable? 
-            //Try an TryParse with out Parameter?
+            //Empty Catch. Invalid versions are not interesting for us
           }
         }
 
         var orderedVersions = versionList.OrderBy(x => x.SemVer).ToList();
 
-        var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (versionID);
-        jiraIssueService.MoveIssuesToVersion (nonClosedIssues, versionID, nextVersionID);
-      }
+        if (orderedVersions.Any(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true))
+        {
+          var lastReleasedVersion =
+          orderedVersions.Last (x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true);
 
-      ReleaseVersion (versionID);  
+          int indexOfLastReleasedVersion = orderedVersions.IndexOf (lastReleasedVersion);
+          int indexOfCurrentVersion = orderedVersions.FindIndex (x => x.JiraProjectVersion.id == versionID);
+
+          if ((indexOfLastReleasedVersion + 1) != indexOfCurrentVersion)
+          {
+            var unreleasedVersionsBeforeCurrentVersion = IndexRangeBetween (orderedVersions, indexOfLastReleasedVersion,
+              indexOfCurrentVersion);
+
+            foreach (var toBeSquashedVersion in unreleasedVersionsBeforeCurrentVersion)
+            {
+              string toBeSquashedVersionID = toBeSquashedVersion.JiraProjectVersion.id;
+
+              var closedIssues = jiraIssueService.FindAllClosedIssues (toBeSquashedVersionID);
+              jiraIssueService.MoveIssuesToVersion (closedIssues, toBeSquashedVersionID, versionID);
+
+              var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (toBeSquashedVersionID);
+              jiraIssueService.MoveIssuesToVersion (nonClosedIssues, toBeSquashedVersionID, nextVersionID);
+
+              this.DeleteVersion (projectKey, toBeSquashedVersion.JiraProjectVersion.name);
+            }
+          }
+          else
+          {
+            ReleaseVersion (versionID, nextVersionID);          
+          }
+        }
+      }
+    }
+
+    private IEnumerable<TSource> IndexRangeBetween<TSource> (IList<TSource> source, int fromIndex, int toIndex)
+    {
+        int currentIndex = fromIndex + 1;
+        
+        while (currentIndex < toIndex)
+        {
+          yield return source[currentIndex];
+          currentIndex++;
+        }
     }
 
     private void ReleaseVersion(string versionID)
