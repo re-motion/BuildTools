@@ -137,34 +137,32 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
         if (orderedVersions.Any(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true))
         {
           var lastReleasedVersion =
-          orderedVersions.Last (x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true);
+            orderedVersions.Last(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true);
 
-          int indexOfLastReleasedVersion = orderedVersions.IndexOf (lastReleasedVersion);
-          int indexOfCurrentVersion = orderedVersions.FindIndex (x => x.JiraProjectVersion.id == versionID);
+          int indexOfLastReleasedVersion = orderedVersions.IndexOf(lastReleasedVersion);
+          int indexOfCurrentVersion = orderedVersions.FindIndex(x => x.JiraProjectVersion.id == versionID);
 
           if ((indexOfLastReleasedVersion + 1) != indexOfCurrentVersion)
           {
-            var unreleasedVersionsBeforeCurrentVersion = IndexRangeBetween (orderedVersions, indexOfLastReleasedVersion,
+            var unreleasedVersionsBeforeCurrentVersion = IndexRangeBetween(orderedVersions, indexOfLastReleasedVersion,
               indexOfCurrentVersion);
 
             foreach (var toBeSquashedVersion in unreleasedVersionsBeforeCurrentVersion)
             {
               string toBeSquashedVersionID = toBeSquashedVersion.JiraProjectVersion.id;
 
-              var closedIssues = jiraIssueService.FindAllClosedIssues (toBeSquashedVersionID);
-              jiraIssueService.MoveIssuesToVersion (closedIssues, toBeSquashedVersionID, versionID);
+              var closedIssues = jiraIssueService.FindAllClosedIssues(toBeSquashedVersionID);
+              jiraIssueService.MoveIssuesToVersion(closedIssues, toBeSquashedVersionID, versionID);
 
-              var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (toBeSquashedVersionID);
-              jiraIssueService.MoveIssuesToVersion (nonClosedIssues, toBeSquashedVersionID, nextVersionID);
+              var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues(toBeSquashedVersionID);
+              jiraIssueService.MoveIssuesToVersion(nonClosedIssues, toBeSquashedVersionID, nextVersionID);
 
-              this.DeleteVersion (projectKey, toBeSquashedVersion.JiraProjectVersion.name);
+              this.DeleteVersion(projectKey, toBeSquashedVersion.JiraProjectVersion.name);
             }
           }
-          else
-          {
-            ReleaseVersion (versionID, nextVersionID);          
-          }
         }
+
+        ReleaseVersion(versionID, nextVersionID);
       }
     }
 
