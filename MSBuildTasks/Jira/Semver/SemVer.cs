@@ -23,8 +23,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
       if (Patch > other.Patch) return 1;
       if (Patch < other.Patch) return -1;
 
-      if (Pre != null && other.Pre == null) return 1;
-      if (Pre == null && other.Pre != null) return -1;
+      if (Pre != null && other.Pre == null) return -1;
+      if (Pre == null && other.Pre != null) return 1;
 
       if (Pre > other.Pre) return 1;
       if (Pre < other.Pre) return -1;

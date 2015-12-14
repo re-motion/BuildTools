@@ -70,11 +70,11 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
             var semVer1 = semVerParser.ParseVersion("1.2.3");
             var semVer2 = semVerParser.ParseVersion("1.2.4");
             var semVer3 = semVerParser.ParseVersion("1.3.0");
-            var semVer4 = semVerParser.ParseVersion("1.4.0");
-            var semVer5 = semVerParser.ParseVersion("1.4.0-alpha.1");
-            var semVer6 = semVerParser.ParseVersion("1.4.0-beta.1");
-            var semVer7 = semVerParser.ParseVersion("1.4.0-beta.2");
-            var semVer8 = semVerParser.ParseVersion("1.4.0-rc.1");
+            var semVer4 = semVerParser.ParseVersion("1.4.0-alpha.1");
+            var semVer5 = semVerParser.ParseVersion("1.4.0-beta.1");
+            var semVer6 = semVerParser.ParseVersion("1.4.0-beta.2");
+            var semVer7 = semVerParser.ParseVersion("1.4.0-rc.1");
+            var semVer8 = semVerParser.ParseVersion("1.4.0");
             var semVer9 = semVerParser.ParseVersion("2.0.0");
 
             var semVerList = new List<SemVer>() {semVer9, semVer8, semVer7, semVer6, semVer5, semVer4, semVer3, semVer2, semVer1};
@@ -82,7 +82,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
             var orderedList = semVerList.OrderBy(x => x).ToList();
 
           Assert.That(
-            orderedList, Is.EquivalentTo(new List<SemVer>()
+            orderedList, Is.EqualTo(new List<SemVer>()
             {
               semVer1,
               semVer2,
