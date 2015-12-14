@@ -29,15 +29,6 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     [Required]
     public string NextVersionID { get; set; }
 
-    private string projectKey = "";
-
-    [Required]
-    public string ProjectKey
-    {
-      get { return projectKey; } 
-      set { projectKey = value; }
-    }
-
     public override bool Execute ()
     {
       try
