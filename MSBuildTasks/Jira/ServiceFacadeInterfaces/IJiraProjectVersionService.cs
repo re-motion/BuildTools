@@ -14,10 +14,11 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using System.Collections.Generic;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
+using System;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
+
+namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces
 {
   public interface IJiraProjectVersionService
   {
@@ -25,7 +26,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     /// Creates a project version.
     /// </summary>
     /// <returns>New project version ID</returns>
-    string CreateVersion (string projectKey, string versionName, DateTime releaseDate);
+    string CreateVersion (string projectKey, string versionName, DateTime? releaseDate);
 
     /// <summary>
     /// Creates a subsequent project version.
@@ -39,23 +40,16 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
     void ReleaseVersion (string versionID, string nextVersionID);
 
     /// <summary>
+    /// Releases a project and moves all open issues to the next project version
+    /// Also deletes all unreleased Versions before the current Version
+    /// Moves the closed Issues from deleted Versions to current Version, and open Issues to nextVersion
+    /// </summary>
+    void ReleaseVersionAndSquashUnreleased (string versionID, string nextVersionID, string projectKey);
+
+    /// <summary>
     /// Deletes a project version.
     /// </summary>
     /// <exception cref="JiraException">Thrown if version does not exist.</exception>
     void DeleteVersion (string projectKey, string versionName);
-
-    /// <summary>
-    /// Returns all versions of the project.
-    /// Filters by Regex.IsMatch(name, versionPattern) if versionPattern is not null.
-    /// </summary
-    /// <returns>List of project versions or empty sequence</returns>
-    IEnumerable<JiraProjectVersion> FindVersions (string projectKey, string versionPattern);
-
-    /// <summary>
-    /// Returns all unreleased versions of the project.
-    /// Filters by Regex.IsMatch(name, versionPattern) if versionPattern is not null.
-    /// </summary
-    /// <returns>List of project versions or empty sequence</returns>
-    IEnumerable<JiraProjectVersion> FindUnreleasedVersions (string projectKey, string versionPattern);
   }
 }

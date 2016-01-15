@@ -14,17 +14,16 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
+using System.Collections.Generic;
+
+namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 {
   public class JiraIssue
   {
     public string id { get; set; }
     public string summary { get; set; }
-    public List<string> fixVersion { get; set; }
+    public List<string> fixVersions { get; set; }
 
     public string issuetype { get; set; }
     public string project { get; set; }
@@ -32,10 +31,10 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
 
   public class JiraNonClosedIssues
   {
-    public List<JiraNonClosedIssue> issues { get; set; }
+    public List<JiraToBeMovedIssue> issues { get; set; }
   }
 
-  public class JiraNonClosedIssue
+  public class JiraToBeMovedIssue
   {
     public string id { get; set; }
     public JiraNonClosedIssueFields fields { get; set; }

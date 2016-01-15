@@ -22,59 +22,44 @@ using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
-  public class JiraGetEarliestUnreleasedVersion : JiraTask
+  public class JiraCreateNewVersionWithVersionNumber : JiraTask
   {
     [Required]
-    public string JiraProject { get; set; }
+    public string JiraProjectKey { get; set; }
 
-    public string VersionPattern { get; set; }
-
-    [Output]
-    public string VersionID { get; set; }
+    [Required]
+    public string VersionNumber { get; set; }
 
     [Output]
-    public string VersionName { get; set; }
-
-    [Output]
-    public string NextVersionID { get; set; }
-
-    [Output]
-    public string NextVersionName { get; set; }
-
-    [Output]
-    public int NumberOfUnreleasedVersions { get; set; }
+    public string CreatedVersionID { get; set; }
 
     public override bool Execute ()
     {
       try
       {
         JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
-        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder (restClient);
-        var versions = finder.FindUnreleasedVersions (JiraProject, VersionPattern).ToArray();
+        IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
+        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(restClient);
 
-        VersionID = "";
-        VersionName = "";
-        NextVersionID = "";
-        NextVersionName = "";
-        NumberOfUnreleasedVersions = versions.Count();
-
-        if(NumberOfUnreleasedVersions >= 1)
+        var versions = finder.FindVersions (JiraProjectKey, "(?s).*");
+        var jiraProject = versions.Where(x => x.name == VersionNumber).DefaultIfEmpty().First();
+        
+        if (jiraProject != null)
         {
-          var version = versions.First();
-          VersionID = version.id;
-          VersionName = version.name;
+          if (jiraProject.released != null)
+          {
+            if (jiraProject.released.Value)
+              throw new JiraException ("The Version '" + VersionNumber + "' got already released in Jira.");  
+          }
+          
+          CreatedVersionID = jiraProject.id;
+          return true;
         }
 
-        if(NumberOfUnreleasedVersions >= 2)
-        {
-          var nextVersion = versions.Skip (1).First();
-          NextVersionID = nextVersion.id;
-          NextVersionName = nextVersion.name;
-        }
-
+        CreatedVersionID = service.CreateVersion (JiraProjectKey, VersionNumber, null);
         return true;
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         Log.LogErrorFromException (ex);
         return false;

@@ -22,10 +22,13 @@
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.CodeplexCreateRelease" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.CodeplexUploadFiles" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.InsertSourceLinks" />
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.Jira.JiraCheckAuthentication" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.Jira.JiraGetEarliestUnreleasedVersion" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.Jira.JiraGetLatestReleasedVersion" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.Jira.JiraCreateNewVersion" />
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.Jira.JiraCreateNewVersionWithVersionNumber" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.Jira.JiraReleaseVersion" />
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.Jira.JiraReleaseVersionAndSquashUnreleased" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.NDocProjectBuilder" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.NuGetPack" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.NuGetPush" />

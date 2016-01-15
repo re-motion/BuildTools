@@ -14,15 +14,29 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacade
+using Microsoft.Build.Framework;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
+using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
+
+namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
-  public class JiraException : Exception
+  public class JiraCheckAuthentication : JiraTask
   {
-    public JiraException(string message)
-      : base(message)
+    [Required]
+    public string JiraProject { get; set; }
+
+    public override bool Execute()
     {
+      JiraRestClient restClient = new JiraRestClient(JiraUrl, Authenticator);
+
+      IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(restClient);
+
+      //Just call any function to send a Request and test Authentication Details
+      //Throws JiraException with HttpStatusCode.Forbidden if Authentication fails
+      finder.FindUnreleasedVersions(JiraProject, "(?s).*");
+
+      return true;
     }
   }
 }

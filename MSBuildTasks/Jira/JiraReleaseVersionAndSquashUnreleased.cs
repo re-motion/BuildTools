@@ -15,66 +15,40 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using Microsoft.Build.Framework;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
-  public class JiraGetEarliestUnreleasedVersion : JiraTask
+  public class JiraReleaseVersionAndSquashUnreleased : JiraTask
   {
     [Required]
-    public string JiraProject { get; set; }
-
-    public string VersionPattern { get; set; }
-
-    [Output]
     public string VersionID { get; set; }
 
-    [Output]
-    public string VersionName { get; set; }
-
-    [Output]
+    [Required]
     public string NextVersionID { get; set; }
 
-    [Output]
-    public string NextVersionName { get; set; }
+    private string projectKey = "";
 
-    [Output]
-    public int NumberOfUnreleasedVersions { get; set; }
+    [Required]
+    public string ProjectKey
+    {
+      get { return projectKey; }
+      set { projectKey = value; }
+    }
 
     public override bool Execute ()
     {
       try
       {
         JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
-        IJiraProjectVersionFinder finder = new JiraProjectVersionFinder (restClient);
-        var versions = finder.FindUnreleasedVersions (JiraProject, VersionPattern).ToArray();
-
-        VersionID = "";
-        VersionName = "";
-        NextVersionID = "";
-        NextVersionName = "";
-        NumberOfUnreleasedVersions = versions.Count();
-
-        if(NumberOfUnreleasedVersions >= 1)
-        {
-          var version = versions.First();
-          VersionID = version.id;
-          VersionName = version.name;
-        }
-
-        if(NumberOfUnreleasedVersions >= 2)
-        {
-          var nextVersion = versions.Skip (1).First();
-          NextVersionID = nextVersion.id;
-          NextVersionName = nextVersion.name;
-        }
+        IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
+        service.ReleaseVersionAndSquashUnreleased(VersionID, NextVersionID, ProjectKey);
 
         return true;
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         Log.LogErrorFromException (ex);
         return false;

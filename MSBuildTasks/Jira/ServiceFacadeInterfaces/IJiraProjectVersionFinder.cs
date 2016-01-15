@@ -14,36 +14,26 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
-using Microsoft.Build.Framework;
+
+using System.Collections.Generic;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira
+namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces
 {
-  public class JiraReleaseVersion : JiraTask
+  interface IJiraProjectVersionFinder
   {
-    [Required]
-    public string VersionID { get; set; }
+    /// <summary>
+    /// Returns all versions of the project.
+    /// Filters by Regex.IsMatch(name, versionPattern) if versionPattern is not null.
+    /// </summary
+    /// <returns>List of project versions or empty sequence</returns>
+    IEnumerable<JiraProjectVersion> FindVersions (string projectKey, string versionPattern);
 
-    [Required]
-    public string NextVersionID { get; set; }
-
-    public override bool Execute ()
-    {
-      try
-      {
-        JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
-        IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
-        service.ReleaseVersion (VersionID, NextVersionID);
-
-        return true;
-      }
-      catch(Exception ex)
-      {
-        Log.LogErrorFromException (ex);
-        return false;
-      }
-    }
+    /// <summary>
+    /// Returns all unreleased versions of the project.
+    /// Filters by Regex.IsMatch(name, versionPattern) if versionPattern is not null.
+    /// </summary
+    /// <returns>List of project versions or empty sequence</returns>
+    IEnumerable<JiraProjectVersion> FindUnreleasedVersions (string projectKey, string versionPattern);
   }
 }

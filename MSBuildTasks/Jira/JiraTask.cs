@@ -14,35 +14,50 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-using System;
+
 using Microsoft.Build.Framework;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
-using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
+using Microsoft.Build.Utilities;
+using RestSharp;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
-  public class JiraReleaseVersion : JiraTask
+  public abstract class JiraTask : Task
   {
     [Required]
-    public string VersionID { get; set; }
+    public string JiraUrl { get; set; }
+
+    private string jiraUsername = "";
+    private string jiraPassword = "";
 
     [Required]
-    public string NextVersionID { get; set; }
-
-    public override bool Execute ()
+    public string JiraUsername
     {
-      try
-      {
-        JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
-        IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
-        service.ReleaseVersion (VersionID, NextVersionID);
+      get { return jiraUsername; } 
+      set { jiraUsername = value; }
+    }
 
-        return true;
-      }
-      catch(Exception ex)
+    [Required]
+    public string JiraPassword
+    {
+      get { return jiraPassword; } 
+      set { jiraPassword = value; }
+    }
+
+    protected IAuthenticator Authenticator
+    {
+      get
       {
-        Log.LogErrorFromException (ex);
-        return false;
+        IAuthenticator authenticator;
+
+        if (string.IsNullOrEmpty(JiraUsername) && string.IsNullOrEmpty(JiraPassword))
+        {
+          authenticator = new NtlmAuthenticator();
+        }
+        else
+        {
+          authenticator = new HttpBasicAuthenticator(JiraUsername, JiraPassword);
+        }
+        return authenticator;
       }
     }
   }
