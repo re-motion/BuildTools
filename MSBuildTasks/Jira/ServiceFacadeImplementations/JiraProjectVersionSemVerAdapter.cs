@@ -15,13 +15,11 @@
 // under the License.
 // 
 
-using Remotion.BuildTools.MSBuildTasks.Jira.Semver;
-
 namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 {
   public class JiraProjectVersionSemVerAdapter
   {
     public JiraProjectVersion JiraProjectVersion { get; set; }
-    public SemVer SemVer { get; set; }
+    public SemanticVersioning.SemanticVersion SemanticVersion { get; set; }
   }
 }

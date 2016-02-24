@@ -41,10 +41,6 @@
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
-    <Reference Include="nunit.framework, Version=2.6.2.12296, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\NUnit-2.6\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="RestSharp, Version=104.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
@@ -85,26 +81,20 @@
     <Compile Include="Jira\ServiceFacadeImplementations\JiraProjectVersion.cs" />
     <Compile Include="Jira\ServiceFacadeImplementations\JiraProjectVersionService.cs" />
     <Compile Include="InsertSourceLinks.cs" />
-    <Compile Include="Jira\Semver\PreReleaseStage.cs" />
-    <Compile Include="Jira\Semver\SemVer.cs" />
-    <Compile Include="Jira\Semver\SemVerParser.cs" />
-    <Compile Include="Jira\Semver\SemVerUnitTest.cs" />
+    <Compile Include="Jira\SemanticVersioning\PreReleaseStage.cs" />
+    <Compile Include="Jira\SemanticVersioning\SemanticVersion.cs" />
+    <Compile Include="Jira\SemanticVersioning\SemanticVersionParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\BuildTools Apache-2.0.licenseheader">
       <Link>BuildTools Apache-2.0.licenseheader</Link>
     </None>
-    <None Include="app.config" />
     <None Include="BuildTools.MSBuildTasks.nuspec">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
     <None Include="Remotion.BuildTools.MSBuildTasks.tasks" />
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>cd $(MSBuildProjectDirectory)

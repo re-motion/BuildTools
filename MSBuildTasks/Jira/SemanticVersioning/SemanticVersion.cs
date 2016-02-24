@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
+namespace Remotion.BuildTools.MSBuildTasks.Jira.SemanticVersioning
 {
-  public class SemVer : IComparable<SemVer>
+  public class SemanticVersion : IComparable<SemanticVersion>
   {
     public int Major { get; set; }
     public int Minor { get; set; }
@@ -10,7 +10,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
     public PreReleaseStage? Pre { get; set; }
     public int? PreReleaseCounter { get; set; }
 
-    public int CompareTo(SemVer other)
+    public int CompareTo(SemanticVersion other)
     {
       if (other == null) return 1;
 
@@ -37,7 +37,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.Semver
 
     public override bool Equals(object obj)
     {
-      SemVer other = obj as SemVer;
+      SemanticVersion other = obj as SemanticVersion;
 
       if (other == null) return false;
 

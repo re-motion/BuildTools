@@ -19,7 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Remotion.BuildTools.MSBuildTasks.Jira.Semver;
+using Remotion.BuildTools.MSBuildTasks.Jira.SemanticVersioning;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 using RestSharp;
 
@@ -113,7 +113,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       {
         var versions = jiraProjectVersionFinder.GetVersions (projectKey);
         
-        SemVerParser semVerParser = new SemVerParser();
+        SemanticVersionParser _semanticVersionParser = new SemanticVersionParser();
         List<JiraProjectVersionSemVerAdapter> versionList = new List<JiraProjectVersionSemVerAdapter>();
 
         foreach (var version in versions)
@@ -123,7 +123,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
             versionList.Add(new JiraProjectVersionSemVerAdapter()
             {
               JiraProjectVersion = version,
-              SemVer = semVerParser.ParseVersion(version.name)
+              SemanticVersion = _semanticVersionParser.ParseVersion(version.name)
             });
           }
           catch (ArgumentException)
@@ -132,7 +132,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
           }
         }
 
-        var orderedVersions = versionList.OrderBy(x => x.SemVer).ToList();
+        var orderedVersions = versionList.OrderBy(x => x.SemanticVersion).ToList();
 
         if (orderedVersions.Any(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true))
         {

@@ -16,7 +16,6 @@
 // 
 
 using System;
-using Remotion.BuildTools.MSBuildTasks.Jira.Semver;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 {
