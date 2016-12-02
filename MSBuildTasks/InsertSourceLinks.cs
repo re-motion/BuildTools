@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Win32;
@@ -49,22 +50,42 @@ namespace Remotion.BuildTools.MSBuildTasks
     protected override string GenerateFullPathToTool ()
     {
       string registryKeyPath = @"SOFTWARE\Microsoft\Windows Kits\Installed Roots";
-      using (var key = Registry.LocalMachine.OpenSubKey (registryKeyPath))
+      using (var registryHive = RegistryKey.OpenBaseKey (RegistryHive.LocalMachine, RegistryView.Registry32))
       {
-        if (key == null)
-          throw new InvalidOperationException (string.Format ("Could not open Registry key '{0}'.", registryKeyPath));
+        using (var key = registryHive.OpenSubKey (registryKeyPath))
+        {
+          if (key == null)
+            throw new InvalidOperationException (string.Format ("Could not open Registry key '{0}'.", registryKeyPath));
 
-        var value = (string) key.GetValue ("KitsRoot");
-        if (string.IsNullOrEmpty (value))
-          throw new InvalidOperationException (string.Format ("Could not open entry 'KitsRoot' in Registry key '{0}'.", registryKeyPath));
+          var kitsRootNames = key.GetValueNames().Where (n => n.StartsWith ("KitsRoot", StringComparison.InvariantCultureIgnoreCase)).ToArray();
+          if (!kitsRootNames.Any())
+            throw new InvalidOperationException (string.Format ("Could not find any 'KitsRoot*' entries in Registry key '{0}'.", registryKeyPath));
 
-        var sdkPath = Path.Combine (value, @"Debuggers\x86\srcsrv");
-        string toolPath = Path.Combine (sdkPath, ToolName);
-        if (!File.Exists (toolPath))
-          throw new InvalidOperationException (string.Format ("Could not find Windows Debug SDK at location '{0}'.", sdkPath));
+          var kitsRootPaths = kitsRootNames.Select (n => (string) key.GetValue (n)).Where (v => !string.IsNullOrEmpty (v)).ToArray();
+          var toolPaths = kitsRootPaths.Select (p => Path.Combine (p, @"Debuggers\x86\srcsrv", ToolName)).Where (File.Exists).ToArray();
 
-        return toolPath;
+          if (!toolPaths.Any())
+          {
+            var lineSeparator = Environment.NewLine + "  * ";
+            throw new InvalidOperationException (
+                string.Format (
+                    "Could not find Windows Debug SDK at the following locations:{0}{1}",
+                    lineSeparator,
+                    string.Join (lineSeparator, kitsRootPaths)));
+          }
+
+          var latestToolPath = toolPaths.OrderByDescending (GetFileVersion).First();
+          return latestToolPath;
+        }
       }
+    }
+
+    private Version GetFileVersion (string path)
+    {
+      Version version;
+      if (Version.TryParse (FileVersionInfo.GetVersionInfo (path).FileVersion, out version))
+        return version;
+      return new Version();
     }
 
     protected override string GenerateCommandLineCommands ()
