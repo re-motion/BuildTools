@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +21,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using Remotion.BuildTools.MSBuildTasks.Jira.SemanticVersioning;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
+using Remotion.BuildTools.MSBuildTasks.Jira.Utility;
 using RestSharp;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
@@ -52,6 +52,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       request.AddBody(projectVersion);
 
       var newProjectVersion = jiraClient.DoRequest<JiraProjectVersion> (request, HttpStatusCode.Created);
+
       return newProjectVersion.Data.id;
     }
 
@@ -75,11 +76,20 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       return newVersionId;
     }
 
-    private void MoveVersion(string versionId, string afterVersionUrl)
+    public void MoveVersion(string versionId, string afterVersionUrl)
     {
       var request = jiraClient.CreateRestRequest ("version/" + versionId + "/move", Method.POST);
 
       request.AddBody (new { after = afterVersionUrl });
+
+      jiraClient.DoRequest (request, HttpStatusCode.OK);
+    }
+
+    public void MoveVersionByPosition (string versionId, string position)
+    {
+      var request = jiraClient.CreateRestRequest ("version/" + versionId + "/move", Method.POST);
+
+      request.AddBody (new { position = position });
 
       jiraClient.DoRequest (request, HttpStatusCode.OK);
     }
