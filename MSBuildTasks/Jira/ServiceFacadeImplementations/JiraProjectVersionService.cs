@@ -32,7 +32,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
     private readonly JiraIssueService jiraIssueService;
     private readonly JiraProjectVersionFinder jiraProjectVersionFinder;
 
-    public JiraProjectVersionService(JiraRestClient restClient)
+    public JiraProjectVersionService (JiraRestClient restClient)
     {
       jiraClient = restClient;
       jiraIssueService = new JiraIssueService (restClient);
@@ -45,11 +45,11 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
       if (releaseDate != null)
       {
-          releaseDate = AdjustReleaseDateForJira(releaseDate.Value);
+        releaseDate = AdjustReleaseDateForJira (releaseDate.Value);
       }
 
       var projectVersion = new JiraProjectVersion { name = versionName, project = projectKey, releaseDate = releaseDate };
-      request.AddBody(projectVersion);
+      request.AddBody (projectVersion);
 
       var newProjectVersion = jiraClient.DoRequest<JiraProjectVersion> (request, HttpStatusCode.Created);
 
@@ -59,15 +59,15 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
     public string CreateSubsequentVersion (string projectKey, string versionPattern, int versionComponentToIncrement, DayOfWeek versionReleaseWeekday)
     {
       // Determine next version name
-      var lastUnreleasedVersion = jiraProjectVersionFinder.FindUnreleasedVersions (projectKey, versionPattern).Last ();
+      var lastUnreleasedVersion = jiraProjectVersionFinder.FindUnreleasedVersions (projectKey, versionPattern).Last();
       var nextVersionName = IncrementVersion (lastUnreleasedVersion.name, versionComponentToIncrement);
 
       // Determine next release day
       if (!lastUnreleasedVersion.releaseDate.HasValue)
         throw new JiraException ("releaseDate of lastUnreleasedVersion must have a value but is null");
 
-      var nextReleaseDay = lastUnreleasedVersion.releaseDate.Value.AddDays(1);
-      while(nextReleaseDay.DayOfWeek != versionReleaseWeekday)
+      var nextReleaseDay = lastUnreleasedVersion.releaseDate.Value.AddDays (1);
+      while (nextReleaseDay.DayOfWeek != versionReleaseWeekday)
         nextReleaseDay = nextReleaseDay.AddDays (1);
 
       var newVersionId = CreateVersion (projectKey, nextVersionName, nextReleaseDay);
@@ -105,12 +105,12 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
     private string IncrementVersion (string version, int componentToIncrement)
     {
-      if(componentToIncrement < 1 || componentToIncrement > 4)
+      if (componentToIncrement < 1 || componentToIncrement > 4)
         throw new ArgumentException ("componentToIncrement must be between 1 and 4");
 
-      var versionParts = version.Split ('.').Select(int.Parse).ToArray();
-      if(versionParts.Length < componentToIncrement)
-        throw new ArgumentException(string.Format ("version must have at least {0} components", componentToIncrement));
+      var versionParts = version.Split ('.').Select (int.Parse).ToArray();
+      if (versionParts.Length < componentToIncrement)
+        throw new ArgumentException (string.Format ("version must have at least {0} components", componentToIncrement));
 
       ++versionParts[componentToIncrement - 1];
       return versionParts.Select (p => p.ToString()).Aggregate ((l, r) => (l + "." + r));
@@ -118,7 +118,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
     public void ReleaseVersion (string versionID, string nextVersionID)
     {
-      if(versionID != nextVersionID)
+      if (versionID != nextVersionID)
       {
         var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (versionID);
         jiraIssueService.MoveIssuesToVersion (nonClosedIssues, versionID, nextVersionID);
@@ -132,7 +132,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       if (versionID != nextVersionID)
       {
         var versions = jiraProjectVersionFinder.GetVersions (projectKey);
-        
+
         SemanticVersionParser _semanticVersionParser = new SemanticVersionParser();
         List<JiraProjectVersionSemVerAdapter> versionList = new List<JiraProjectVersionSemVerAdapter>();
 
@@ -175,8 +175,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
           foreach (var toBeSquashedVersion in toBeSquashedVersions)
           {
-            allClosedIssues.AddRange (jiraIssueService.FindAllClosedIssues (toBeSquashedVersion.JiraProjectVersion.id));
-          }
+            var unreleasedVersionsBeforeCurrentVersion = IndexRangeBetween(orderedVersions, indexOfLastReleasedVersion,
+                indexOfLastReleasedVersion,
 
           if (allClosedIssues.Count != 0)
             throw new JiraException (
@@ -192,8 +192,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
             {
               var toBeSquashedVersionID = toBeSquashedJiraProjectVersion.id;
               
-              var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues(toBeSquashedVersionID);
-              jiraIssueService.MoveIssuesToVersion(nonClosedIssues, toBeSquashedVersionID, nextVersionID);
+              var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues (toBeSquashedVersionID);
+              jiraIssueService.MoveIssuesToVersion (nonClosedIssues, toBeSquashedVersionID, nextVersionID);
 
               this.DeleteVersion(projectKey, toBeSquashedJiraProjectVersion.name);
             }
@@ -207,14 +207,15 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
     private bool IsReleased (JiraProjectVersionSemVerAdapter jiraVersion)
     {
       return jiraVersion.JiraProjectVersion.released.HasValue && jiraVersion.JiraProjectVersion.released.Value;
+        
     }
 
-    private void ReleaseVersion(string versionID)
+    private void ReleaseVersion (string versionID)
     {
       var resource = "version/" + versionID;
       var request = jiraClient.CreateRestRequest (resource, Method.PUT);
 
-      var adjustedReleaseDate = AdjustReleaseDateForJira(DateTime.Today);
+      var adjustedReleaseDate = AdjustReleaseDateForJira (DateTime.Today);
       var projectVersion = new JiraProjectVersion { id = versionID, released = true, releaseDate = adjustedReleaseDate };
       request.AddBody (projectVersion);
 
@@ -225,8 +226,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
     {
       var versions = jiraProjectVersionFinder.GetVersions (projectKey);
       var versionToDelete = versions.SingleOrDefault (v => v.name == versionName);
-      if(versionToDelete == null)
-        throw new JiraException (string.Format("Error, version with name '{0}' does not exist in project '{1}'.", versionName, projectKey));
+      if (versionToDelete == null)
+        throw new JiraException (string.Format ("Error, version with name '{0}' does not exist in project '{1}'.", versionName, projectKey));
 
       var resource = "version/" + versionToDelete.id;
       var request = jiraClient.CreateRestRequest (resource, Method.DELETE);
@@ -241,7 +242,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       return adjustedReleaseDate;
     }
 
-    public void MoveVersion(string versionId, string afterVersionUrl)
+    public void MoveVersion (string versionId, string afterVersionUrl)
     {
       var request = jiraClient.CreateRestRequest ("version/" + versionId + "/move", Method.POST);
 
@@ -268,11 +269,12 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       return response.Data;
     }
 
-    public void SortVersion (string versionID)
+    public void SortVersion (string versionId)
     {
-      var jiraProjectVersion = GetVersionById (versionID);
+      var jiraProjectVersion = GetVersionById (versionId);
 
-      var versions = jiraProjectVersionFinder.FindVersions (jiraProjectVersion.projectId, "(?s).*").ToList().Where (x => x.released == jiraProjectVersion.released).ToList();
+      var versions = jiraProjectVersionFinder.FindVersions (jiraProjectVersion.projectId, "(?s).*").ToList()
+          .Where (x => x.released == jiraProjectVersion.released).ToList();
 
       Version parsedVersion;
       Version.TryParse (jiraProjectVersion.name, out parsedVersion);
@@ -304,7 +306,11 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
                    }).ToList();
 
           var jiraProjectVersionAsVersion =
-              new JiraProjectVersionComparableAdapter<SemanticVersion>() { JiraProjectVersion = jiraProjectVersion, ComparableVersion = semanticVersion };
+              new JiraProjectVersionComparableAdapter<SemanticVersion>()
+              {
+                JiraProjectVersion = jiraProjectVersion,
+                ComparableVersion = semanticVersion
+              };
 
           var jiraMovePositioner = new JiraVersionMovePositioner<SemanticVersion> (parsedVersions, jiraProjectVersionAsVersion);
           var jiraSortVersion = new JiraSortVersion<SemanticVersion> (this, jiraMovePositioner);
