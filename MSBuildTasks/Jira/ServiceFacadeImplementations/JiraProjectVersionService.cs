@@ -132,24 +132,23 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
           }
         }
 
-        var orderedVersions = versionList.OrderBy(x => x.SemanticVersion).ToList();
-
-        if (orderedVersions.Any(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true))
+        var orderedVersions = versionList.OrderBy (x => x.SemanticVersion).ToList();
+        var currentVersionIndex = orderedVersions.IndexOf (orderedVersions.Single (x => x.JiraProjectVersion.id == versionID));
+        var nextVersionIndex = orderedVersions.IndexOf (orderedVersions.Single (x => x.JiraProjectVersion.id == nextVersionID));
+        
+        //There are versions between the currentVersion and the next version
+        if (nextVersionIndex != currentVersionIndex + 1)
         {
-          var lastReleasedVersion =
-            orderedVersions.Last(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true);
+          //We want all Elements "(startVersion, nextVersion)" as we are interested in all versions after the currently to be released Version
+          var toBeSquashedVersions = orderedVersions.Skip (currentVersionIndex + 1).Take (nextVersionIndex - currentVersionIndex - 1).ToList();
 
-          int indexOfLastReleasedVersion = orderedVersions.IndexOf(lastReleasedVersion);
-          int indexOfCurrentVersion = orderedVersions.FindIndex(x => x.JiraProjectVersion.id == versionID);
-
-          if ((indexOfLastReleasedVersion + 1) != indexOfCurrentVersion)
+          foreach (var toBeSquashedVersion in toBeSquashedVersions)
           {
-            var unreleasedVersionsBeforeCurrentVersion = IndexRangeBetween(orderedVersions, indexOfLastReleasedVersion,
-              indexOfCurrentVersion);
+            var toBeSquashedJiraProjectVersion = toBeSquashedVersion.JiraProjectVersion;
 
-            foreach (var toBeSquashedVersion in unreleasedVersionsBeforeCurrentVersion)
+            if (toBeSquashedJiraProjectVersion.released == null || toBeSquashedJiraProjectVersion.released == false)
             {
-              string toBeSquashedVersionID = toBeSquashedVersion.JiraProjectVersion.id;
+              var toBeSquashedVersionID = toBeSquashedJiraProjectVersion.id;
 
               var closedIssues = jiraIssueService.FindAllClosedIssues(toBeSquashedVersionID);
               jiraIssueService.MoveIssuesToVersion(closedIssues, toBeSquashedVersionID, versionID);
@@ -157,24 +156,13 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
               var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues(toBeSquashedVersionID);
               jiraIssueService.MoveIssuesToVersion(nonClosedIssues, toBeSquashedVersionID, nextVersionID);
 
-              this.DeleteVersion(projectKey, toBeSquashedVersion.JiraProjectVersion.name);
+              this.DeleteVersion(projectKey, toBeSquashedJiraProjectVersion.name);
             }
           }
         }
 
-        ReleaseVersion(versionID, nextVersionID);
+        ReleaseVersion (versionID, nextVersionID);
       }
-    }
-
-    private IEnumerable<TSource> IndexRangeBetween<TSource> (IList<TSource> source, int fromIndex, int toIndex)
-    {
-        int currentIndex = fromIndex + 1;
-        
-        while (currentIndex < toIndex)
-        {
-          yield return source[currentIndex];
-          currentIndex++;
-        }
     }
 
     private void ReleaseVersion(string versionID)
