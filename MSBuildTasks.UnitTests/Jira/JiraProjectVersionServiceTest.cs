@@ -17,6 +17,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
     private const string c_jiraPassword = "rubicon01";
 
     private JiraProjectVersionService _service;
+    private JiraProjectVersionRepairer _repairer;
     private JiraProjectVersionFinder _versionFinder;
     private JiraIssueService _issueService;
     private JiraRestClient _restClient;
@@ -30,6 +31,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       _service = new JiraProjectVersionService (_restClient);
       _versionFinder = new JiraProjectVersionFinder (_restClient);
       _issueService = new JiraIssueService (_restClient);
+      _repairer = new JiraProjectVersionRepairer (_service, _versionFinder);
     }
 
     [Test]

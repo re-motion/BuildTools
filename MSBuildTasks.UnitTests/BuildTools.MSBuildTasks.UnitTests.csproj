@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InsertSourceLinksTest.cs" />
+    <Compile Include="Jira\JiraProjectVersionRepairerTest.cs" />
     <Compile Include="Jira\JiraVersionMovePositionerTest.cs" />
     <Compile Include="Jira\JiraProjectVersionServiceTest.cs" />
     <Compile Include="Jira\JiraSortVersionTest.cs" />
