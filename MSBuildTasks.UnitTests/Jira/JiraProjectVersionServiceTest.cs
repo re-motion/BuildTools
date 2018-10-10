@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Text;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using Remotion.BuildTools.MSBuildTasks.Jira;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
-using Remotion.BuildTools.MSBuildTasks;
 using RestSharp;
-using JsonSerializer = RestSharp.Serializers.JsonSerializer;
 
 namespace BuildTools.MSBuildTasks.UnitTests.Jira
 {
@@ -104,7 +100,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       DeleteVersionsIfExistent (c_jiraProjectKey, "4.1.0", "4.1.1", "4.1.2", "4.2.0");
     }
 
-    private void AddTestIssueToVersion (string summaryOfIssue, bool closed, params JiraProjectVersion[] toRelease)
+    private JiraIssue AddTestIssueToVersion (string summaryOfIssue, bool closed, params JiraProjectVersion[] toRelease)
     {
       // Create new issue
       var resource = "issue";
@@ -121,6 +117,8 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
         var issue = response.Data;
         CloseIssue (issue.id);
       }
+
+      return response.Data;
     }
 
     private void CloseIssue(string issueID)
@@ -176,43 +174,135 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
     }
 
     [Test]
-    public void TestReleaseVersionAndSquashUnreleased ()
+    public void TestReleaseVersionAndSquashUnreleased_ShouldThrowOnReleasedVersionsToBeSquashed ()
     {
-      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1", "6.0.1-beta.2");
-    
-      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.1", null);
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1");
+
+      //Create versions mangled to verify they are ordered before squashed
       _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.2", null);
       _service.CreateVersion (c_jiraProjectKey, "6.0.1-beta.1", null);
-      _service.CreateVersion (c_jiraProjectKey, "6.0.1-beta.2", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.1", null);
 
-      var alpha1Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-alpha.1").First();
-      var alpha2Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1.alpha.2").First();
-      var beta1Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-beta.1").First();
-      var beta2Version = _versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-beta.2").First();
+      var alpha1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.1").Single (x => x.name == "6.0.1-alpha.1");
+      var alpha2Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1.alpha.2").Single (x => x.name == "6.0.1-alpha.2");
+      var beta1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-beta.1").Single (x => x.name == "6.0.1-beta.1");
 
-      AddTestIssueToVersion ("ClosedIssue", true, alpha1Version);
-      AddTestIssueToVersion ("ClosedIssue", true, alpha2Version);
-      AddTestIssueToVersion ("ClosedIssue", true, beta1Version);
-      AddTestIssueToVersion ("ClosedIssue", true, beta2Version);
+      _service.ReleaseVersion (alpha2Version.id, beta1Version.id);
 
-      AddTestIssueToVersion ("Open issues", false, alpha1Version);
+      Assert.That (
+          () => { _service.ReleaseVersionAndSquashUnreleased (alpha1Version.id, beta1Version.id, c_jiraProjectKey); },
+          Throws.Exception.TypeOf<JiraException>().With.Message.EqualTo (
+              "Version '" + alpha1Version.name + "' cannot be released, as there is already one or multiple released version(s) (" + alpha2Version.name
+              + ") before the next version '" + beta1Version.name + "'."));
+
+      Assert.That (_versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.2").SingleOrDefault (x => x.name == "6.0.1-alpha.2"), Is.Not.Null);
+
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1");
+    }
+
+    [Test]
+    public void TestReleaseVersionAndSquashUnreleased_ShouldThrowOnSquashedVersionsContainingClosedIssues ()
+    {
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1");
+
+      //Create versions mangled to verify they are ordered before squashed
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.2", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-beta.1", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.1", null);
+
+      var alpha1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.1").Single (x => x.name == "6.0.1-alpha.1");
+      var alpha2Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1.alpha.2").Single (x => x.name == "6.0.1-alpha.2");
+      var beta1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-beta.1").Single (x => x.name == "6.0.1-beta.1");
+
+      var jiraIssue = AddTestIssueToVersion ("Closed issues", true, alpha2Version);
+
+      Assert.That (
+          () => { _service.ReleaseVersionAndSquashUnreleased (alpha1Version.id, beta1Version.id, c_jiraProjectKey); },
+          Throws.Exception.TypeOf<JiraException>().With.Message.EqualTo (
+              "Version '" + alpha1Version.name + "' cannot be released, as one  or multiple versions contain closed issues (" + jiraIssue.key + ")"));
+
+      Assert.That (_versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-alpha.2").SingleOrDefault(x => x.name == "6.0.1-alpha.2"), Is.Not.Null);
+
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1");
+    }
+
+
+    [Test]
+    public void TestReleaseVersionAndSquashUnreleased_ShouldSquashUnreleasedAndMoveIssues ()
+    {
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1");
+    
+      //Create versions mangled to verify they are ordered before squashed
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.2", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-beta.1", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.1", null);
+
+      var alpha1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.1").Single (x => x.name == "6.0.1-alpha.1");
+      var alpha2Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1.alpha.2").Single (x => x.name == "6.0.1-alpha.2");
+      var beta1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-beta.1").Single (x => x.name == "6.0.1-beta.1");
+
       AddTestIssueToVersion ("Open issues", false, alpha2Version);
-      AddTestIssueToVersion ("Open issues", false, beta1Version);
-      AddTestIssueToVersion ("Open issues", false, beta2Version);
 
-      _service.ReleaseVersion(alpha1Version.id, alpha2Version.id);
+      _service.ReleaseVersionAndSquashUnreleased (alpha1Version.id, beta1Version.id, c_jiraProjectKey);
 
-      _service.ReleaseVersionAndSquashUnreleased(beta1Version.id, beta2Version.id, c_jiraProjectKey);
+      Assert.That (_versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.2").SingleOrDefault (x => x.name == "6.0.1-alpha.2"), Is.Null);
 
-      Assert.That (_versionFinder.FindVersions(c_jiraProjectKey, "6.0.1-alpha.2").Count(), Is.EqualTo(0));
-      
-      //Assert that the Closed Issue of deleted alpha2Version got moved to beta1Version
-      Assert.That (_issueService.FindAllClosedIssues(beta1Version.id).Count(), Is.EqualTo(2));
+      //Assert that the Open Issues of deleted alpha2Version got moved to beta1Version
+      Assert.That (_issueService.FindAllNonClosedIssues (beta1Version.id).Count(), Is.EqualTo(1));
 
-      //Assert that the Open Issues of deleted alpha2Version and released beta1Version got moved to beta2Version
-      Assert.That (_issueService.FindAllNonClosedIssues(beta2Version.id).Count(), Is.EqualTo(3));
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1");
+    }
 
-      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-beta.1", "6.0.1-beta.2");
+    [Test]
+    public void TestReleaseVersionAndSquashUnreleased_ShouldSquashMultipleUnreleasedAndMoveIssues()
+    {
+      DeleteVersionsIfExistent (c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-alpha.3", "6.0.1-beta.1");
+
+      //Create versions mangled to verify they are ordered before squashed
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-beta.1", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.3", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.1", null);
+      _service.CreateVersion (c_jiraProjectKey, "6.0.1-alpha.2", null);
+
+      var alpha1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.1").Single (x => x.name == "6.0.1-alpha.1");
+      var alpha2Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1.alpha.2").Single (x => x.name == "6.0.1-alpha.2");
+      var alpha3Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1.alpha.3").Single (x => x.name == "6.0.1-alpha.3");
+      var beta1Version = _versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-beta.1").Single (x => x.name == "6.0.1-beta.1");
+
+      AddTestIssueToVersion ("Open issues", false, alpha2Version);
+      AddTestIssueToVersion ("Open issues", false, alpha3Version);
+
+      _service.ReleaseVersionAndSquashUnreleased (alpha1Version.id, beta1Version.id, c_jiraProjectKey);
+
+      Assert.That(_versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.2").SingleOrDefault (x => x.name == "6.0.1-alpha.2"), Is.Null);
+      Assert.That(_versionFinder.FindVersions (c_jiraProjectKey, "6.0.1-alpha.3").SingleOrDefault (x => x.name == "6.0.1-alpha.3"), Is.Null);
+
+      //Assert that the Open Issues of deleted alpha2Version got moved to beta1Version
+      Assert.That(_issueService.FindAllNonClosedIssues(beta1Version.id).Count(), Is.EqualTo(2));
+
+      DeleteVersionsIfExistent(c_jiraProjectKey, "6.0.1-alpha.1", "6.0.1-alpha.2", "6.0.1-alpha.3", "6.0.1-beta.1");
+    }
+
+    [Test]
+    public void TestReleaseVersionAndSquashUnreleased_ShouldNotSquashUnrelatedVersions()
+    {
+      DeleteVersionsIfExistent (c_jiraProjectKey, "2.2.0", "3.0.0-alpha.1", "3.0.0-alpha.2", "3.0.0");
+
+      //Create versions mangled to verify they are ordered before squashed
+      _service.CreateVersion (c_jiraProjectKey, "3.0.0-alpha.1", null);
+      _service.CreateVersion (c_jiraProjectKey, "2.2.0", null);
+      _service.CreateVersion (c_jiraProjectKey, "3.0.0-alpha.2", null);
+      _service.CreateVersion (c_jiraProjectKey, "3.0.0", null);
+
+      var version3alpha1 = _versionFinder.FindVersions (c_jiraProjectKey, "3.0.0-alpha.1").Single (x => x.name == "3.0.0-alpha.1");
+      var version3alpha2 = _versionFinder.FindVersions (c_jiraProjectKey, "3.0.0-alpha.2").Single (x => x.name == "3.0.0-alpha.2");
+
+      _service.ReleaseVersionAndSquashUnreleased (version3alpha1.id, version3alpha2.id, c_jiraProjectKey);
+
+      Assert.That (_versionFinder.FindVersions (c_jiraProjectKey, "2.2.0").SingleOrDefault (x => x.name == "2.2.0"), Is.Not.Null);
+      Assert.That (_versionFinder.FindVersions (c_jiraProjectKey, "3.0.0").SingleOrDefault (x => x.name == "3.0.0"), Is.Not.Null);
+
+      DeleteVersionsIfExistent (c_jiraProjectKey, "2.2.0", "3.0.0", "3.0.0-alpha.1", "3.0.0-alpha.2");
     }
 
     private void DeleteVersionsIfExistent (string projectName, params string[] versionNames)

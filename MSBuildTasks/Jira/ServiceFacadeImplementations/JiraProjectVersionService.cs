@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using Remotion.BuildTools.MSBuildTasks.Jira.SemanticVersioning;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 using RestSharp;
@@ -132,49 +133,61 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
           }
         }
 
-        var orderedVersions = versionList.OrderBy(x => x.SemanticVersion).ToList();
+        var currentVersion = versionList.Single (v => v.JiraProjectVersion.id == versionID).JiraProjectVersion;
+        var nextVersion = versionList.Single (v => v.JiraProjectVersion.id == nextVersionID).JiraProjectVersion;
 
-        if (orderedVersions.Any(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true))
+        var orderedVersions = versionList.OrderBy (x => x.SemanticVersion).ToList();
+        var currentVersionIndex = orderedVersions.IndexOf (orderedVersions.Single (x => x.JiraProjectVersion.id == versionID));
+        var nextVersionIndex = orderedVersions.IndexOf (orderedVersions.Single (x => x.JiraProjectVersion.id == nextVersionID));
+        
+        //There are versions between the currentVersion and the next version
+        if (nextVersionIndex != currentVersionIndex + 1)
         {
-          var lastReleasedVersion =
-            orderedVersions.Last(x => x.JiraProjectVersion.released != null && x.JiraProjectVersion.released == true);
+          //We want all Elements "(startVersion, nextVersion)" as we are interested in all versions after the currently to be released Version
+          var toBeSquashedVersions = orderedVersions.Skip (currentVersionIndex + 1).Take (nextVersionIndex - currentVersionIndex - 1).ToList();
 
-          int indexOfLastReleasedVersion = orderedVersions.IndexOf(lastReleasedVersion);
-          int indexOfCurrentVersion = orderedVersions.FindIndex(x => x.JiraProjectVersion.id == versionID);
+          if (toBeSquashedVersions.Any (IsReleased))
+            throw new JiraException (
+                "Version '" + currentVersion.name + "' cannot be released, as there is already one or multiple released version(s) ("
+                + string.Join (",", toBeSquashedVersions.Where (IsReleased).Select (t => t.JiraProjectVersion.name)) + ") before the next version '"
+                + nextVersion.name + "'.");
 
-          if ((indexOfLastReleasedVersion + 1) != indexOfCurrentVersion)
+          var allClosedIssues = new List<JiraToBeMovedIssue>();
+
+          foreach (var toBeSquashedVersion in toBeSquashedVersions)
           {
-            var unreleasedVersionsBeforeCurrentVersion = IndexRangeBetween(orderedVersions, indexOfLastReleasedVersion,
-              indexOfCurrentVersion);
+            allClosedIssues.AddRange (jiraIssueService.FindAllClosedIssues (toBeSquashedVersion.JiraProjectVersion.id));
+          }
 
-            foreach (var toBeSquashedVersion in unreleasedVersionsBeforeCurrentVersion)
+          if (allClosedIssues.Count != 0)
+            throw new JiraException (
+                "Version '" + currentVersion.name + "' cannot be released, as one  or multiple versions contain closed issues ("
+                + string.Join (", ", allClosedIssues.Select (aci => aci.key)) + ")"
+                );
+
+          foreach (var toBeSquashedVersion in toBeSquashedVersions)
+          {
+            var toBeSquashedJiraProjectVersion = toBeSquashedVersion.JiraProjectVersion;
+
+            if (toBeSquashedJiraProjectVersion.released == null || toBeSquashedJiraProjectVersion.released == false)
             {
-              string toBeSquashedVersionID = toBeSquashedVersion.JiraProjectVersion.id;
-
-              var closedIssues = jiraIssueService.FindAllClosedIssues(toBeSquashedVersionID);
-              jiraIssueService.MoveIssuesToVersion(closedIssues, toBeSquashedVersionID, versionID);
-
+              var toBeSquashedVersionID = toBeSquashedJiraProjectVersion.id;
+              
               var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues(toBeSquashedVersionID);
               jiraIssueService.MoveIssuesToVersion(nonClosedIssues, toBeSquashedVersionID, nextVersionID);
 
-              this.DeleteVersion(projectKey, toBeSquashedVersion.JiraProjectVersion.name);
+              this.DeleteVersion(projectKey, toBeSquashedJiraProjectVersion.name);
             }
           }
         }
 
-        ReleaseVersion(versionID, nextVersionID);
+        ReleaseVersion (versionID, nextVersionID);
       }
     }
 
-    private IEnumerable<TSource> IndexRangeBetween<TSource> (IList<TSource> source, int fromIndex, int toIndex)
+    private bool IsReleased (JiraProjectVersionSemVerAdapter jiraVersion)
     {
-        int currentIndex = fromIndex + 1;
-        
-        while (currentIndex < toIndex)
-        {
-          yield return source[currentIndex];
-          currentIndex++;
-        }
+      return jiraVersion.JiraProjectVersion.released.HasValue && jiraVersion.JiraProjectVersion.released.Value;
     }
 
     private void ReleaseVersion(string versionID)

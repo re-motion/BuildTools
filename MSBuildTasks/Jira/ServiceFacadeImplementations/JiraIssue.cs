@@ -27,6 +27,8 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
     public string issuetype { get; set; }
     public string project { get; set; }
+
+    public string key { get; set; }
   }
 
   public class JiraNonClosedIssues
@@ -37,6 +39,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
   public class JiraToBeMovedIssue
   {
     public string id { get; set; }
+    
+    public string key { get; set; }
+
     public JiraNonClosedIssueFields fields { get; set; }
   }
 
