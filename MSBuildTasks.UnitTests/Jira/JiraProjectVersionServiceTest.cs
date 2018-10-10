@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Text;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using Remotion.BuildTools.MSBuildTasks.Jira;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
-using Remotion.BuildTools.MSBuildTasks;
 using RestSharp;
-using JsonSerializer = RestSharp.Serializers.JsonSerializer;
 
 namespace BuildTools.MSBuildTasks.UnitTests.Jira
 {
