@@ -28,7 +28,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       jiraProjectVersionFinder.Stub (x => x.GetVersionById (versionId)).Return (createdVersion);
       jiraProjectVersionFinder.Stub (x => x.FindVersions (projectId, "(?s).*")).Return (jiraProjectVersions);
 
-      var jiraProjectVersionRepairer = new JiraProjectVersionRepairer(jiraProjectVersionService, jiraProjectVersionFinder);
+      var jiraProjectVersionRepairer = new JiraProjectVersionRepairer (jiraProjectVersionService, jiraProjectVersionFinder);
 
       jiraProjectVersionRepairer.RepairVersionPosition (versionId);
 
@@ -52,7 +52,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       jiraProjectVersionFinder.Stub (x => x.GetVersionById (versionId)).Return (createdVersion);
       jiraProjectVersionFinder.Stub (x => x.FindVersions (projectId, "(?s).*")).Return (jiraProjectVersions);
 
-      var jiraProjectVersionRepairer = new JiraProjectVersionRepairer(jiraProjectVersionService, jiraProjectVersionFinder);
+      var jiraProjectVersionRepairer = new JiraProjectVersionRepairer (jiraProjectVersionService, jiraProjectVersionFinder);
 
       jiraProjectVersionRepairer.RepairVersionPosition (versionId);
 
@@ -78,7 +78,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       jiraProjectVersionFinder.Stub (x => x.GetVersionById (versionId)).Return (createdVersion);
       jiraProjectVersionFinder.Stub (x => x.FindVersions (projectId, "(?s).*")).Return (jiraProjectVersions);
 
-      var jiraProjectVersionRepairer = new JiraProjectVersionRepairer(jiraProjectVersionService, jiraProjectVersionFinder);
+      var jiraProjectVersionRepairer = new JiraProjectVersionRepairer (jiraProjectVersionService, jiraProjectVersionFinder);
 
       jiraProjectVersionRepairer.RepairVersionPosition (versionId);
 
@@ -87,7 +87,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
 
     private JiraProjectVersion CreateJiraProjectVersion (string name, string id = "")
     {
-      return new JiraProjectVersion() { name = name, projectId = projectId, id = id};
+      return new JiraProjectVersion() { name = name, projectId = projectId, id = id };
     }
   }
 }
