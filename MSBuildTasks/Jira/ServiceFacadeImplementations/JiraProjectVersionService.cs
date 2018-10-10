@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using Remotion.BuildTools.MSBuildTasks.Jira.SemanticVersioning;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
 using RestSharp;
@@ -132,6 +133,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
           }
         }
 
+        var currentVersion = versionList.Single (v => v.JiraProjectVersion.id == versionID).JiraProjectVersion;
+        var nextVersion = versionList.Single (v => v.JiraProjectVersion.id == nextVersionID).JiraProjectVersion;
+
         var orderedVersions = versionList.OrderBy (x => x.SemanticVersion).ToList();
         var currentVersionIndex = orderedVersions.IndexOf (orderedVersions.Single (x => x.JiraProjectVersion.id == versionID));
         var nextVersionIndex = orderedVersions.IndexOf (orderedVersions.Single (x => x.JiraProjectVersion.id == nextVersionID));
@@ -142,6 +146,25 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
           //We want all Elements "(startVersion, nextVersion)" as we are interested in all versions after the currently to be released Version
           var toBeSquashedVersions = orderedVersions.Skip (currentVersionIndex + 1).Take (nextVersionIndex - currentVersionIndex - 1).ToList();
 
+          if (toBeSquashedVersions.Any (IsReleased))
+            throw new JiraException (
+                "Version '" + currentVersion.name + "' cannot be released, as there is already one or multiple released version(s) ("
+                + string.Join (",", toBeSquashedVersions.Where (IsReleased).Select (t => t.JiraProjectVersion.name)) + ") before the next version '"
+                + nextVersion.name + "'.");
+
+          var allClosedIssues = new List<JiraToBeMovedIssue>();
+
+          foreach (var toBeSquashedVersion in toBeSquashedVersions)
+          {
+            allClosedIssues.AddRange (jiraIssueService.FindAllClosedIssues (toBeSquashedVersion.JiraProjectVersion.id));
+          }
+
+          if (allClosedIssues.Count != 0)
+            throw new JiraException (
+                "Version '" + currentVersion.name + "' cannot be released, as one  or multiple versions contain closed issues ("
+                + string.Join (", ", allClosedIssues.Select (aci => aci.key)) + ")"
+                );
+
           foreach (var toBeSquashedVersion in toBeSquashedVersions)
           {
             var toBeSquashedJiraProjectVersion = toBeSquashedVersion.JiraProjectVersion;
@@ -149,10 +172,7 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
             if (toBeSquashedJiraProjectVersion.released == null || toBeSquashedJiraProjectVersion.released == false)
             {
               var toBeSquashedVersionID = toBeSquashedJiraProjectVersion.id;
-
-              var closedIssues = jiraIssueService.FindAllClosedIssues(toBeSquashedVersionID);
-              jiraIssueService.MoveIssuesToVersion(closedIssues, toBeSquashedVersionID, versionID);
-
+              
               var nonClosedIssues = jiraIssueService.FindAllNonClosedIssues(toBeSquashedVersionID);
               jiraIssueService.MoveIssuesToVersion(nonClosedIssues, toBeSquashedVersionID, nextVersionID);
 
@@ -163,6 +183,11 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
         ReleaseVersion (versionID, nextVersionID);
       }
+    }
+
+    private bool IsReleased (JiraProjectVersionSemVerAdapter jiraVersion)
+    {
+      return jiraVersion.JiraProjectVersion.released.HasValue && jiraVersion.JiraProjectVersion.released.Value;
     }
 
     private void ReleaseVersion(string versionID)
