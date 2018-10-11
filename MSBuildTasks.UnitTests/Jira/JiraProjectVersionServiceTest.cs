@@ -17,6 +17,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
     private const string c_jiraPassword = "rubicon01";
 
     private JiraProjectVersionService _service;
+    private JiraProjectVersionRepairer _repairer;
     private JiraProjectVersionFinder _versionFinder;
     private JiraIssueService _issueService;
     private JiraRestClient _restClient;
@@ -30,6 +31,7 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       _service = new JiraProjectVersionService (_restClient);
       _versionFinder = new JiraProjectVersionFinder (_restClient);
       _issueService = new JiraIssueService (_restClient);
+      _repairer = new JiraProjectVersionRepairer (_service, _versionFinder);
     }
 
     [Test]
@@ -303,6 +305,85 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       Assert.That (_versionFinder.FindVersions (c_jiraProjectKey, "3.0.0").SingleOrDefault (x => x.name == "3.0.0"), Is.Not.Null);
 
       DeleteVersionsIfExistent (c_jiraProjectKey, "2.2.0", "3.0.0", "3.0.0-alpha.1", "3.0.0-alpha.2");
+    }
+
+    [Test]
+    public void TestSortingNetVersion ()
+    {
+      const string firstVersion = "1.16.32.0";
+      const string secondVersion = "1.16.32.1";
+      const string thirdVersion = "1.16.32.2";
+
+      DeleteVersionsIfExistent (c_jiraProjectKey, firstVersion, secondVersion, thirdVersion);
+
+      _service.CreateVersion (c_jiraProjectKey, firstVersion, null);
+      _service.CreateVersion (c_jiraProjectKey, thirdVersion, null);
+      var toBeRepairedVersionId = _service.CreateVersion (c_jiraProjectKey, secondVersion, null);
+      _repairer.RepairVersionPosition (toBeRepairedVersionId);
+
+      var versions = _versionFinder.FindVersions (c_jiraProjectKey, "(?s).*").ToList();
+
+      var positionFirstVersion = versions.IndexOf (versions.Single (x => x.name == firstVersion));
+      var positionSecondVersion = versions.IndexOf (versions.Single (x => x.name == secondVersion));
+      var positionThirdVersion = versions.IndexOf (versions.Single (x => x.name == thirdVersion));
+
+
+      Assert.That (positionFirstVersion < positionSecondVersion, Is.True);
+      Assert.That (positionSecondVersion < positionThirdVersion, Is.True);
+    }
+
+    [Test]
+    public void TestSortingSemanticVersion ()
+    {
+      const string firstVersion = "2.1.3";
+      const string secondVersion = "2.2.0-alpha.5";
+      const string thirdVersion = "2.2.0";
+
+      DeleteVersionsIfExistent (c_jiraProjectKey, firstVersion, secondVersion, thirdVersion);
+
+      _service.CreateVersion (c_jiraProjectKey, firstVersion, null);
+      _service.CreateVersion (c_jiraProjectKey, thirdVersion, null);
+      var toBeRepairedVersionId = _service.CreateVersion (c_jiraProjectKey, secondVersion, null);
+      _repairer.RepairVersionPosition (toBeRepairedVersionId);
+
+      var versions = _versionFinder.FindVersions (c_jiraProjectKey, "(?s).*").ToList();
+
+      var positionFirstVersion = versions.IndexOf (versions.Single (x => x.name == firstVersion));
+      var positionSecondVersion = versions.IndexOf (versions.Single (x => x.name == secondVersion));
+      var positionThirdVersion = versions.IndexOf (versions.Single (x => x.name == thirdVersion));
+
+
+      Assert.That (positionFirstVersion < positionSecondVersion, Is.True);
+      Assert.That (positionSecondVersion < positionThirdVersion, Is.True);
+    }
+
+    [Test]
+    public void TestSortingWithInvalidVersions ()
+    {
+      const string firstVersion = "1.17.21.0";
+      const string secondVersion = "NotValidVersion";
+      const string thirdVersion = "1.16.31.0";
+      const string betweenFirstAndSecondVersion = "1.17.22.0";
+
+      DeleteVersionsIfExistent (c_jiraProjectKey, firstVersion, secondVersion, thirdVersion, betweenFirstAndSecondVersion);
+
+      _service.CreateVersion (c_jiraProjectKey, firstVersion, null);
+      _service.CreateVersion (c_jiraProjectKey, secondVersion, null);
+      _service.CreateVersion (c_jiraProjectKey, thirdVersion, null);
+      var toBeRepairedVersionId = _service.CreateVersion (c_jiraProjectKey, betweenFirstAndSecondVersion, null);
+      _repairer.RepairVersionPosition (toBeRepairedVersionId);
+
+      var versions = _versionFinder.FindVersions (c_jiraProjectKey, "(?s).*").ToList();
+
+      var positionFirstVersion = versions.IndexOf (versions.Single (x => x.name == firstVersion));
+      var positionbetweenFirstAndSecondVersion = versions.IndexOf (versions.Single (x => x.name == betweenFirstAndSecondVersion));
+      var positionSecondVersion = versions.IndexOf (versions.Single (x => x.name == secondVersion));
+      var positionThirdVersion = versions.IndexOf (versions.Single (x => x.name == thirdVersion));
+
+
+      Assert.That (positionFirstVersion < positionbetweenFirstAndSecondVersion, Is.True);
+      Assert.That (positionbetweenFirstAndSecondVersion < positionSecondVersion, Is.True);
+      Assert.That (positionSecondVersion < positionThirdVersion, Is.True);
     }
 
     private void DeleteVersionsIfExistent (string projectName, params string[] versionNames)

@@ -29,17 +29,33 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
     [Required]
     public string NextVersionID { get; set; }
 
+    private bool _sortReleasedVersion = false;
+
+    public bool SortReleasedVersion
+    {
+      get { return _sortReleasedVersion; }
+      set { _sortReleasedVersion = value; }
+    }
+
     public override bool Execute ()
     {
       try
       {
         JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
         IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
+        var jiraProjectVersionFinder = new JiraProjectVersionFinder (restClient);
+        var jiraProjectVersionRepairer = new JiraProjectVersionRepairer (service, jiraProjectVersionFinder);
+
         service.ReleaseVersion (VersionID, NextVersionID);
+
+        if (SortReleasedVersion)
+        {
+          jiraProjectVersionRepairer.RepairVersionPosition (VersionID);
+        }
 
         return true;
       }
-      catch(Exception ex)
+      catch (Exception ex)
       {
         Log.LogErrorFromException (ex);
         return false;

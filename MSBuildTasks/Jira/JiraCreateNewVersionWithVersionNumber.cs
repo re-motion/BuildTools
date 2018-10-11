@@ -15,10 +15,13 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Build.Framework;
+using Remotion.BuildTools.MSBuildTasks.Jira.SemanticVersioning;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations;
 using Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeInterfaces;
+using Remotion.BuildTools.MSBuildTasks.Jira.Utility;
 
 namespace Remotion.BuildTools.MSBuildTasks.Jira
 {
@@ -40,8 +43,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
         JiraRestClient restClient = new JiraRestClient (JiraUrl, Authenticator);
         IJiraProjectVersionService service = new JiraProjectVersionService (restClient);
         IJiraProjectVersionFinder finder = new JiraProjectVersionFinder(restClient);
+        var _jiraProjectVersionRepairer = new JiraProjectVersionRepairer (service, finder);
 
-        var versions = finder.FindVersions (JiraProjectKey, "(?s).*");
+        var versions = finder.FindVersions (JiraProjectKey, "(?s).*").ToList();
         var jiraProject = versions.Where(x => x.name == VersionNumber).DefaultIfEmpty().First();
         
         if (jiraProject != null)
@@ -57,6 +61,9 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira
         }
 
         CreatedVersionID = service.CreateVersion (JiraProjectKey, VersionNumber, null);
+
+        _jiraProjectVersionRepairer.RepairVersionPosition (CreatedVersionID);
+
         return true;
       }
       catch (Exception ex)
