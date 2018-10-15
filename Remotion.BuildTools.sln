@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 2017
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraReleaseNoteGenerator", "JiraReleaseNoteGenerator\JiraReleaseNoteGenerator.csproj", "{AC553DCA-2EEA-4552-9312-0E576951AA39}"
 EndProject
