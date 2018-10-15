@@ -175,13 +175,13 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
           foreach (var toBeSquashedVersion in toBeSquashedVersions)
           {
-            var unreleasedVersionsBeforeCurrentVersion = IndexRangeBetween(orderedVersions, indexOfLastReleasedVersion,
-                indexOfLastReleasedVersion,
+            allClosedIssues.AddRange(jiraIssueService.FindAllClosedIssues(toBeSquashedVersion.JiraProjectVersion.id));
+          }
 
           if (allClosedIssues.Count != 0)
-            throw new JiraException (
+            throw new JiraException(
                 "Version '" + currentVersion.name + "' cannot be released, as one  or multiple versions contain closed issues ("
-                + string.Join (", ", allClosedIssues.Select (aci => aci.key)) + ")"
+                + string.Join(", ", allClosedIssues.Select(aci => aci.key)) + ")"
                 );
 
           foreach (var toBeSquashedVersion in toBeSquashedVersions)
@@ -240,24 +240,6 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
       var difference = releaseDate - releaseDateAsUtcTime;
       var adjustedReleaseDate = releaseDate + difference;
       return adjustedReleaseDate;
-    }
-
-    public void MoveVersion (string versionId, string afterVersionUrl)
-    {
-      var request = jiraClient.CreateRestRequest ("version/" + versionId + "/move", Method.POST);
-
-      request.AddBody (new { after = afterVersionUrl });
-
-      jiraClient.DoRequest (request, HttpStatusCode.OK);
-    }
-
-    public void MoveVersionByPosition (string versionId, string position)
-    {
-      var request = jiraClient.CreateRestRequest ("version/" + versionId + "/move", Method.POST);
-
-      request.AddBody (new { position = position });
-
-      jiraClient.DoRequest (request, HttpStatusCode.OK);
     }
   }
 }
