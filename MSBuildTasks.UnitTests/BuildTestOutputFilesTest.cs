@@ -46,5 +46,17 @@ namespace BuildTools.MSBuildTasks.UnitTests
       
       Assert.That (task.Output.Single().GetMetadata("BuildConfiguration"), Is.EqualTo ("x86"));
     }
+    
+    [Test]
+    public void ValidConfiguration_CorrectDockerConfiguration ()
+    {
+      var taskItem = new TaskItem("MyTest.dll");
+      taskItem.SetMetadata("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+      
+      Assert.That (task.Output.Single().GetMetadata("DockerConfiguration"), Is.EqualTo ("dockerNet45"));
+    }
   }
 }
