@@ -41,9 +41,11 @@ namespace Remotion.BuildTools.MSBuildTasks
         var configurations = testingConfiguration.Split (';');
         foreach (var configuration in configurations)
         {
+          var index = 0;
           var splitConfigurationItems = configuration.Split ('+');
-          var newItem = CreateTaskItem(splitConfigurationItems);
+          var newItem = CreateTaskItem($"{item.ItemSpec}_{index}", splitConfigurationItems);
           output.Add(newItem);
+          index++;
         }
       }
 
@@ -51,9 +53,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (IReadOnlyList<string> configurationItems)
+    private ITaskItem CreateTaskItem (string identifier, IReadOnlyList<string> configurationItems)
     {
-      var item = new TaskItem();
+      var item = new TaskItem(identifier);
       item.SetMetadata ("Browser", configurationItems[0]);
       item.SetMetadata ("Database", configurationItems[1]);
       item.SetMetadata ("CpuArchitecture", configurationItems[2]);
