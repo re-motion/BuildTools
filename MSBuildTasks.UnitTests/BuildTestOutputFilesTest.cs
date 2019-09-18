@@ -22,5 +22,17 @@ namespace BuildTools.MSBuildTasks.UnitTests
       
       Assert.That (task.Output.Single().GetMetadata("Browser"), Is.EqualTo ("Chrome"));
     }
+    
+    [Test]
+    public void ValidConfiguration_CorrectDatabase ()
+    {
+      var taskItem = new TaskItem("MyTest.dll");
+      taskItem.SetMetadata("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+      
+      Assert.That (task.Output.Single().GetMetadata("Database"), Is.EqualTo ("NoDb"));
+    }
   }
 }

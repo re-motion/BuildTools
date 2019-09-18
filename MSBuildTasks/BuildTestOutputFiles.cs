@@ -36,17 +36,13 @@ namespace Remotion.BuildTools.MSBuildTasks
       var output = new List<ITaskItem>();
       foreach (var item in Input)
       {
-        var index = 0;
-        
         var testingConfiguration = item.GetMetadata("TestingConfiguration");
 
         var configurations = testingConfiguration.Split (';');
         foreach (var configuration in configurations)
         {
-          var newItem = new TaskItem(item.ItemSpec + index);
-          var splitItems = configuration.Split ('+');
-          newItem.SetMetadata ("Browser", splitItems[0]);
-          index++;
+          var splitConfigurationItems = configuration.Split ('+');
+          var newItem = CreateTaskItem(splitConfigurationItems);
           output.Add(newItem);
         }
       }
@@ -54,5 +50,14 @@ namespace Remotion.BuildTools.MSBuildTasks
       Output = output.ToArray();
       return true;
     }
-}
+
+    private ITaskItem CreateTaskItem (IReadOnlyList<string> configurationItems)
+    {
+      var item = new TaskItem();
+      item.SetMetadata ("Browser", configurationItems[0]);
+      item.SetMetadata ("Database", configurationItems[1]);
+
+      return item;
+    }
+  }
 }
