@@ -70,5 +70,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
       
       Assert.That (task.Output.Single().GetMetadata("BuildConfiguration"), Is.EqualTo ("release"));
     }
+    
+    [Test]
+    public void MultipleConfigurations_CorrectParsing ()
+    {
+      var taskItem = new TaskItem("MyTest.dll");
+      taskItem.SetMetadata("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release;Firefox+SqlServer2012+x64+dockerNet45+debug");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+      
+      Assert.That (task.Output[1].GetMetadata("Browser"), Is.EqualTo ("Firefox"));
+      Assert.That (task.Output[1].GetMetadata("Database"), Is.EqualTo ("SqlServer2012"));
+      Assert.That (task.Output[1].GetMetadata("CpuArchitecture"), Is.EqualTo ("x64"));
+      Assert.That (task.Output[1].GetMetadata("DockerConfiguration"), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output[1].GetMetadata("BuildConfiguration"), Is.EqualTo ("debug"));
+    }
   }
 }
