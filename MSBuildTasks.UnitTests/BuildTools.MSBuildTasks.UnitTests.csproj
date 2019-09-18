@@ -58,6 +58,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildTestOutputFilesTest.cs" />
     <Compile Include="InsertSourceLinksTest.cs" />
     <Compile Include="Jira\JiraProjectVersionRepairerTest.cs" />
     <Compile Include="Jira\JiraVersionMovePositionerTest.cs" />

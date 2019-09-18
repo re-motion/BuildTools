@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildTestOutputFiles.cs" />
     <Compile Include="CodeplexCreateRelease.cs" />
     <Compile Include="CodeplexUploadFiles.cs" />
     <Compile Include="Jira\JiraCheckAuthentication.cs" />
