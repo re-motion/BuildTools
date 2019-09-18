@@ -39,9 +39,9 @@ namespace Remotion.BuildTools.MSBuildTasks
         var testingConfiguration = item.GetMetadata("TestingConfiguration");
 
         var configurations = testingConfiguration.Split (';');
+        var index = 0;
         foreach (var configuration in configurations)
         {
-          var index = 0;
           var splitConfigurationItems = configuration.Split ('+');
           var newItem = CreateTaskItem($"{item.ItemSpec}_{index}", splitConfigurationItems);
           output.Add(newItem);
