@@ -14,6 +14,7 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
+
 using System;
 using System.Collections.Generic;
 using Microsoft.Build.Utilities;
@@ -25,27 +26,23 @@ namespace Remotion.BuildTools.MSBuildTasks
   {
     private string _toolName;
 
-    [Required]
-    public ITaskItem[] Input { get; set; }
+    [Required] public ITaskItem[] Input { get; set; }
 
-    [Output]
-    public ITaskItem[] Output { get; set; }
+    [Output] public ITaskItem[] Output { get; set; }
 
     public override bool Execute ()
     {
       var output = new List<ITaskItem>();
       foreach (var item in Input)
       {
-        var testingConfiguration = item.GetMetadata("TestingConfiguration");
+        var testingConfiguration = item.GetMetadata ("TestingConfiguration");
 
         var configurations = testingConfiguration.Split (';');
-        var index = 0;
         foreach (var configuration in configurations)
         {
           var splitConfigurationItems = configuration.Split ('+');
-          var newItem = CreateTaskItem($"{item.ItemSpec}_{index}", splitConfigurationItems);
-          output.Add(newItem);
-          index++;
+          var newItem = CreateTaskItem (item, splitConfigurationItems);
+          output.Add (newItem);
         }
       }
 
@@ -53,9 +50,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (string identifier, IReadOnlyList<string> configurationItems)
+    private ITaskItem CreateTaskItem (ITaskItem originalItem, IReadOnlyList<string> configurationItems)
     {
-      var item = new TaskItem(identifier);
+      var item = new TaskItem (originalItem.ItemSpec);
       item.SetMetadata ("Browser", configurationItems[0]);
       item.SetMetadata ("DatabaseSystem", configurationItems[1]);
       item.SetMetadata ("Platform", configurationItems[2]);
