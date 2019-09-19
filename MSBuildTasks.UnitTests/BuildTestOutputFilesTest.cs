@@ -149,5 +149,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       Assert.That (task.Output.Single().GetMetadata ("IsDatabaseTest"), Is.EqualTo ("false"));
     }
+
+    [Test]
+    public void IsDatabaseTest_NotNoDb_True ()
+    {
+      const string itemSpec = "MyTest.dll";
+      var taskItem = new TaskItem (itemSpec);
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata ("IsDatabaseTest"), Is.EqualTo ("true"));
+    }
   }
 }
