@@ -56,6 +56,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       item.SetMetadata ("Platform", configurationItems[2]);
       item.SetMetadata ("ExecutionRuntime", configurationItems[3]);
       item.SetMetadata ("ConfigurationID", configurationItems[4]);
+      item.SetMetadata ("Use32Bit", "true");
 
       return item;
     }
