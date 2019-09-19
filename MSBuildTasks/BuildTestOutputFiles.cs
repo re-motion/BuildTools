@@ -52,6 +52,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     {
       var item = new TaskItem (originalItem.ItemSpec);
       item.SetMetadata ("Browser", configurationItems[0]);
+      item.SetMetadata ("IsWebTest", "false");
 
       var databaseSystem = configurationItems[1];
       item.SetMetadata ("DatabaseSystem", databaseSystem);
