@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -123,6 +122,19 @@ namespace BuildTools.MSBuildTasks.UnitTests
       task.Execute();
 
       Assert.That (task.Output.Single().GetMetadata ("Use32Bit"), Is.EqualTo ("true"));
+    }
+
+    [Test]
+    public void Use32Bit_x64_False ()
+    {
+      const string itemSpec = "MyTest.dll";
+      var taskItem = new TaskItem (itemSpec);
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x64+dockerNet45+release");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata ("Use32Bit"), Is.EqualTo ("false"));
     }
   }
 }
