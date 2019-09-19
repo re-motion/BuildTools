@@ -16,7 +16,7 @@
 // 
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -31,7 +31,8 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     public override bool Execute ()
     {
-      Output = Input;
+      var validInputs = Input.Where (x => ValidPlatforms.Select (i => i.ItemSpec).Contains (x.GetMetadata ("Platform")));
+      Output = validInputs.Any() ? Input : new TaskItem[0];
       return true;
     }
   }
