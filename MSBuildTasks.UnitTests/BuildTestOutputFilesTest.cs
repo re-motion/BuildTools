@@ -36,7 +36,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
     
     [Test]
-    public void ValidConfiguration_CorrectCpuArchitecture ()
+    public void ValidConfiguration_CorrectPlatform ()
     {
       var taskItem = new TaskItem("MyTest.dll");
       taskItem.SetMetadata("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release");
@@ -44,7 +44,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
       
-      Assert.That (task.Output.Single().GetMetadata("CpuArchitecture"), Is.EqualTo ("x86"));
+      Assert.That (task.Output.Single().GetMetadata("Platform"), Is.EqualTo ("x86"));
     }
     
     [Test]
@@ -82,7 +82,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       
       Assert.That (task.Output[1].GetMetadata("Browser"), Is.EqualTo ("Firefox"));
       Assert.That (task.Output[1].GetMetadata("Database"), Is.EqualTo ("SqlServer2012"));
-      Assert.That (task.Output[1].GetMetadata("CpuArchitecture"), Is.EqualTo ("x64"));
+      Assert.That (task.Output[1].GetMetadata("Platform"), Is.EqualTo ("x64"));
       Assert.That (task.Output[1].GetMetadata("DockerConfiguration"), Is.EqualTo ("dockerNet45"));
       Assert.That (task.Output[1].GetMetadata("BuildConfiguration"), Is.EqualTo ("debug"));
     }
