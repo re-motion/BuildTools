@@ -51,18 +51,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       Assert.That (filter.Output, Is.Empty);
     }
-    
+
+    [Test]
     public void ValidPlatforms_SomeValidPlatforms_OnlyValidOutputs ()
     {
       var itemWithValidPlatform = new TaskItem ("ItemWithValidPlatform");
-      itemWithValidPlatform.SetMetadata ("Platform", "x86");
-      var items = new[] { itemWithValidPlatform };
+      itemWithValidPlatform.SetMetadata ("Platform", "x64");
+      var itemWithInvalidPlatform = new TaskItem ("ItemWithValidPlatform");
+      itemWithInvalidPlatform.SetMetadata ("Platform", "x86");
+      var items = new[] { itemWithValidPlatform, itemWithInvalidPlatform };
 
       var filter = new FilterTestingConfigurations { Input = items, ValidPlatforms = new[] { new TaskItem ("x64") } };
 
       filter.Execute();
 
-      Assert.That (filter.Output, Is.Empty);
+      Assert.That (filter.Output, Is.EquivalentTo (new[] { itemWithValidPlatform }));
     }
   }
 }

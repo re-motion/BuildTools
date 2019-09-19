@@ -31,9 +31,14 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     public override bool Execute ()
     {
-      var validInputs = Input.Where (x => ValidPlatforms.Select (i => i.ItemSpec).Contains (x.GetMetadata ("Platform")));
-      Output = validInputs.Any() ? Input : new TaskItem[0];
+      var validInputs = Input.Where (HasValidPlatform);
+      Output = validInputs.ToArray();
       return true;
+    }
+
+    private bool HasValidPlatform (ITaskItem item)
+    {
+      return ValidPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata ("Platform"));
     }
   }
 }
