@@ -24,8 +24,6 @@ namespace Remotion.BuildTools.MSBuildTasks
 {
   public class BuildTestOutputFiles : Task
   {
-    private string _toolName;
-
     [Required] public ITaskItem[] Input { get; set; }
 
     [Output] public ITaskItem[] Output { get; set; }
