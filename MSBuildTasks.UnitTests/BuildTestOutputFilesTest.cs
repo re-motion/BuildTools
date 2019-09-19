@@ -32,7 +32,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
       
-      Assert.That (task.Output.Single().GetMetadata("Database"), Is.EqualTo ("NoDb"));
+      Assert.That (task.Output.Single().GetMetadata("DatabaseSystem"), Is.EqualTo ("NoDb"));
     }
     
     [Test]
@@ -56,7 +56,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
       
-      Assert.That (task.Output.Single().GetMetadata("DockerConfiguration"), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output.Single().GetMetadata("ExecutionRuntime"), Is.EqualTo ("dockerNet45"));
     }
     
     [Test]
@@ -68,7 +68,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
       
-      Assert.That (task.Output.Single().GetMetadata("BuildConfiguration"), Is.EqualTo ("release"));
+      Assert.That (task.Output.Single().GetMetadata("ConfigurationID"), Is.EqualTo ("release"));
     }
     
     [Test]
@@ -81,10 +81,10 @@ namespace BuildTools.MSBuildTasks.UnitTests
       task.Execute();
       
       Assert.That (task.Output[1].GetMetadata("Browser"), Is.EqualTo ("Firefox"));
-      Assert.That (task.Output[1].GetMetadata("Database"), Is.EqualTo ("SqlServer2012"));
+      Assert.That (task.Output[1].GetMetadata("DatabaseSystem"), Is.EqualTo ("SqlServer2012"));
       Assert.That (task.Output[1].GetMetadata("Platform"), Is.EqualTo ("x64"));
-      Assert.That (task.Output[1].GetMetadata("DockerConfiguration"), Is.EqualTo ("dockerNet45"));
-      Assert.That (task.Output[1].GetMetadata("BuildConfiguration"), Is.EqualTo ("debug"));
+      Assert.That (task.Output[1].GetMetadata("ExecutionRuntime"), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output[1].GetMetadata("ConfigurationID"), Is.EqualTo ("debug"));
     }
     
     [Test]

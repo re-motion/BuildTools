@@ -57,10 +57,10 @@ namespace Remotion.BuildTools.MSBuildTasks
     {
       var item = new TaskItem(identifier);
       item.SetMetadata ("Browser", configurationItems[0]);
-      item.SetMetadata ("Database", configurationItems[1]);
+      item.SetMetadata ("DatabaseSystem", configurationItems[1]);
       item.SetMetadata ("Platform", configurationItems[2]);
-      item.SetMetadata ("DockerConfiguration", configurationItems[3]);
-      item.SetMetadata ("BuildConfiguration", configurationItems[4]);
+      item.SetMetadata ("ExecutionRuntime", configurationItems[3]);
+      item.SetMetadata ("ConfigurationID", configurationItems[4]);
 
       return item;
     }
