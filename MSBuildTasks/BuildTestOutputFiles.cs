@@ -51,8 +51,12 @@ namespace Remotion.BuildTools.MSBuildTasks
     private ITaskItem CreateTaskItem (ITaskItem originalItem, IReadOnlyList<string> configurationItems)
     {
       var item = new TaskItem (originalItem.ItemSpec);
-      item.SetMetadata ("Browser", configurationItems[0]);
-      item.SetMetadata ("IsWebTest", "false");
+
+      var browser = configurationItems[0];
+      item.SetMetadata ("Browser", browser);
+
+      var isWebTest = browser == "NoBrowser" ? "false" : "true";
+      item.SetMetadata ("IsWebTest", isWebTest);
 
       var databaseSystem = configurationItems[1];
       item.SetMetadata ("DatabaseSystem", databaseSystem);
@@ -68,7 +72,6 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       item.SetMetadata ("ExecutionRuntime", configurationItems[3]);
       item.SetMetadata ("ConfigurationID", configurationItems[4]);
-
 
       return item;
     }
