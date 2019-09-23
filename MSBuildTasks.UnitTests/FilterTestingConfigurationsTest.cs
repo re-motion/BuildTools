@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -145,6 +145,27 @@ namespace BuildTools.MSBuildTasks.UnitTests
               @"The following test configurations were ignored:
 {0}",
               "ItemWithDB: Firefox, SqlServer2012, x64, dockerNet45, release"));
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0], logger: loggerMock);
+
+      filter.Execute();
+
+      loggerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void FilterOutputs_MultipleConfigurations_LogsFilteredItems ()
+    {
+      var itemWithDb2012 = CreateTestConfiguration ("ItemWithDB2012", databaseSystem: "SqlServer2012");
+      var itemWithDb2016 = CreateTestConfiguration ("ItemWithDB2016", databaseSystem: "SqlServer2016");
+      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDB");
+      var items = new[] { itemWithDb2012, itemWithDb2016, itemWithNoDb };
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (
+          _ => _.LogMessage (
+              @"The following test configurations were ignored:
+{0}",
+              @"ItemWithDB2012: Firefox, SqlServer2012, x64, dockerNet45, release
+ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
       var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0], logger: loggerMock);
 
       filter.Execute();

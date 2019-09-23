@@ -53,7 +53,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       _logger.LogMessage (
           @"The following test configurations were ignored:
 {0}",
-          Input.Except (Output).Select (GetConfigurationString).SingleOrDefault());
+          string.Join (Environment.NewLine, Input.Except (Output).Select (GetConfigurationString)));
 
       return true;
     }
