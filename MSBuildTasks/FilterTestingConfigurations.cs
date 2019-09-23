@@ -16,7 +16,9 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -55,6 +57,14 @@ namespace Remotion.BuildTools.MSBuildTasks
 {0}",
           string.Join (Environment.NewLine, Input.Except (Output).Select (GetConfigurationString)));
 
+      var uniqueInputAssemblyNames = GetUniqueAssemblyNames (Input);
+      var uniqueOutputAssemblyNames = GetUniqueAssemblyNames (Output);
+      var untestedAssemblyNames = uniqueInputAssemblyNames.Where (assemblyName => !uniqueOutputAssemblyNames.Contains (assemblyName));
+      foreach (var assemblyName in untestedAssemblyNames)
+      {
+        _logger.LogWarning ($"All testing configurations in {assemblyName} were ignored.");
+      }
+
       return true;
     }
 
@@ -89,6 +99,11 @@ namespace Remotion.BuildTools.MSBuildTasks
         return true;
 
       return ValidBrowsers.Select (i => i.ItemSpec).Contains (browser);
+    }
+
+    private HashSet<string> GetUniqueAssemblyNames (IEnumerable<ITaskItem> items)
+    {
+      return new HashSet<string> (items.Select (x => x.ItemSpec));
     }
   }
 }

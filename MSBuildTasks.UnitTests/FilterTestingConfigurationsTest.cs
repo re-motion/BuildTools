@@ -173,6 +173,25 @@ ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
       loggerMock.VerifyAllExpectations();
     }
 
+    [Test]
+    public void FilterOutputs_AllTestingConfigurationsFiltered_Warning ()
+    {
+      var itemWithDb2012 = CreateTestConfiguration ("MyAssembly.dll", databaseSystem: "SqlServer2012");
+      var itemWithNoDb2016 = CreateTestConfiguration ("MyAssembly.dll", databaseSystem: "SqlServer2016");
+      var items = new[] { itemWithDb2012, itemWithNoDb2016 };
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogWarning ("All testing configurations in MyAssembly.dll were ignored."));
+      var filter = CreateFilterTestingConfigurations (
+          items,
+          databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2014") },
+          logger: loggerMock
+          );
+
+      filter.Execute();
+
+      loggerMock.VerifyAllExpectations();
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);
