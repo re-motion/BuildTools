@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Build.Framework;
 
 namespace Remotion.BuildTools.MSBuildTasks
 {
