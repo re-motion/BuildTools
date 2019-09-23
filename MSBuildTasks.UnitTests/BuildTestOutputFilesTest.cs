@@ -99,7 +99,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidConfiguration_CopiesMultipleIdentifiersWithIndex ()
+    public void ValidConfiguration_CopiesMultipleIdentifiers ()
     {
       const string itemSpec = "MyTest.dll";
       var taskItem = new TaskItem (itemSpec);
@@ -109,6 +109,20 @@ namespace BuildTools.MSBuildTasks.UnitTests
       task.Execute();
 
       Assert.That (task.Output[1].ItemSpec, Is.EqualTo (itemSpec));
+    }
+
+    [Test]
+    public void ValidConfiguration_HasUniqueConfigurationID ()
+    {
+      const string itemSpec = "MyTest.dll";
+      var taskItem = new TaskItem (itemSpec);
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release;Firefox+SqlServer2012+x64+dockerNet45+debug");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output[0].GetMetadata ("ID"), Is.EqualTo ("MyTest.dll_0"));
+      Assert.That (task.Output[1].GetMetadata ("ID"), Is.EqualTo ("MyTest.dll_1"));
     }
 
     [Test]

@@ -43,17 +43,21 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private bool HasValidPlatform (ITaskItem item)
     {
-      return ValidPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata ("Platform"));
+      return ValidPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.Platform));
     }
 
     private bool HasValidDatabaseSystem (ITaskItem item)
     {
-      return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata ("DatabaseSystem"));
+      return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem));
     }
 
     private bool HasValidBrowser (ITaskItem item)
     {
-      return ValidBrowsers.Select (i => i.ItemSpec).Contains (item.GetMetadata ("Browser"));
+      var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
+      if (browser == "NoBrowser" && !ValidBrowsers.Any())
+        return true;
+
+      return ValidBrowsers.Select (i => i.ItemSpec).Contains (browser);
     }
   }
 }

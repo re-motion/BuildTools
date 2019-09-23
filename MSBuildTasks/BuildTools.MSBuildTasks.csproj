@@ -57,6 +57,7 @@
     <Compile Include="BuildTestOutputFiles.cs" />
     <Compile Include="CodeplexCreateRelease.cs" />
     <Compile Include="CodeplexUploadFiles.cs" />
+    <Compile Include="FilterTestingConfigurations.cs" />
     <Compile Include="Jira\JiraCheckAuthentication.cs" />
     <Compile Include="Jira\JiraCreateNewVersion.cs" />
     <Compile Include="Jira\JiraCreateNewVersionWithVersionNumber.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Jira\SemanticVersioning\PreReleaseStage.cs" />
     <Compile Include="Jira\SemanticVersioning\SemanticVersion.cs" />
     <Compile Include="Jira\SemanticVersioning\SemanticVersionParser.cs" />
+    <Compile Include="TestingConfigurationMetadata.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\BuildTools Apache-2.0.licenseheader">

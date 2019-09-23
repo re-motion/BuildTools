@@ -36,11 +36,13 @@ namespace Remotion.BuildTools.MSBuildTasks
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
 
         var configurations = testingConfiguration.Split (';');
+        var configurationIDIndex = 0;
         foreach (var configuration in configurations)
         {
           var splitConfigurationItems = configuration.Split ('+');
-          var newItem = CreateTaskItem (item, splitConfigurationItems);
+          var newItem = CreateTaskItem (item, configurationIDIndex, splitConfigurationItems);
           output.Add (newItem);
+          configurationIDIndex++;
         }
       }
 
@@ -48,30 +50,31 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (ITaskItem originalItem, IReadOnlyList<string> configurationItems)
+    private ITaskItem CreateTaskItem (ITaskItem originalItem, int configurationIDIndex, IReadOnlyList<string> configurationItems)
     {
       var item = new TaskItem (originalItem.ItemSpec);
+      item.SetMetadata (TestingConfigurationMetadata.ID, $"{originalItem.ItemSpec}_{configurationIDIndex}");
 
       var browser = configurationItems[0];
-      item.SetMetadata ("Browser", browser);
+      item.SetMetadata (TestingConfigurationMetadata.Browser, browser);
 
       var isWebTest = browser == "NoBrowser" ? "false" : "true";
-      item.SetMetadata ("IsWebTest", isWebTest);
+      item.SetMetadata (TestingConfigurationMetadata.IsWebTest, isWebTest);
 
       var databaseSystem = configurationItems[1];
-      item.SetMetadata ("DatabaseSystem", databaseSystem);
+      item.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
 
       var isDatabaseTest = databaseSystem == "NoDb" ? "false" : "true";
-      item.SetMetadata ("IsDatabaseTest", isDatabaseTest);
+      item.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
 
       var platform = configurationItems[2];
-      item.SetMetadata ("Platform", platform);
+      item.SetMetadata (TestingConfigurationMetadata.Platform, platform);
 
       var use32Bit = platform.Contains ("86") ? "true" : "false";
-      item.SetMetadata ("Use32Bit", use32Bit);
+      item.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
 
-      item.SetMetadata ("ExecutionRuntime", configurationItems[3]);
-      item.SetMetadata ("ConfigurationID", configurationItems[4]);
+      item.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, configurationItems[3]);
+      item.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationItems[4]);
 
       return item;
     }

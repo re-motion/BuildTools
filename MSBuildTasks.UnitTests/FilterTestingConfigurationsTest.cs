@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NUnit.Framework;
@@ -111,12 +112,31 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (filter.Output, Is.Empty);
     }
 
+    [Test]
+    public void ValidBrowser_ValidBrowsersEmpty_NoBrowser ()
+    {
+      var itemWithBrowser = CreateTestConfiguration ("ItemWithBrowser", browser: "Chrome");
+      var itemWithNoBrowser = CreateTestConfiguration ("ItemWithNoBrowser", browser: "NoBrowser");
+      var items = new[] { itemWithBrowser, itemWithNoBrowser };
+      var filter = new FilterTestingConfigurations
+                   {
+                       Input = items,
+                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
+                       ValidPlatforms = new[] { new TaskItem ("x64") },
+                       ValidBrowsers = new ITaskItem[0]
+                   };
+
+      filter.Execute();
+
+      Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoBrowser));
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);
-      item.SetMetadata ("Platform", platform ?? "x64");
-      item.SetMetadata ("DatabaseSystem", databaseSystem ?? "SqlServer2012");
-      item.SetMetadata ("Browser", browser ?? "Firefox");
+      item.SetMetadata (TestingConfigurationMetadata.Platform, platform ?? "x64");
+      item.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem ?? "SqlServer2012");
+      item.SetMetadata (TestingConfigurationMetadata.Browser, browser ?? "Firefox");
       return item;
     }
   }
