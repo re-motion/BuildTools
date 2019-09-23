@@ -35,7 +35,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("Browser"), Is.EqualTo ("Chrome"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Browser), Is.EqualTo ("Chrome"));
     }
 
     [Test]
@@ -47,7 +47,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("DatabaseSystem"), Is.EqualTo ("NoDb"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.DatabaseSystem), Is.EqualTo ("NoDb"));
     }
 
     [Test]
@@ -59,7 +59,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("Platform"), Is.EqualTo ("x86"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Platform), Is.EqualTo ("x86"));
     }
 
     [Test]
@@ -71,7 +71,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("ExecutionRuntime"), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
     }
 
     [Test]
@@ -83,7 +83,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("ConfigurationID"), Is.EqualTo ("release"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("release"));
     }
 
     [Test]
@@ -95,11 +95,11 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output[1].GetMetadata ("Browser"), Is.EqualTo ("Firefox"));
-      Assert.That (task.Output[1].GetMetadata ("DatabaseSystem"), Is.EqualTo ("SqlServer2012"));
-      Assert.That (task.Output[1].GetMetadata ("Platform"), Is.EqualTo ("x64"));
-      Assert.That (task.Output[1].GetMetadata ("ExecutionRuntime"), Is.EqualTo ("dockerNet45"));
-      Assert.That (task.Output[1].GetMetadata ("ConfigurationID"), Is.EqualTo ("debug"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.Browser), Is.EqualTo ("Firefox"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.DatabaseSystem), Is.EqualTo ("SqlServer2012"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.Platform), Is.EqualTo ("x64"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("debug"));
     }
 
     [Test]
@@ -137,8 +137,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output[0].GetMetadata ("ID"), Is.EqualTo ("MyTest.dll_0"));
-      Assert.That (task.Output[1].GetMetadata ("ID"), Is.EqualTo ("MyTest.dll_1"));
+      Assert.That (task.Output[0].GetMetadata (TestingConfigurationMetadata.ID), Is.EqualTo ("MyTest.dll_0"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ID), Is.EqualTo ("MyTest.dll_1"));
     }
 
     [Test]
@@ -151,7 +151,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("Use32Bit"), Is.EqualTo ("true"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Use32Bit), Is.EqualTo ("true"));
     }
 
     [Test]
@@ -164,7 +164,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("Use32Bit"), Is.EqualTo ("false"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Use32Bit), Is.EqualTo ("false"));
     }
 
     [Test]
@@ -177,7 +177,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("IsDatabaseTest"), Is.EqualTo ("false"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsDatabaseTest), Is.EqualTo ("false"));
     }
 
     [Test]
@@ -190,7 +190,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("IsDatabaseTest"), Is.EqualTo ("true"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsDatabaseTest), Is.EqualTo ("true"));
     }
 
     [Test]
@@ -203,7 +203,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("IsWebTest"), Is.EqualTo ("false"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("false"));
     }
 
     [Test]
@@ -216,7 +216,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata ("IsWebTest"), Is.EqualTo ("true"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("true"));
     }
   }
 }
