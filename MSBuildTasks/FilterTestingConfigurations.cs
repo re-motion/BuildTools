@@ -27,12 +27,16 @@ namespace Remotion.BuildTools.MSBuildTasks
     [Required] public ITaskItem[] Input { get; set; }
     [Required] public ITaskItem[] ValidPlatforms { get; set; }
     [Required] public ITaskItem[] ValidDatabaseSystems { get; set; }
+    [Required] public ITaskItem[] ValidBrowsers { get; set; }
 
     [Output] public ITaskItem[] Output { get; set; }
 
     public override bool Execute ()
     {
-      var validInputs = Input.Where (HasValidPlatform).Where (HasValidDatabaseSystem);
+      var validInputs = Input
+          .Where (HasValidPlatform)
+          .Where (HasValidDatabaseSystem)
+          .Where (HasValidBrowser);
       Output = validInputs.ToArray();
       return true;
     }
@@ -45,6 +49,11 @@ namespace Remotion.BuildTools.MSBuildTasks
     private bool HasValidDatabaseSystem (ITaskItem item)
     {
       return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata ("DatabaseSystem"));
+    }
+
+    private bool HasValidBrowser (ITaskItem item)
+    {
+      return ValidBrowsers.Select (i => i.ItemSpec).Contains (item.GetMetadata ("Browser"));
     }
   }
 }

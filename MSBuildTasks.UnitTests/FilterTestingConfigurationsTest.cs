@@ -34,7 +34,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
                    {
                        Input = items,
                        ValidPlatforms = new[] { new TaskItem ("x64") },
-                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012"), }
+                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
+                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
                    };
 
       filter.Execute();
@@ -65,7 +66,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
                    {
                        Input = items,
                        ValidPlatforms = new[] { new TaskItem ("x64") },
-                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012"), }
+                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
+                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
                    };
 
       filter.Execute();
@@ -83,6 +85,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
                        Input = items,
                        ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2014") },
                        ValidPlatforms = new[] { new TaskItem ("x64") },
+                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
                    };
 
       filter.Execute();
@@ -90,11 +93,30 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (filter.Output, Is.Empty);
     }
 
-    private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null)
+    [Test]
+    public void ValidBrowser_BrowserInvalid_Empty ()
+    {
+      var itemWithInvalidBrowser = CreateTestConfiguration ("ItemWithInvalidBrowser", browser: "Chrome");
+      var items = new[] { itemWithInvalidBrowser };
+      var filter = new FilterTestingConfigurations
+                   {
+                       Input = items,
+                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
+                       ValidPlatforms = new[] { new TaskItem ("x64") },
+                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
+                   };
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.Empty);
+    }
+
+    private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);
       item.SetMetadata ("Platform", platform ?? "x64");
       item.SetMetadata ("DatabaseSystem", databaseSystem ?? "SqlServer2012");
+      item.SetMetadata ("Browser", browser ?? "Firefox");
       return item;
     }
   }
