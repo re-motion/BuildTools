@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -35,9 +35,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var items = new[] { validItem };
       var filter = CreateFilterTestingConfigurations (
           items,
-          platforms: new[] { new TaskItem ("x64") },
-          databaseSystems: new[] { new TaskItem ("SqlServer2012") },
-          browsers: new[] { new TaskItem ("Firefox") });
+          platforms: new ITaskItem[] { new TaskItem ("x64") },
+          databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012") },
+          browsers: new ITaskItem[] { new TaskItem ("Firefox") });
 
       filter.Execute();
 
@@ -49,7 +49,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x86");
       var items = new[] { itemWithInvalidPlatform };
-      var filter = CreateFilterTestingConfigurations (items, platforms: new[] { new TaskItem ("x64") });
+      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") });
 
       filter.Execute();
 
@@ -62,7 +62,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var itemWithValidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x64");
       var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithInvalidPlatform", "x86");
       var items = new[] { itemWithValidPlatform, itemWithInvalidPlatform };
-      var filter = CreateFilterTestingConfigurations (items, platforms: new[] { new TaskItem ("x64") });
+      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") });
 
       filter.Execute();
 
@@ -74,7 +74,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var itemWithValidDatabaseSystem = CreateTestConfiguration ("ItemWithValidDatabaseSystem", databaseSystem: "SqlServer2012");
       var items = new[] { itemWithValidDatabaseSystem };
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new[] { new TaskItem ("SqlServer2014") });
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2014") });
 
       filter.Execute();
 
@@ -86,7 +86,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var itemWithInvalidBrowser = CreateTestConfiguration ("ItemWithInvalidBrowser", browser: "Chrome");
       var items = new[] { itemWithInvalidBrowser };
-      var filter = CreateFilterTestingConfigurations (items, browsers: new[] { new TaskItem ("Firefox") });
+      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[] { new TaskItem ("Firefox") });
 
       filter.Execute();
 
@@ -173,9 +173,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
       return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
              {
                  Input = input,
-                 ValidDatabaseSystems = databaseSystems ?? new[] { new TaskItem ("SqlServer2012") },
-                 ValidPlatforms = platforms ?? new[] { new TaskItem ("x64") },
-                 ValidBrowsers = browsers ?? new[] { new TaskItem ("Firefox") },
+                 ValidDatabaseSystems = databaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
+                 ValidPlatforms = platforms ?? new ITaskItem[] { new TaskItem ("x64") },
+                 ValidBrowsers = browsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
              };
     }
   }
