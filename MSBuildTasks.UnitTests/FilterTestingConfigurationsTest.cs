@@ -120,6 +120,19 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoDb));
     }
 
+    [Test]
+    public void ValidDatabaseSystem_ValidDatabaseSystemEmpty_NoDbCaseInsensitive ()
+    {
+      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
+      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDB");
+      var items = new[] { itemWithDb, itemWithNoDb };
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0]);
+
+      filter.Execute();
+
+      Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoDb));
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);

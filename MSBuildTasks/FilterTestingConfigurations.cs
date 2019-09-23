@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -49,7 +49,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     private bool HasValidDatabaseSystem (ITaskItem item)
     {
       var database = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
-      if (database == "NoDb" && !ValidDatabaseSystems.Any())
+      if (string.Equals (database, "NoDb", StringComparison.OrdinalIgnoreCase) && !ValidDatabaseSystems.Any())
         return true;
 
       return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem));
