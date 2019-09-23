@@ -14,7 +14,6 @@
 // License for the specific language governing permissions and limitations
 // under the License.
 // 
-
 using System;
 using System.Linq;
 using Microsoft.Build.Framework;
@@ -184,8 +183,7 @@ ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
       var filter = CreateFilterTestingConfigurations (
           items,
           databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2014") },
-          logger: loggerMock
-          );
+          logger: loggerMock);
 
       filter.Execute();
 
