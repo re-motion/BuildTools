@@ -15,11 +15,13 @@
 // under the License.
 // 
 
+using System;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NUnit.Framework;
 using Remotion.BuildTools.MSBuildTasks;
+using Rhino.Mocks;
 
 namespace BuildTools.MSBuildTasks.UnitTests
 {
@@ -31,13 +33,11 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var validItem = CreateTestConfiguration ("ValidItem", "x64", "SqlServer2012", "Firefox");
       var items = new[] { validItem };
-      var filter = new FilterTestingConfigurations
-                   {
-                       Input = items,
-                       ValidPlatforms = new[] { new TaskItem ("x64") },
-                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
-                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
-                   };
+      var filter = CreateFilterTestingConfigurations (
+          items,
+          platforms: new[] { new TaskItem ("x64") },
+          databaseSystems: new[] { new TaskItem ("SqlServer2012") },
+          browsers: new[] { new TaskItem ("Firefox") });
 
       filter.Execute();
 
@@ -133,12 +133,33 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoDb));
     }
 
+    [Test]
+    public void FilterOutputs_LogsFilteredItems ()
+    {
+      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
+      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDB");
+      var items = new[] { itemWithDb, itemWithNoDb };
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (
+          _ => _.LogMessage (
+              @"The following test configurations were ignored:
+{0}",
+              "ItemWithDB: Firefox, SqlServer2012, x64, dockerNet45, release"));
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0], logger: loggerMock);
+
+      filter.Execute();
+
+      loggerMock.VerifyAllExpectations();
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);
       item.SetMetadata (TestingConfigurationMetadata.Platform, platform ?? "x64");
       item.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem ?? "SqlServer2012");
       item.SetMetadata (TestingConfigurationMetadata.Browser, browser ?? "Firefox");
+      item.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, "dockerNet45");
+      item.SetMetadata (TestingConfigurationMetadata.ConfigurationID, "release");
       return item;
     }
 
@@ -146,9 +167,10 @@ namespace BuildTools.MSBuildTasks.UnitTests
         ITaskItem[] input,
         ITaskItem[] platforms = null,
         ITaskItem[] databaseSystems = null,
-        ITaskItem[] browsers = null)
+        ITaskItem[] browsers = null,
+        ITaskLogger logger = null)
     {
-      return new FilterTestingConfigurations
+      return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
              {
                  Input = input,
                  ValidDatabaseSystems = databaseSystems ?? new[] { new TaskItem ("SqlServer2012") },

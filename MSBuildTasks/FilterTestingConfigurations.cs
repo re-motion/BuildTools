@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -24,12 +24,23 @@ namespace Remotion.BuildTools.MSBuildTasks
 {
   public class FilterTestingConfigurations : Task
   {
+    private readonly ITaskLogger _logger;
     [Required] public ITaskItem[] Input { get; set; }
     [Required] public ITaskItem[] ValidPlatforms { get; set; }
     [Required] public ITaskItem[] ValidDatabaseSystems { get; set; }
     [Required] public ITaskItem[] ValidBrowsers { get; set; }
 
     [Output] public ITaskItem[] Output { get; set; }
+
+    public FilterTestingConfigurations ()
+    {
+      _logger = new TaskLogger (Log);
+    }
+
+    public FilterTestingConfigurations (ITaskLogger logger)
+    {
+      _logger = logger;
+    }
 
     public override bool Execute ()
     {
@@ -38,7 +49,23 @@ namespace Remotion.BuildTools.MSBuildTasks
           .Where (HasValidDatabaseSystem)
           .Where (HasValidBrowser);
       Output = validInputs.ToArray();
+
+      _logger.LogMessage (
+          @"The following test configurations were ignored:
+{0}",
+          Input.Except (Output).Select (GetConfigurationString).SingleOrDefault());
+
       return true;
+    }
+
+    private string GetConfigurationString (ITaskItem taskItem)
+    {
+      var browser = taskItem.GetMetadata (TestingConfigurationMetadata.Browser);
+      var platform = taskItem.GetMetadata (TestingConfigurationMetadata.Platform);
+      var databaseSystem = taskItem.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
+      var executionRuntime = taskItem.GetMetadata (TestingConfigurationMetadata.ExecutionRuntime);
+      var configurationID = taskItem.GetMetadata (TestingConfigurationMetadata.ConfigurationID);
+      return $"{taskItem.ItemSpec}: {browser}, {databaseSystem}, {platform}, {executionRuntime}, {configurationID}";
     }
 
     private bool HasValidPlatform (ITaskItem item)
