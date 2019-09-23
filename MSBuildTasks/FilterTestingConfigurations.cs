@@ -48,6 +48,10 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private bool HasValidDatabaseSystem (ITaskItem item)
     {
+      var database = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
+      if (database == "NoDb" && !ValidDatabaseSystems.Any())
+        return true;
+
       return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem));
     }
 

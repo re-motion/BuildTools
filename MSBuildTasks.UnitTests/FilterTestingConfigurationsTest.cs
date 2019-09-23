@@ -29,7 +29,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void AllValid_SameList ()
     {
-      var validItem = CreateTestConfiguration ("ValidItem", "x64", "SqlServer2012");
+      var validItem = CreateTestConfiguration ("ValidItem", "x64", "SqlServer2012", "Firefox");
       var items = new[] { validItem };
       var filter = new FilterTestingConfigurations
                    {
@@ -49,7 +49,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x86");
       var items = new[] { itemWithInvalidPlatform };
-      var filter = new FilterTestingConfigurations { Input = items, ValidPlatforms = new[] { new TaskItem ("x64") } };
+      var filter = CreateFilterTestingConfigurations (items, platforms: new[] { new TaskItem ("x64") });
 
       filter.Execute();
 
@@ -62,14 +62,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var itemWithValidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x64");
       var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithInvalidPlatform", "x86");
       var items = new[] { itemWithValidPlatform, itemWithInvalidPlatform };
-
-      var filter = new FilterTestingConfigurations
-                   {
-                       Input = items,
-                       ValidPlatforms = new[] { new TaskItem ("x64") },
-                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
-                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
-                   };
+      var filter = CreateFilterTestingConfigurations (items, platforms: new[] { new TaskItem ("x64") });
 
       filter.Execute();
 
@@ -81,13 +74,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var itemWithValidDatabaseSystem = CreateTestConfiguration ("ItemWithValidDatabaseSystem", databaseSystem: "SqlServer2012");
       var items = new[] { itemWithValidDatabaseSystem };
-      var filter = new FilterTestingConfigurations
-                   {
-                       Input = items,
-                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2014") },
-                       ValidPlatforms = new[] { new TaskItem ("x64") },
-                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
-                   };
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new[] { new TaskItem ("SqlServer2014") });
 
       filter.Execute();
 
@@ -99,13 +86,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var itemWithInvalidBrowser = CreateTestConfiguration ("ItemWithInvalidBrowser", browser: "Chrome");
       var items = new[] { itemWithInvalidBrowser };
-      var filter = new FilterTestingConfigurations
-                   {
-                       Input = items,
-                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
-                       ValidPlatforms = new[] { new TaskItem ("x64") },
-                       ValidBrowsers = new[] { new TaskItem ("Firefox") }
-                   };
+      var filter = CreateFilterTestingConfigurations (items, browsers: new[] { new TaskItem ("Firefox") });
 
       filter.Execute();
 
@@ -118,17 +99,25 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var itemWithBrowser = CreateTestConfiguration ("ItemWithBrowser", browser: "Chrome");
       var itemWithNoBrowser = CreateTestConfiguration ("ItemWithNoBrowser", browser: "NoBrowser");
       var items = new[] { itemWithBrowser, itemWithNoBrowser };
-      var filter = new FilterTestingConfigurations
-                   {
-                       Input = items,
-                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012") },
-                       ValidPlatforms = new[] { new TaskItem ("x64") },
-                       ValidBrowsers = new ITaskItem[0]
-                   };
+      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[0]);
 
       filter.Execute();
 
       Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoBrowser));
+    }
+
+
+    [Test]
+    public void ValidDatabaseSystem_ValidDatabaseSystemEmpty_NoDb ()
+    {
+      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
+      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDb");
+      var items = new[] { itemWithDb, itemWithNoDb };
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0]);
+
+      filter.Execute();
+
+      Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoDb));
     }
 
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
@@ -138,6 +127,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
       item.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem ?? "SqlServer2012");
       item.SetMetadata (TestingConfigurationMetadata.Browser, browser ?? "Firefox");
       return item;
+    }
+
+    private FilterTestingConfigurations CreateFilterTestingConfigurations (
+        ITaskItem[] input,
+        ITaskItem[] platforms = null,
+        ITaskItem[] databaseSystems = null,
+        ITaskItem[] browsers = null)
+    {
+      return new FilterTestingConfigurations
+             {
+                 Input = input,
+                 ValidDatabaseSystems = databaseSystems ?? new[] { new TaskItem ("SqlServer2012") },
+                 ValidPlatforms = platforms ?? new[] { new TaskItem ("x64") },
+                 ValidBrowsers = browsers ?? new[] { new TaskItem ("Firefox") },
+             };
     }
   }
 }
