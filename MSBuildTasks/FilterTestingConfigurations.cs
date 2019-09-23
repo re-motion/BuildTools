@@ -26,12 +26,13 @@ namespace Remotion.BuildTools.MSBuildTasks
   {
     [Required] public ITaskItem[] Input { get; set; }
     [Required] public ITaskItem[] ValidPlatforms { get; set; }
+    [Required] public ITaskItem[] ValidDatabaseSystems { get; set; }
 
     [Output] public ITaskItem[] Output { get; set; }
 
     public override bool Execute ()
     {
-      var validInputs = Input.Where (HasValidPlatform);
+      var validInputs = Input.Where (HasValidPlatform).Where (HasValidDatabaseSystem);
       Output = validInputs.ToArray();
       return true;
     }
@@ -39,6 +40,11 @@ namespace Remotion.BuildTools.MSBuildTasks
     private bool HasValidPlatform (ITaskItem item)
     {
       return ValidPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata ("Platform"));
+    }
+
+    private bool HasValidDatabaseSystem (ITaskItem item)
+    {
+      return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata ("DatabaseSystem"));
     }
   }
 }

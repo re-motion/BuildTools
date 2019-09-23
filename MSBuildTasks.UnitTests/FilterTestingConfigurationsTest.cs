@@ -15,6 +15,7 @@
 // under the License.
 // 
 
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NUnit.Framework;
 using Remotion.BuildTools.MSBuildTasks;
@@ -25,13 +26,16 @@ namespace BuildTools.MSBuildTasks.UnitTests
   public class FilterTestingConfigurationsTest
   {
     [Test]
-    public void ValidPlatforms_PlatformValid_SameList ()
+    public void AllValid_SameList ()
     {
-      var itemWithValidPlatform = new TaskItem ("ItemWithValidPlatform");
-      itemWithValidPlatform.SetMetadata ("Platform", "x64");
-      var items = new[] { itemWithValidPlatform };
-
-      var filter = new FilterTestingConfigurations { Input = items, ValidPlatforms = new[] { new TaskItem ("x64") } };
+      var validItem = CreateTestConfiguration ("ValidItem", "x64", "SqlServer2012");
+      var items = new[] { validItem };
+      var filter = new FilterTestingConfigurations
+                   {
+                       Input = items,
+                       ValidPlatforms = new[] { new TaskItem ("x64") },
+                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012"), }
+                   };
 
       filter.Execute();
 
@@ -41,10 +45,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void ValidPlatforms_PlatformInvalid_EmptyList ()
     {
-      var itemWithInvalidPlatform = new TaskItem ("ItemWithValidPlatform");
-      itemWithInvalidPlatform.SetMetadata ("Platform", "x86");
+      var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x86");
       var items = new[] { itemWithInvalidPlatform };
-
       var filter = new FilterTestingConfigurations { Input = items, ValidPlatforms = new[] { new TaskItem ("x64") } };
 
       filter.Execute();
@@ -55,17 +57,45 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void ValidPlatforms_SomeValidPlatforms_OnlyValidOutputs ()
     {
-      var itemWithValidPlatform = new TaskItem ("ItemWithValidPlatform");
-      itemWithValidPlatform.SetMetadata ("Platform", "x64");
-      var itemWithInvalidPlatform = new TaskItem ("ItemWithValidPlatform");
-      itemWithInvalidPlatform.SetMetadata ("Platform", "x86");
+      var itemWithValidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x64");
+      var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithInvalidPlatform", "x86");
       var items = new[] { itemWithValidPlatform, itemWithInvalidPlatform };
 
-      var filter = new FilterTestingConfigurations { Input = items, ValidPlatforms = new[] { new TaskItem ("x64") } };
+      var filter = new FilterTestingConfigurations
+                   {
+                       Input = items,
+                       ValidPlatforms = new[] { new TaskItem ("x64") },
+                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2012"), }
+                   };
 
       filter.Execute();
 
       Assert.That (filter.Output, Is.EquivalentTo (new[] { itemWithValidPlatform }));
+    }
+
+    [Test]
+    public void ValidDatabaseSystems_DatabaseSystemInvalid_Empty ()
+    {
+      var itemWithValidDatabaseSystem = CreateTestConfiguration ("ItemWithValidDatabaseSystem", databaseSystem: "SqlServer2012");
+      var items = new[] { itemWithValidDatabaseSystem };
+      var filter = new FilterTestingConfigurations
+                   {
+                       Input = items,
+                       ValidDatabaseSystems = new[] { new TaskItem ("SqlServer2014") },
+                       ValidPlatforms = new[] { new TaskItem ("x64") },
+                   };
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.Empty);
+    }
+
+    private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null)
+    {
+      var item = new TaskItem (name);
+      item.SetMetadata ("Platform", platform ?? "x64");
+      item.SetMetadata ("DatabaseSystem", databaseSystem ?? "SqlServer2012");
+      return item;
     }
   }
 }
