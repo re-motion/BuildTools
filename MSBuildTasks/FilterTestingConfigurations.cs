@@ -65,8 +65,8 @@ namespace Remotion.BuildTools.MSBuildTasks
 {0}",
           string.Join (Environment.NewLine, Input.Except (Output).Select (GetConfigurationString)));
 
-      var uniqueInputAssemblyNames = GetUniqueAssemblyNames (Input);
-      var uniqueOutputAssemblyNames = GetUniqueAssemblyNames (Output);
+      var uniqueInputAssemblyNames = GetDistinctAssemblyNames (Input);
+      var uniqueOutputAssemblyNames = GetDistinctAssemblyNames (Output);
       var untestedAssemblyNames = uniqueInputAssemblyNames.Where (assemblyName => !uniqueOutputAssemblyNames.Contains (assemblyName));
       foreach (var assemblyName in untestedAssemblyNames)
       {
@@ -109,9 +109,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       return ValidBrowsers.Select (i => i.ItemSpec).Contains (browser);
     }
 
-    private HashSet<string> GetUniqueAssemblyNames (IEnumerable<ITaskItem> items)
+    private IEnumerable<string> GetDistinctAssemblyNames (IEnumerable<ITaskItem> items)
     {
-      return new HashSet<string> (items.Select (x => x.ItemSpec));
+      return items.Select (x => x.ItemSpec).Distinct();
     }
   }
 }
