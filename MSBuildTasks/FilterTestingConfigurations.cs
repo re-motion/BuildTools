@@ -52,7 +52,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       Output = validInputs.ToArray();
 
       _logger.LogMessage (
-          @"The following test configurations were ignored:
+          @"The following test configurations were filtered out and will not be run:
 {0}",
           string.Join (Environment.NewLine, Input.Except (Output).Select (GetConfigurationString)));
 

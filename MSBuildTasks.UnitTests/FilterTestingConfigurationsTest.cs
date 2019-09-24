@@ -141,7 +141,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (
           _ => _.LogMessage (
-              @"The following test configurations were ignored:
+              @"The following test configurations were filtered out and will not be run:
 {0}",
               "ItemWithDB: Firefox, SqlServer2012, x64, dockerNet45, release"));
       var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0], logger: loggerMock);
@@ -161,7 +161,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (
           _ => _.LogMessage (
-              @"The following test configurations were ignored:
+              @"The following test configurations were filtered out and will not be run:
 {0}",
               @"ItemWithDB2012: Firefox, SqlServer2012, x64, dockerNet45, release
 ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
