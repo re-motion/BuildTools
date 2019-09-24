@@ -151,7 +151,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Use32Bit), Is.EqualTo ("true"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Use32Bit), Is.EqualTo ("True"));
     }
 
     [Test]
@@ -163,7 +163,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Use32Bit), Is.EqualTo ("false"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Use32Bit), Is.EqualTo ("False"));
     }
 
     [Test]
@@ -175,7 +175,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsDatabaseTest), Is.EqualTo ("false"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsDatabaseTest), Is.EqualTo ("False"));
     }
 
     [Test]
@@ -187,7 +187,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsDatabaseTest), Is.EqualTo ("true"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsDatabaseTest), Is.EqualTo ("True"));
     }
 
     [Test]
@@ -199,7 +199,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("false"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("False"));
     }
 
     [Test]
@@ -211,7 +211,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("true"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("True"));
     }
   }
 }
