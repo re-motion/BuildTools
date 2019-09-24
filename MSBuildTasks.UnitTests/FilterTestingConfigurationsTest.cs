@@ -120,23 +120,10 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidDatabaseSystem_ValidDatabaseSystemEmpty_NoDbCaseInsensitive ()
-    {
-      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
-      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDB");
-      var items = new[] { itemWithDb, itemWithNoDb };
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0]);
-
-      filter.Execute();
-
-      Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoDb));
-    }
-
-    [Test]
     public void FilterOutputs_LogsFilteredItems ()
     {
       var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
-      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDB");
+      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDb");
       var items = new[] { itemWithDb, itemWithNoDb };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (
@@ -156,7 +143,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var itemWithDb2012 = CreateTestConfiguration ("ItemWithDB2012", databaseSystem: "SqlServer2012");
       var itemWithDb2016 = CreateTestConfiguration ("ItemWithDB2016", databaseSystem: "SqlServer2016");
-      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDB");
+      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDb");
       var items = new[] { itemWithDb2012, itemWithDb2016, itemWithNoDb };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (

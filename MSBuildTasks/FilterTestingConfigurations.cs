@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Policy;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -94,7 +93,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     private bool HasValidDatabaseSystem (ITaskItem item)
     {
       var database = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
-      if (string.Equals (database, "NoDb", StringComparison.OrdinalIgnoreCase) && !ValidDatabaseSystems.Any())
+      if (database == EmptyMetadataID.DatabaseSystem && !ValidDatabaseSystems.Any())
         return true;
 
       return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem));
@@ -103,7 +102,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     private bool HasValidBrowser (ITaskItem item)
     {
       var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
-      if (browser == "NoBrowser" && !ValidBrowsers.Any())
+      if (browser == EmptyMetadataID.Browser && !ValidBrowsers.Any())
         return true;
 
       return ValidBrowsers.Select (i => i.ItemSpec).Contains (browser);

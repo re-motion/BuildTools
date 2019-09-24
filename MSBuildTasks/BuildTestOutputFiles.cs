@@ -59,13 +59,13 @@ namespace Remotion.BuildTools.MSBuildTasks
       var browser = configurationItems[0];
       item.SetMetadata (TestingConfigurationMetadata.Browser, browser);
 
-      var isWebTest = browser == "NoBrowser" ? "False" : "True";
+      var isWebTest = browser == EmptyMetadataID.Browser ? "False" : "True";
       item.SetMetadata (TestingConfigurationMetadata.IsWebTest, isWebTest);
 
       var databaseSystem = configurationItems[1];
       item.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
 
-      var isDatabaseTest = databaseSystem == "NoDb" ? "False" : "True";
+      var isDatabaseTest = databaseSystem == EmptyMetadataID.DatabaseSystem ? "False" : "True";
       item.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
 
       var platform = configurationItems[2];
