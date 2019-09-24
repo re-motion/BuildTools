@@ -26,12 +26,21 @@ namespace Remotion.BuildTools.MSBuildTasks
   public class FilterTestingConfigurations : Task
   {
     private readonly ITaskLogger _logger;
-    [Required] public ITaskItem[] Input { get; set; }
-    [Required] public ITaskItem[] ValidPlatforms { get; set; }
-    [Required] public ITaskItem[] ValidDatabaseSystems { get; set; }
-    [Required] public ITaskItem[] ValidBrowsers { get; set; }
 
-    [Output] public ITaskItem[] Output { get; set; }
+    [Required]
+    public ITaskItem[] Input { get; set; }
+
+    [Required]
+    public ITaskItem[] ValidPlatforms { get; set; }
+
+    [Required]
+    public ITaskItem[] ValidDatabaseSystems { get; set; }
+
+    [Required]
+    public ITaskItem[] ValidBrowsers { get; set; }
+
+    [Output]
+    public ITaskItem[] Output { get; set; }
 
     public FilterTestingConfigurations ()
     {

@@ -23,9 +23,11 @@ namespace Remotion.BuildTools.MSBuildTasks
 {
   public class BuildTestOutputFiles : Task
   {
-    [Required] public ITaskItem[] Input { get; set; }
+    [Required]
+    public ITaskItem[] Input { get; set; }
 
-    [Output] public ITaskItem[] Output { get; set; }
+    [Output]
+    public ITaskItem[] Output { get; set; }
 
     public override bool Execute ()
     {
