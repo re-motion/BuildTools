@@ -189,6 +189,18 @@ ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
       Assert.That (filter.Output, Is.EqualTo (items));
     }
 
+    [Test]
+    public void SupportedDatabaseSystems_IgnoresCase ()
+    {
+      var validItem = CreateTestConfiguration ("ValidItem", databaseSystem: "sqlserver2012");
+      var items = new[] { validItem };
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012") });
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.EqualTo (items));
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);

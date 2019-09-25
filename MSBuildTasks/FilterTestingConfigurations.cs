@@ -96,7 +96,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       if (database == EmptyMetadataID.DatabaseSystem && !SupportedDatabaseSystems.Any())
         return true;
 
-      return SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem));
+      return SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (
+          item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem),
+          StringComparer.OrdinalIgnoreCase);
     }
 
     private bool HasValidBrowser (ITaskItem item)
