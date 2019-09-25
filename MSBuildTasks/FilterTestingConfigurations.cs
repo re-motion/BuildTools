@@ -56,16 +56,23 @@ namespace Remotion.BuildTools.MSBuildTasks
       foreach (var item in Input)
       {
         var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
-        var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
         if (!IsValidPlatform (platform))
         {
           _logger.LogError ($"Metadata '{TestingConfigurationMetadata.Platform}' with value '{platform}' of TestingConfiguration is not supported.");
           return false;
         }
 
+        var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
         if (!IsValidBrowser (browser))
         {
           _logger.LogError ($"Metadata '{TestingConfigurationMetadata.Browser}' with value '{browser}' of TestingConfiguration is not supported.");
+          return false;
+        }
+
+        var databaseSystem = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
+        if (!IsValidDatabaseSystem (databaseSystem))
+        {
+          _logger.LogError ($"Metadata '{TestingConfigurationMetadata.DatabaseSystem}' with value '{databaseSystem}' of TestingConfiguration is not supported.");
           return false;
         }
       }
@@ -103,15 +110,12 @@ namespace Remotion.BuildTools.MSBuildTasks
       return SupportedPlatforms.Select (i => i.ItemSpec).Contains (platform, StringComparer.OrdinalIgnoreCase);
     }
 
-    private bool HasValidDatabaseSystem (ITaskItem item)
+    private bool IsValidDatabaseSystem (string database)
     {
-      var database = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
       if (database == EmptyMetadataID.DatabaseSystem && !SupportedDatabaseSystems.Any())
         return true;
 
-      return SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (
-          item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem),
-          StringComparer.OrdinalIgnoreCase);
+      return SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (database, StringComparer.OrdinalIgnoreCase);
     }
 
     private bool IsValidBrowser (string browser)

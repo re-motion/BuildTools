@@ -59,23 +59,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidPlatforms_SomeValidPlatforms_ReturnsFalse ()
-    {
-      var itemWithValidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x64");
-      var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithInvalidPlatform", "x86");
-      var items = new[] { itemWithValidPlatform, itemWithInvalidPlatform };
-      var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (_ => _.LogError ("Metadata 'Platform' with value 'x86' of TestingConfiguration is not supported."));
-      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") }, logger: loggerMock);
-
-      var success = filter.Execute();
-
-      Assert.That (success, Is.False);
-      loggerMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void ValidPlatforms_BrowserNotSupported_ReturnsFalse ()
+    public void SupportedBrowsers_BrowserNotSupported_ReturnsFalse ()
     {
       var itemWithValidPlatform = CreateTestConfiguration ("ItemWithInvalidBrowser", browser: "Safari");
       var items = new[] { itemWithValidPlatform };
@@ -89,50 +73,24 @@ namespace BuildTools.MSBuildTasks.UnitTests
       loggerMock.VerifyAllExpectations();
     }
 
-    [Test]
-    public void ValidDatabaseSystems_DatabaseSystemInvalid_Empty ()
-    {
-      var itemWithValidDatabaseSystem = CreateTestConfiguration ("ItemWithValidDatabaseSystem", databaseSystem: "SqlServer2012");
-      var items = new[] { itemWithValidDatabaseSystem };
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2014") });
-
-      filter.Execute();
-
-      Assert.That (filter.Output, Is.Empty);
-    }
 
     [Test]
-    public void ValidBrowser_ValidBrowsersEmpty_NoBrowser ()
+    public void SupportedDatabaseSystems_DatabaseSystemNotSupported_ReturnsFalse ()
     {
-      var itemWithBrowser = CreateTestConfiguration ("ItemWithBrowser", browser: "Chrome");
-      var itemWithNoBrowser = CreateTestConfiguration ("ItemWithNoBrowser", browser: "NoBrowser");
-      var items = new[] { itemWithBrowser, itemWithNoBrowser };
+      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
+      var items = new[] { itemWithDb };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (_ => _.LogError ("Metadata 'Browser' with value 'Chrome' of TestingConfiguration is not supported."));
-      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[0], logger: loggerMock);
+      loggerMock.Expect (_ => _.LogError ("Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
+      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), }, logger: loggerMock);
 
       var success = filter.Execute();
 
       Assert.That (success, Is.False);
-      loggerMock.VerifyAllExpectations();
-    }
-
-
-    [Test]
-    public void ValidDatabaseSystem_ValidDatabaseSystemEmpty_NoDb ()
-    {
-      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
-      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDb");
-      var items = new[] { itemWithDb, itemWithNoDb };
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0]);
-
-      filter.Execute();
-
-      Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoDb));
+      loggerMock.VerifyExpectations();
     }
 
     [Test]
-    public void SupportedPlatform_IgnoresCase ()
+    public void SupportedPlatforms_IgnoresCase ()
     {
       var validItem = CreateTestConfiguration ("ValidItem", platform: "X64");
       var items = new[] { validItem };
