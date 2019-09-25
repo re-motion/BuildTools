@@ -71,7 +71,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var platform = configurationItems[2];
       item.SetMetadata (TestingConfigurationMetadata.Platform, platform);
 
-      var use32Bit = platform == "x86" ? "True" : "False";
+      var use32Bit = string.Equals(platform, "x86", StringComparison.OrdinalIgnoreCase) ? "True" : "False";
       item.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
 
       item.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, configurationItems[3]);

@@ -155,6 +155,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
+    public void Use32Bit_x86CaseInsensitive_True ()
+    {
+      var taskItem = new TaskItem ("MyTest.dll");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+X86+dockerNet45+release");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Use32Bit), Is.EqualTo ("True"));
+    }
+
+    [Test]
     public void Use32Bit_x64_False ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
