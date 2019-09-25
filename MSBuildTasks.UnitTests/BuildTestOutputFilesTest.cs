@@ -133,19 +133,6 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidConfiguration_HasUniqueConfigurationID ()
-    {
-      var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release;Firefox+SqlServer2012+x64+dockerNet45+debug");
-      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
-
-      task.Execute();
-
-      Assert.That (task.Output[0].GetMetadata (TestingConfigurationMetadata.ID), Is.EqualTo ("MyTest.dll_0"));
-      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ID), Is.EqualTo ("MyTest.dll_1"));
-    }
-
-    [Test]
     public void Use32Bit_x86_True ()
     {
       var taskItem = new TaskItem ("MyTest.dll");

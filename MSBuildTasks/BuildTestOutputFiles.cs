@@ -37,12 +37,10 @@ namespace Remotion.BuildTools.MSBuildTasks
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
 
         var configurations = testingConfiguration.Split (';');
-        var configurationIDIndex = 0;
         foreach (var configuration in configurations)
         {
-          var newItem = CreateTaskItem (item.ItemSpec, configurationIDIndex, configuration);
+          var newItem = CreateTaskItem (item.ItemSpec, configuration);
           output.Add (newItem);
-          configurationIDIndex++;
         }
       }
 
@@ -50,10 +48,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (string originalItemSpec, int configurationIDIndex, string configuration)
+    private ITaskItem CreateTaskItem (string originalItemSpec, string configuration)
     {
       var item = new TaskItem (originalItemSpec + "_" + configuration);
-      item.SetMetadata (TestingConfigurationMetadata.ID, $"{originalItemSpec}_{configurationIDIndex}");
 
       var configurationItems = configuration.Split ('+');
 
