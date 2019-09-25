@@ -16,6 +16,10 @@
 // 
 namespace Remotion.BuildTools.MSBuildTasks
 {
+  /// <summary>
+  /// Representational values indicating that the corresponding metadata in a TestingConfiguration is not set.
+  /// If changed here, they also need to be changed in MSBuild itself.
+  /// </summary>
   public static class EmptyMetadataID
   {
     public const string DatabaseSystem = "NoDb";
