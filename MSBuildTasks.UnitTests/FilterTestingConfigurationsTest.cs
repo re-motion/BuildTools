@@ -177,6 +177,18 @@ ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
       loggerMock.VerifyAllExpectations();
     }
 
+    [Test]
+    public void SupportedPlatform_IgnoresCase ()
+    {
+      var validItem = CreateTestConfiguration ("ValidItem", platform: "X64");
+      var items = new[] { validItem };
+      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") });
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.EqualTo (items));
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);

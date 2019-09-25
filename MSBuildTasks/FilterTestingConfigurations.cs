@@ -87,7 +87,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private bool HasValidPlatform (ITaskItem item)
     {
-      return SupportedPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.Platform));
+      return SupportedPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.Platform), StringComparer.OrdinalIgnoreCase);
     }
 
     private bool HasValidDatabaseSystem (ITaskItem item)
