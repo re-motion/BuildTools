@@ -15,6 +15,7 @@
 // under the License.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
@@ -52,33 +53,45 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     public override bool Execute ()
     {
-      foreach (var item in Input)
+      var errors = GetErrors().ToArray();
+
+      foreach (var error in errors)
       {
-        var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
-        if (!IsValidPlatform (platform))
-        {
-          _logger.LogError ($"Metadata '{TestingConfigurationMetadata.Platform}' with value '{platform}' of TestingConfiguration is not supported.");
-          return false;
-        }
+        _logger.LogError (error);
+      }
 
-        var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
-        if (!IsValidBrowser (browser))
-        {
-          _logger.LogError ($"Metadata '{TestingConfigurationMetadata.Browser}' with value '{browser}' of TestingConfiguration is not supported.");
-          return false;
-        }
-
-        var databaseSystem = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
-        if (!IsValidDatabaseSystem (databaseSystem))
-        {
-          _logger.LogError ($"Metadata '{TestingConfigurationMetadata.DatabaseSystem}' with value '{databaseSystem}' of TestingConfiguration is not supported.");
-          return false;
-        }
+      if (errors.Any())
+      {
+        return false;
       }
 
       Output = Input;
 
       return true;
+    }
+
+    private IEnumerable<string> GetErrors ()
+    {
+      foreach (var item in Input)
+      {
+        var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
+        if (!IsValidPlatform (platform))
+        {
+          yield return $"Metadata '{TestingConfigurationMetadata.Platform}' with value '{platform}' of TestingConfiguration is not supported.";
+        }
+
+        var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
+        if (!IsValidBrowser (browser))
+        {
+          yield return $"Metadata '{TestingConfigurationMetadata.Browser}' with value '{browser}' of TestingConfiguration is not supported.";
+        }
+
+        var databaseSystem = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
+        if (!IsValidDatabaseSystem (databaseSystem))
+        {
+          yield return $"Metadata '{TestingConfigurationMetadata.DatabaseSystem}' with value '{databaseSystem}' of TestingConfiguration is not supported.";
+        }
+      }
     }
 
     private bool IsValidPlatform (string platform)

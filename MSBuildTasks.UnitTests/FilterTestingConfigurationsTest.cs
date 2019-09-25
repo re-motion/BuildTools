@@ -123,6 +123,32 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (filter.Output, Is.EqualTo (items));
     }
 
+    [Test]
+    public void UnsupportedItems_MultipleUnsupportedItems_LogsAllItems ()
+    {
+      var unsupportedItem = CreateTestConfiguration (
+          "UnsupportedItem",
+          databaseSystem: "SqlServer2012",
+          browser: "Safari",
+          platform: "arm64");
+      var items = new[] { unsupportedItem };
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogError ("Metadata 'Platform' with value 'arm64' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
+      var filter = CreateFilterTestingConfigurations (
+          items,
+          databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), },
+          platforms: new ITaskItem[] { new TaskItem ("x86"), },
+          browsers: new ITaskItem[] { new TaskItem ("Chrome"), },
+          logger: loggerMock);
+
+      var success = filter.Execute();
+
+      Assert.That (success, Is.False);
+      loggerMock.VerifyExpectations();
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);
