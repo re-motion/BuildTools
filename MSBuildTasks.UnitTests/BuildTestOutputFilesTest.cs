@@ -201,7 +201,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsDatabaseTest), Is.EqualTo ("True"));
     }
-    
+
     [Test]
     public void IsDatabaseTest_NoDbIgnoreCase_False ()
     {
@@ -219,6 +219,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var taskItem = new TaskItem ("MyTest.dll");
       taskItem.SetMetadata ("TestingConfiguration", "NoBrowser+SqlServer2014+x64+dockerNet45+release");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("False"));
+    }
+
+    [Test]
+    public void IsWebTest_NoBrowserIgnoreCase_False ()
+    {
+      var taskItem = new TaskItem ("MyTest.dll");
+      taskItem.SetMetadata ("TestingConfiguration", "nobrowser+SqlServer2014+x64+dockerNet45+release");
       var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
 
       task.Execute();
