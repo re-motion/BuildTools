@@ -23,9 +23,9 @@ namespace Remotion.BuildTools.MSBuildTasks
     public const string ConfigurationID = "ConfigurationID";
     public const string Platform = "Platform";
     public const string ExecutionRuntime = "ExecutionRuntime";
-    public const string ID = "ID";
     public const string IsWebTest = "IsWebTest";
     public const string IsDatabaseTest = "IsDatabaseTest";
     public const string Use32Bit = "Use32Bit";
+    public const string ProjectFileName = "ProjectFileName";
   }
 }

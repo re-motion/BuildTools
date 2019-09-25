@@ -239,5 +239,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.IsWebTest), Is.EqualTo ("True"));
     }
+
+    [Test]
+    public void ProjectFileName_CopiesOriginalItemSpec ()
+    {
+      const string projectFileName = "MyTest.csproj";
+      var taskItem = new TaskItem (projectFileName);
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ProjectFileName), Is.EqualTo (projectFileName));
+    }
   }
 }

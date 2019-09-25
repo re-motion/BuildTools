@@ -51,6 +51,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     private ITaskItem CreateTaskItem (string originalItemSpec, string configuration)
     {
       var item = new TaskItem (originalItemSpec + "_" + configuration);
+      item.SetMetadata (TestingConfigurationMetadata.ProjectFileName, originalItemSpec);
 
       var configurationItems = configuration.Split ('+');
 
