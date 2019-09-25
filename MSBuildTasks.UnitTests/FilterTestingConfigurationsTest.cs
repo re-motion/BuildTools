@@ -44,15 +44,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidPlatforms_PlatformInvalid_EmptyList ()
+    public void SupportedPlatforms_PlatformNotSupported_Exception ()
     {
       var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x86");
       var items = new[] { itemWithInvalidPlatform };
-      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") });
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogError ("Metadata 'Platform' with value 'x86' of TestingConfiguration is not supported."));
+      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") }, logger: loggerMock);
 
-      filter.Execute();
+      var success = filter.Execute();
 
-      Assert.That (filter.Output, Is.Empty);
+      Assert.That (success, Is.False);
+      loggerMock.VerifyAllExpectations();
     }
 
     [Test]

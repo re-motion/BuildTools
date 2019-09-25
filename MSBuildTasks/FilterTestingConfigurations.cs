@@ -53,6 +53,16 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     public override bool Execute ()
     {
+      foreach (var item in Input)
+      {
+        var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
+        if (!HasValidPlatform (item))
+        {
+          _logger.LogError ($"Metadata '{TestingConfigurationMetadata.Platform}' with value '{platform}' of TestingConfiguration is not supported.");
+          return false;
+        }
+      }
+
       var validInputs = Input
           .Where (HasValidPlatform)
           .Where (HasValidDatabaseSystem)

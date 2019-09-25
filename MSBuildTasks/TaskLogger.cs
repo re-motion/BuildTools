@@ -36,5 +36,10 @@ namespace Remotion.BuildTools.MSBuildTasks
     {
       _loggingHelper.LogWarning (message, args);
     }
+
+    public void LogError (string message, params object[] args)
+    {
+      _loggingHelper.LogError (message, args);
+    }
   }
 }
