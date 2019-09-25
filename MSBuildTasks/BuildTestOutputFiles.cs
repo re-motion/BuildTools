@@ -65,7 +65,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var databaseSystem = configurationItems[1];
       item.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
 
-      var isDatabaseTest = databaseSystem == EmptyMetadataID.DatabaseSystem ? "False" : "True";
+      var isDatabaseTest = string.Equals(databaseSystem, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       item.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
 
       var platform = configurationItems[2];
