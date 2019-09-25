@@ -40,8 +40,7 @@ namespace Remotion.BuildTools.MSBuildTasks
         var configurationIDIndex = 0;
         foreach (var configuration in configurations)
         {
-          var splitConfigurationItems = configuration.Split ('+');
-          var newItem = CreateTaskItem (item, configurationIDIndex, splitConfigurationItems);
+          var newItem = CreateTaskItem (item.ItemSpec, configurationIDIndex, configuration);
           output.Add (newItem);
           configurationIDIndex++;
         }
@@ -51,10 +50,12 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (ITaskItem originalItem, int configurationIDIndex, IReadOnlyList<string> configurationItems)
+    private ITaskItem CreateTaskItem (string originalItemSpec, int configurationIDIndex, string configuration)
     {
-      var item = new TaskItem (originalItem.ItemSpec);
-      item.SetMetadata (TestingConfigurationMetadata.ID, $"{originalItem.ItemSpec}_{configurationIDIndex}");
+      var item = new TaskItem (originalItemSpec + "_" + configuration);
+      item.SetMetadata (TestingConfigurationMetadata.ID, $"{originalItemSpec}_{configurationIDIndex}");
+
+      var configurationItems = configuration.Split ('+');
 
       var browser = configurationItems[0];
       item.SetMetadata (TestingConfigurationMetadata.Browser, browser);

@@ -106,27 +106,30 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void ValidConfiguration_CopiesItemSpec ()
     {
-      const string itemSpec = "MyTest.dll";
+      const string itemSpec = "MyTest.csproj";
       var taskItem = new TaskItem (itemSpec);
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release");
+      const string config = "Chrome+NoDb+x86+dockerNet45+release";
+      taskItem.SetMetadata ("TestingConfiguration", config);
       var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
 
       task.Execute();
 
-      Assert.That (task.Output.Single().ItemSpec, Is.EqualTo (itemSpec));
+      Assert.That (task.Output.Single().ItemSpec, Is.EqualTo (itemSpec + "_" + config));
     }
 
     [Test]
     public void ValidConfiguration_CopiesMultipleIdentifiers ()
     {
-      const string itemSpec = "MyTest.dll";
+      const string itemSpec = "MyTest.csproj";
       var taskItem = new TaskItem (itemSpec);
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x86+dockerNet45+release;Firefox+SqlServer2012+x64+dockerNet45+debug");
+      const string config1 = "Chrome+NoDb+x86+dockerNet45+release";
+      const string config2 = "Firefox+SqlServer2012+x64+dockerNet45+debug";
+      taskItem.SetMetadata ("TestingConfiguration", config1 + ";" + config2);
       var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
 
       task.Execute();
 
-      Assert.That (task.Output[1].ItemSpec, Is.EqualTo (itemSpec));
+      Assert.That (task.Output[1].ItemSpec, Is.EqualTo (itemSpec + "_" + config2));
     }
 
     [Test]
