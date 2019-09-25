@@ -24,6 +24,20 @@ namespace Remotion.BuildTools.MSBuildTasks
 {
   public class FilterTestingConfigurations : Task
   {
+    private class MetadataValidationError
+    {
+      public string Assembly { get; }
+      public string Metadata { get; }
+      public string Value { get; }
+
+      public MetadataValidationError (string assembly, string metadata, string value)
+      {
+        Assembly = assembly;
+        Metadata = metadata;
+        Value = value;
+      }
+    }
+
     private readonly ITaskLogger _logger;
 
     [Required]
@@ -57,7 +71,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       foreach (var error in errors)
       {
-        _logger.LogError (error);
+        _logger.LogError ($"{error.Assembly}: Metadata '{error.Metadata}' with value '{error.Value}' of TestingConfiguration is not supported.");
       }
 
       if (errors.Any())
@@ -70,26 +84,26 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private IEnumerable<string> GetErrors ()
+    private IEnumerable<MetadataValidationError> GetErrors ()
     {
       foreach (var item in Input)
       {
         var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
         if (!IsValidPlatform (platform))
         {
-          yield return $"Metadata '{TestingConfigurationMetadata.Platform}' with value '{platform}' of TestingConfiguration is not supported.";
+          yield return new MetadataValidationError (item.ItemSpec, TestingConfigurationMetadata.Platform, platform);
         }
 
         var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
         if (!IsValidBrowser (browser))
         {
-          yield return $"Metadata '{TestingConfigurationMetadata.Browser}' with value '{browser}' of TestingConfiguration is not supported.";
+          yield return new MetadataValidationError (item.ItemSpec, TestingConfigurationMetadata.Browser, browser);
         }
 
         var databaseSystem = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
         if (!IsValidDatabaseSystem (databaseSystem))
         {
-          yield return $"Metadata '{TestingConfigurationMetadata.DatabaseSystem}' with value '{databaseSystem}' of TestingConfiguration is not supported.";
+          yield return new MetadataValidationError (item.ItemSpec, TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
         }
       }
     }

@@ -45,10 +45,10 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void SupportedPlatforms_PlatformNotSupported_ReturnsFalse ()
     {
-      var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithInvalidPlatform", "x86");
+      var itemWithInvalidPlatform = CreateTestConfiguration ("AssemblyWithPlatform.dll", "x86");
       var items = new[] { itemWithInvalidPlatform };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (_ => _.LogError ("Metadata 'Platform' with value 'x86' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("AssemblyWithPlatform.dll: Metadata 'Platform' with value 'x86' of TestingConfiguration is not supported."));
       var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") }, logger: loggerMock);
 
       var success = filter.Execute();
@@ -60,10 +60,10 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void SupportedBrowsers_BrowserNotSupported_ReturnsFalse ()
     {
-      var itemWithValidPlatform = CreateTestConfiguration ("ItemWithInvalidBrowser", browser: "Safari");
+      var itemWithValidPlatform = CreateTestConfiguration ("AssemblyWithBrowser.dll", browser: "Safari");
       var items = new[] { itemWithValidPlatform };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (_ => _.LogError ("Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("AssemblyWithBrowser.dll: Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
       var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[] { new TaskItem ("Chrome") }, logger: loggerMock);
 
       var success = filter.Execute();
@@ -75,10 +75,10 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void SupportedDatabaseSystems_DatabaseSystemNotSupported_ReturnsFalse ()
     {
-      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
+      var itemWithDb = CreateTestConfiguration ("AssemblyWithDB.dll", databaseSystem: "SqlServer2012");
       var items = new[] { itemWithDb };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (_ => _.LogError ("Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("AssemblyWithDB.dll: Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
       var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), }, logger: loggerMock);
 
       var success = filter.Execute();
@@ -127,15 +127,15 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void UnsupportedItems_MultipleUnsupportedItems_LogsAllItems ()
     {
       var unsupportedItem = CreateTestConfiguration (
-          "UnsupportedItem",
+          "AssemblyWithUnsupportedItem.dll",
           databaseSystem: "SqlServer2012",
           browser: "Safari",
           platform: "arm64");
       var items = new[] { unsupportedItem };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (_ => _.LogError ("Metadata 'Platform' with value 'arm64' of TestingConfiguration is not supported."));
-      loggerMock.Expect (_ => _.LogError ("Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
-      loggerMock.Expect (_ => _.LogError ("Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'Platform' with value 'arm64' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
+      loggerMock.Expect (_ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
       var filter = CreateFilterTestingConfigurations (
           items,
           databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), },
