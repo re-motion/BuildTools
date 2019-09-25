@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NUnit.Framework;
@@ -72,7 +71,6 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (success, Is.False);
       loggerMock.VerifyAllExpectations();
     }
-
 
     [Test]
     public void SupportedDatabaseSystems_DatabaseSystemNotSupported_ReturnsFalse ()

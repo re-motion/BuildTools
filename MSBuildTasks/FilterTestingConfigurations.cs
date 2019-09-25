@@ -15,7 +15,6 @@
 // under the License.
 // 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
@@ -79,30 +78,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       Output = Input;
 
-      _logger.LogMessage (
-          @"The following test configurations were filtered out and will not be run:
-{0}",
-          string.Join (Environment.NewLine, Input.Except (Output).Select (GetConfigurationString)));
-
-      var uniqueInputAssemblyNames = GetDistinctAssemblyNames (Input);
-      var uniqueOutputAssemblyNames = GetDistinctAssemblyNames (Output);
-      var untestedAssemblyNames = uniqueInputAssemblyNames.Where (assemblyName => !uniqueOutputAssemblyNames.Contains (assemblyName));
-      foreach (var assemblyName in untestedAssemblyNames)
-      {
-        _logger.LogWarning ($"All testing configurations in {assemblyName} were ignored.");
-      }
-
       return true;
-    }
-
-    private string GetConfigurationString (ITaskItem taskItem)
-    {
-      var browser = taskItem.GetMetadata (TestingConfigurationMetadata.Browser);
-      var platform = taskItem.GetMetadata (TestingConfigurationMetadata.Platform);
-      var databaseSystem = taskItem.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
-      var executionRuntime = taskItem.GetMetadata (TestingConfigurationMetadata.ExecutionRuntime);
-      var configurationID = taskItem.GetMetadata (TestingConfigurationMetadata.ConfigurationID);
-      return $"{taskItem.ItemSpec}: {browser}, {databaseSystem}, {platform}, {executionRuntime}, {configurationID}";
     }
 
     private bool IsValidPlatform (string platform)
@@ -124,11 +100,6 @@ namespace Remotion.BuildTools.MSBuildTasks
         return true;
 
       return SupportedBrowsers.Select (i => i.ItemSpec).Contains (browser, StringComparer.OrdinalIgnoreCase);
-    }
-
-    private IEnumerable<string> GetDistinctAssemblyNames (IEnumerable<ITaskItem> items)
-    {
-      return items.Select (x => x.ItemSpec).Distinct();
     }
   }
 }
