@@ -46,7 +46,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     [Test]
     public void SupportedPlatforms_PlatformNotSupported_ReturnsFalse ()
     {
-      var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x86");
+      var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithInvalidPlatform", "x86");
       var items = new[] { itemWithInvalidPlatform };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (_ => _.LogError ("Metadata 'Platform' with value 'x86' of TestingConfiguration is not supported."));
@@ -59,7 +59,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidPlatforms_SomeValidPlatforms_OnlyValidOutputs ()
+    public void ValidPlatforms_SomeValidPlatforms_ReturnsFalse ()
     {
       var itemWithValidPlatform = CreateTestConfiguration ("ItemWithValidPlatform", "x64");
       var itemWithInvalidPlatform = CreateTestConfiguration ("ItemWithInvalidPlatform", "x86");
@@ -67,6 +67,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (_ => _.LogError ("Metadata 'Platform' with value 'x86' of TestingConfiguration is not supported."));
       var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") }, logger: loggerMock);
+
+      var success = filter.Execute();
+
+      Assert.That (success, Is.False);
+      loggerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void ValidPlatforms_BrowserNotSupported_ReturnsFalse ()
+    {
+      var itemWithValidPlatform = CreateTestConfiguration ("ItemWithInvalidBrowser", browser: "Safari");
+      var items = new[] { itemWithValidPlatform };
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogError ("Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
+      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[] { new TaskItem ("Chrome") }, logger: loggerMock);
 
       var success = filter.Execute();
 
@@ -87,28 +102,19 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidBrowser_BrowserInvalid_Empty ()
-    {
-      var itemWithInvalidBrowser = CreateTestConfiguration ("ItemWithInvalidBrowser", browser: "Chrome");
-      var items = new[] { itemWithInvalidBrowser };
-      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[] { new TaskItem ("Firefox") });
-
-      filter.Execute();
-
-      Assert.That (filter.Output, Is.Empty);
-    }
-
-    [Test]
     public void ValidBrowser_ValidBrowsersEmpty_NoBrowser ()
     {
       var itemWithBrowser = CreateTestConfiguration ("ItemWithBrowser", browser: "Chrome");
       var itemWithNoBrowser = CreateTestConfiguration ("ItemWithNoBrowser", browser: "NoBrowser");
       var items = new[] { itemWithBrowser, itemWithNoBrowser };
-      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[0]);
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogError ("Metadata 'Browser' with value 'Chrome' of TestingConfiguration is not supported."));
+      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[0], logger: loggerMock);
 
-      filter.Execute();
+      var success = filter.Execute();
 
-      Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoBrowser));
+      Assert.That (success, Is.False);
+      loggerMock.VerifyAllExpectations();
     }
 
 
@@ -123,64 +129,6 @@ namespace BuildTools.MSBuildTasks.UnitTests
       filter.Execute();
 
       Assert.That (filter.Output.Single(), Is.EqualTo (itemWithNoDb));
-    }
-
-    [Test]
-    public void FilterOutputs_LogsFilteredItems ()
-    {
-      var itemWithDb = CreateTestConfiguration ("ItemWithDB", databaseSystem: "SqlServer2012");
-      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDb");
-      var items = new[] { itemWithDb, itemWithNoDb };
-      var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (
-          _ => _.LogMessage (
-              @"The following test configurations were filtered out and will not be run:
-{0}",
-              "ItemWithDB: Firefox, SqlServer2012, x64, dockerNet45, release"));
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0], logger: loggerMock);
-
-      filter.Execute();
-
-      loggerMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void FilterOutputs_MultipleConfigurations_LogsFilteredItems ()
-    {
-      var itemWithDb2012 = CreateTestConfiguration ("ItemWithDB2012", databaseSystem: "SqlServer2012");
-      var itemWithDb2016 = CreateTestConfiguration ("ItemWithDB2016", databaseSystem: "SqlServer2016");
-      var itemWithNoDb = CreateTestConfiguration ("ItemWithNoDB", databaseSystem: "NoDb");
-      var items = new[] { itemWithDb2012, itemWithDb2016, itemWithNoDb };
-      var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (
-          _ => _.LogMessage (
-              @"The following test configurations were filtered out and will not be run:
-{0}",
-              @"ItemWithDB2012: Firefox, SqlServer2012, x64, dockerNet45, release
-ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0], logger: loggerMock);
-
-      filter.Execute();
-
-      loggerMock.VerifyAllExpectations();
-    }
-
-    [Test]
-    public void FilterOutputs_AllTestingConfigurationsFiltered_Warning ()
-    {
-      var itemWithDb2012 = CreateTestConfiguration ("MyAssembly.dll", databaseSystem: "SqlServer2012");
-      var itemWithNoDb2016 = CreateTestConfiguration ("MyAssembly.dll", databaseSystem: "SqlServer2016");
-      var items = new[] { itemWithDb2012, itemWithNoDb2016 };
-      var loggerMock = MockRepository.Mock<ITaskLogger>();
-      loggerMock.Expect (_ => _.LogWarning ("All testing configurations in MyAssembly.dll were ignored."));
-      var filter = CreateFilterTestingConfigurations (
-          items,
-          databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2014") },
-          logger: loggerMock);
-
-      filter.Execute();
-
-      loggerMock.VerifyAllExpectations();
     }
 
     [Test]

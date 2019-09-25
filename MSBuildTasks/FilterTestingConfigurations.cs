@@ -56,18 +56,21 @@ namespace Remotion.BuildTools.MSBuildTasks
       foreach (var item in Input)
       {
         var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
-        if (!HasValidPlatform (item))
+        var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
+        if (!IsValidPlatform (platform))
         {
           _logger.LogError ($"Metadata '{TestingConfigurationMetadata.Platform}' with value '{platform}' of TestingConfiguration is not supported.");
           return false;
         }
+
+        if (!IsValidBrowser (browser))
+        {
+          _logger.LogError ($"Metadata '{TestingConfigurationMetadata.Browser}' with value '{browser}' of TestingConfiguration is not supported.");
+          return false;
+        }
       }
 
-      var validInputs = Input
-          .Where (HasValidPlatform)
-          .Where (HasValidDatabaseSystem)
-          .Where (HasValidBrowser);
-      Output = validInputs.ToArray();
+      Output = Input;
 
       _logger.LogMessage (
           @"The following test configurations were filtered out and will not be run:
@@ -95,9 +98,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       return $"{taskItem.ItemSpec}: {browser}, {databaseSystem}, {platform}, {executionRuntime}, {configurationID}";
     }
 
-    private bool HasValidPlatform (ITaskItem item)
+    private bool IsValidPlatform (string platform)
     {
-      return SupportedPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.Platform), StringComparer.OrdinalIgnoreCase);
+      return SupportedPlatforms.Select (i => i.ItemSpec).Contains (platform, StringComparer.OrdinalIgnoreCase);
     }
 
     private bool HasValidDatabaseSystem (ITaskItem item)
@@ -111,9 +114,8 @@ namespace Remotion.BuildTools.MSBuildTasks
           StringComparer.OrdinalIgnoreCase);
     }
 
-    private bool HasValidBrowser (ITaskItem item)
+    private bool IsValidBrowser (string browser)
     {
-      var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
       if (browser == EmptyMetadataID.Browser && !SupportedBrowsers.Any())
         return true;
 
