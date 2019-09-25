@@ -30,13 +30,13 @@ namespace Remotion.BuildTools.MSBuildTasks
     public ITaskItem[] Input { get; set; }
 
     [Required]
-    public ITaskItem[] ValidPlatforms { get; set; }
+    public ITaskItem[] SupportedPlatforms { get; set; }
 
     [Required]
-    public ITaskItem[] ValidDatabaseSystems { get; set; }
+    public ITaskItem[] SupportedDatabaseSystems { get; set; }
 
     [Required]
-    public ITaskItem[] ValidBrowsers { get; set; }
+    public ITaskItem[] SupportedBrowsers { get; set; }
 
     [Output]
     public ITaskItem[] Output { get; set; }
@@ -87,25 +87,25 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private bool HasValidPlatform (ITaskItem item)
     {
-      return ValidPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.Platform));
+      return SupportedPlatforms.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.Platform));
     }
 
     private bool HasValidDatabaseSystem (ITaskItem item)
     {
       var database = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
-      if (database == EmptyMetadataID.DatabaseSystem && !ValidDatabaseSystems.Any())
+      if (database == EmptyMetadataID.DatabaseSystem && !SupportedDatabaseSystems.Any())
         return true;
 
-      return ValidDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem));
+      return SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem));
     }
 
     private bool HasValidBrowser (ITaskItem item)
     {
       var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
-      if (browser == EmptyMetadataID.Browser && !ValidBrowsers.Any())
+      if (browser == EmptyMetadataID.Browser && !SupportedBrowsers.Any())
         return true;
 
-      return ValidBrowsers.Select (i => i.ItemSpec).Contains (browser);
+      return SupportedBrowsers.Select (i => i.ItemSpec).Contains (browser);
     }
 
     private IEnumerable<string> GetDistinctAssemblyNames (IEnumerable<ITaskItem> items)

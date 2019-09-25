@@ -198,9 +198,9 @@ ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
       return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
              {
                  Input = input,
-                 ValidDatabaseSystems = databaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
-                 ValidPlatforms = platforms ?? new ITaskItem[] { new TaskItem ("x64") },
-                 ValidBrowsers = browsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
+                 SupportedDatabaseSystems = databaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
+                 SupportedPlatforms = platforms ?? new ITaskItem[] { new TaskItem ("x64") },
+                 SupportedBrowsers = browsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
              };
     }
   }
