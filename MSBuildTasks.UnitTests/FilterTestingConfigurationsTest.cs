@@ -201,6 +201,18 @@ ItemWithDB2016: Firefox, SqlServer2016, x64, dockerNet45, release"));
       Assert.That (filter.Output, Is.EqualTo (items));
     }
 
+    [Test]
+    public void SupportedBrowsers_IgnoresCase ()
+    {
+      var validItem = CreateTestConfiguration ("ValidItem", browser: "chrome");
+      var items = new[] { validItem };
+      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[] { new TaskItem ("Chrome") });
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.EqualTo (items));
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);

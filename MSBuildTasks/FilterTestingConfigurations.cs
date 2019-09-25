@@ -107,7 +107,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       if (browser == EmptyMetadataID.Browser && !SupportedBrowsers.Any())
         return true;
 
-      return SupportedBrowsers.Select (i => i.ItemSpec).Contains (browser);
+      return SupportedBrowsers.Select (i => i.ItemSpec).Contains (browser, StringComparer.OrdinalIgnoreCase);
     }
 
     private IEnumerable<string> GetDistinctAssemblyNames (IEnumerable<ITaskItem> items)
