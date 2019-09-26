@@ -149,6 +149,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (success, Is.False);
       loggerMock.VerifyExpectations();
     }
+    
+    [Test]
+    public void NoBrowserEmptySupportedBrowsers_IgnoresCase ()
+    {
+      var validItem = CreateTestConfiguration ("ValidItem", browser: "nobrowser");
+      var items = new[] { validItem };
+      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[0]);
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.EqualTo (items));
+    }
 
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
