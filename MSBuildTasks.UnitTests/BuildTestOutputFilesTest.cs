@@ -16,11 +16,13 @@
 // 
 
 using System;
+using System.IO.Abstractions;
 using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NUnit.Framework;
 using Remotion.BuildTools.MSBuildTasks;
+using Rhino.Mocks;
 
 namespace BuildTools.MSBuildTasks.UnitTests
 {
@@ -251,6 +253,25 @@ namespace BuildTools.MSBuildTasks.UnitTests
       task.Execute();
 
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ProjectFileName), Is.EqualTo (projectFileName));
+    }
+
+    [Test]
+    public void ProjectFileFullPath_IsMetadata ()
+    {
+      const string projectFileName = "MyTest.csproj";
+      const string projectFileFullPath = "C:\\Development\\" + projectFileName;
+      var pathStub = MockRepository.Mock<IPath>();
+      pathStub.Stub (_ => _.GetFullPath (projectFileName)).Return (projectFileFullPath);
+      var taskItem = new TaskItem (projectFileName);
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      var task = new BuildTestOutputFiles (pathStub)
+                 {
+                     Input = new ITaskItem[] { taskItem }
+                 };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ProjectFileFullPath), Is.EqualTo (projectFileFullPath));
     }
   }
 }

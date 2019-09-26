@@ -27,5 +27,6 @@ namespace Remotion.BuildTools.MSBuildTasks
     public const string IsDatabaseTest = "IsDatabaseTest";
     public const string Use32Bit = "Use32Bit";
     public const string ProjectFileName = "ProjectFileName";
+    public const string ProjectFileFullPath = "ProjectFileFullPath";
   }
 }

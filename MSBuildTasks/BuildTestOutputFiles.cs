@@ -16,6 +16,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -23,11 +24,23 @@ namespace Remotion.BuildTools.MSBuildTasks
 {
   public class BuildTestOutputFiles : Task
   {
+    private readonly IPath _pathHelper;
+
     [Required]
     public ITaskItem[] Input { get; set; }
 
     [Output]
     public ITaskItem[] Output { get; set; }
+
+    public BuildTestOutputFiles ()
+    {
+      _pathHelper = new PathWrapper (new FileSystem());
+    }
+
+    public BuildTestOutputFiles (IPath pathHelper)
+    {
+      _pathHelper = pathHelper;
+    }
 
     public override bool Execute ()
     {
@@ -48,35 +61,36 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (string originalItemSpec, string configuration)
+    private ITaskItem CreateTaskItem (string projectFileName, string unsplitConfiguration)
     {
-      var item = new TaskItem (originalItemSpec + "_" + configuration);
-      item.SetMetadata (TestingConfigurationMetadata.ProjectFileName, originalItemSpec);
+      var testingConfigurationItem = new TaskItem (projectFileName + "_" + unsplitConfiguration);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ProjectFileName, projectFileName);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ProjectFileFullPath, _pathHelper.GetFullPath (projectFileName));
 
-      var configurationItems = configuration.Split ('+');
+      var configurationItems = unsplitConfiguration.Split ('+');
 
       var browser = configurationItems[0];
-      item.SetMetadata (TestingConfigurationMetadata.Browser, browser);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Browser, browser);
 
       var isWebTest = string.Equals (browser, EmptyMetadataID.Browser, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
-      item.SetMetadata (TestingConfigurationMetadata.IsWebTest, isWebTest);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsWebTest, isWebTest);
 
       var databaseSystem = configurationItems[1];
-      item.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
 
       var isDatabaseTest = string.Equals (databaseSystem, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
-      item.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
 
       var platform = configurationItems[2];
-      item.SetMetadata (TestingConfigurationMetadata.Platform, platform);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Platform, platform);
 
       var use32Bit = string.Equals (platform, "x86", StringComparison.OrdinalIgnoreCase) ? "True" : "False";
-      item.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
 
-      item.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, configurationItems[3]);
-      item.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationItems[4]);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, configurationItems[3]);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationItems[4]);
 
-      return item;
+      return testingConfigurationItem;
     }
   }
 }
