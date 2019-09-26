@@ -62,7 +62,7 @@
     <Compile Include="CodeplexCreateRelease.cs" />
     <Compile Include="CodeplexUploadFiles.cs" />
     <Compile Include="EmptyMetadataID.cs" />
-    <Compile Include="FilterTestingConfigurations.cs" />
+    <Compile Include="ValidateTestingConfigurations.cs" />
     <Compile Include="ITaskLogger.cs" />
     <Compile Include="Jira\JiraCheckAuthentication.cs" />
     <Compile Include="Jira\JiraCreateNewVersion.cs" />

@@ -22,7 +22,7 @@ using Microsoft.Build.Framework;
 
 namespace Remotion.BuildTools.MSBuildTasks
 {
-  public class FilterTestingConfigurations : Task
+  public class ValidateTestingConfigurations : Task
   {
     private class MetadataValidationError
     {
@@ -55,12 +55,12 @@ namespace Remotion.BuildTools.MSBuildTasks
     [Output]
     public ITaskItem[] Output { get; set; }
 
-    public FilterTestingConfigurations ()
+    public ValidateTestingConfigurations ()
     {
       _logger = new TaskLogger (Log);
     }
 
-    public FilterTestingConfigurations (ITaskLogger logger)
+    public ValidateTestingConfigurations (ITaskLogger logger)
     {
       _logger = logger;
     }

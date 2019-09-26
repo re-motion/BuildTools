@@ -24,7 +24,7 @@ using Rhino.Mocks;
 namespace BuildTools.MSBuildTasks.UnitTests
 {
   [TestFixture]
-  public class FilterTestingConfigurationsTest
+  public class ValidateTestingConfigurationsTest
   {
     [Test]
     public void AllValid_SameList ()
@@ -135,7 +135,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (_ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'Platform' with value 'arm64' of TestingConfiguration is not supported."));
       loggerMock.Expect (_ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
-      loggerMock.Expect (_ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
+      loggerMock.Expect (
+          _ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
       var filter = CreateFilterTestingConfigurations (
           items,
           databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), },
@@ -160,14 +161,14 @@ namespace BuildTools.MSBuildTasks.UnitTests
       return item;
     }
 
-    private FilterTestingConfigurations CreateFilterTestingConfigurations (
+    private ValidateTestingConfigurations CreateFilterTestingConfigurations (
         ITaskItem[] input,
         ITaskItem[] platforms = null,
         ITaskItem[] databaseSystems = null,
         ITaskItem[] browsers = null,
         ITaskLogger logger = null)
     {
-      return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
+      return new ValidateTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
              {
                  Input = input,
                  SupportedDatabaseSystems = databaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
