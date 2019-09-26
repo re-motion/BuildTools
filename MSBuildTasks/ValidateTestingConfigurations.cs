@@ -115,7 +115,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private bool IsValidDatabaseSystem (string database)
     {
-      if (database == EmptyMetadataID.DatabaseSystem && !SupportedDatabaseSystems.Any())
+      if (string.Equals (database, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase) && !SupportedDatabaseSystems.Any())
         return true;
 
       return SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (database, StringComparer.OrdinalIgnoreCase);
