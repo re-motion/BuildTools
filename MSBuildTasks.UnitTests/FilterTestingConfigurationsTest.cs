@@ -24,7 +24,7 @@ using Rhino.Mocks;
 namespace BuildTools.MSBuildTasks.UnitTests
 {
   [TestFixture]
-  public class ValidateTestingConfigurationsTest
+  public class FilterTestingConfigurationsTest
   {
     [Test]
     public void AllValid_SameList ()
@@ -185,14 +185,14 @@ namespace BuildTools.MSBuildTasks.UnitTests
       return item;
     }
 
-    private ValidateTestingConfigurations CreateFilterTestingConfigurations (
+    private FilterTestingConfigurations CreateFilterTestingConfigurations (
         ITaskItem[] input,
         ITaskItem[] platforms = null,
         ITaskItem[] databaseSystems = null,
         ITaskItem[] browsers = null,
         ITaskLogger logger = null)
     {
-      return new ValidateTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
+      return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
              {
                  Input = input,
                  SupportedDatabaseSystems = databaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
