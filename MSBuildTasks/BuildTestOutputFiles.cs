@@ -65,7 +65,11 @@ namespace Remotion.BuildTools.MSBuildTasks
     {
       var testingConfigurationItem = new TaskItem (originalItemSpec + "_" + unsplitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFileName, _pathHelper.GetFileName (originalItemSpec));
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath, _pathHelper.GetFullPath (originalItemSpec));
+
+      var testAssemblyFullPath = _pathHelper.GetFullPath (originalItemSpec);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath, testAssemblyFullPath);
+
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyDirectoryName, _pathHelper.GetDirectoryName (testAssemblyFullPath));
 
       var configurationItems = unsplitConfiguration.Split ('+');
 

@@ -28,5 +28,6 @@ namespace Remotion.BuildTools.MSBuildTasks
     public const string Use32Bit = "Use32Bit";
     public const string TestAssemblyFileName = "TestAssemblyFileName";
     public const string TestAssemblyFullPath = "TestAssemblyFullPath";
+    public const string TestAssemblyDirectoryName = "TestAssemblyDirectoryName";
   }
 }
