@@ -81,6 +81,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
+    public void AllBrowsers_UnwantedBrowser_IsFiltered ()
+    {
+      var itemToBeFiltered = CreateTestConfiguration ("AssemblyWithPlatform.dll", browser: "Chrome");
+      var items = new[] { itemToBeFiltered, _omnipresentTestingConfiguration };
+      var filter = CreateFilterTestingConfigurations (
+          items,
+          allBrowsers: new ITaskItem[] { new TaskItem ("Firefox") },
+          supportedBrowsers: new ITaskItem[] { new TaskItem ("Chrome"), new TaskItem ("Firefox") });
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.EquivalentTo (new[] { _omnipresentTestingConfiguration }));
+    }
+
+    [Test]
     public void SupportedBrowsers_BrowserNotSupported_ReturnsFalse ()
     {
       var itemWithValidPlatform = CreateTestConfiguration ("AssemblyWithBrowser.dll", browser: "Safari");
@@ -139,7 +154,10 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var validItem = CreateTestConfiguration ("ValidItem", browser: "chrome");
       var items = new[] { validItem };
-      var filter = CreateFilterTestingConfigurations (items, supportedBrowsers: new ITaskItem[] { new TaskItem ("Chrome") });
+      var filter = CreateFilterTestingConfigurations (
+          items,
+          supportedBrowsers: new ITaskItem[] { new TaskItem ("Chrome") },
+          allBrowsers: new ITaskItem[] { new TaskItem ("Chrome") });
 
       filter.Execute();
 
@@ -214,6 +232,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
         ITaskItem[] supportedDatabaseSystems = null,
         ITaskItem[] supportedBrowsers = null,
         ITaskItem[] allPlatforms = null,
+        ITaskItem[] allBrowsers = null,
         ITaskLogger logger = null)
     {
       return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
@@ -223,6 +242,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
                  SupportedPlatforms = supportedPlatforms ?? new ITaskItem[] { new TaskItem ("x64") },
                  AllPlatforms = allPlatforms ?? new ITaskItem[] { new TaskItem ("x64") },
                  SupportedBrowsers = supportedBrowsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
+                 AllBrowsers = allBrowsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
              };
     }
   }
