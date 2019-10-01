@@ -26,6 +26,14 @@ namespace BuildTools.MSBuildTasks.UnitTests
   [TestFixture]
   public class FilterTestingConfigurationsTest
   {
+    private ITaskItem _omnipresentTestingConfiguration;
+
+    [SetUp]
+    public void SetUp ()
+    {
+      _omnipresentTestingConfiguration = CreateTestConfiguration ("OmnipresentTestingConfiguration");
+    }
+
     [Test]
     public void AllValid_SameList ()
     {
@@ -33,9 +41,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var items = new[] { validItem };
       var filter = CreateFilterTestingConfigurations (
           items,
-          platforms: new ITaskItem[] { new TaskItem ("x64") },
-          databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012") },
-          browsers: new ITaskItem[] { new TaskItem ("Firefox") });
+          supportedPlatforms: new ITaskItem[] { new TaskItem ("x64") },
+          supportedDatabaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012") },
+          supportedBrowsers: new ITaskItem[] { new TaskItem ("Firefox") });
 
       filter.Execute();
 
@@ -49,12 +57,27 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var items = new[] { itemWithInvalidPlatform };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (_ => _.LogError ("AssemblyWithPlatform.dll: Metadata 'Platform' with value 'x86' of TestingConfiguration is not supported."));
-      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") }, logger: loggerMock);
+      var filter = CreateFilterTestingConfigurations (items, supportedPlatforms: new ITaskItem[] { new TaskItem ("x64") }, logger: loggerMock);
 
       var success = filter.Execute();
 
       Assert.That (success, Is.False);
       loggerMock.VerifyAllExpectations();
+    }
+
+    [Test]
+    public void AllPlatforms_UnwantedPlatForm_IsFiltered ()
+    {
+      var itemToBeFiltered = CreateTestConfiguration ("AssemblyWithPlatform.dll", "x86");
+      var items = new[] { itemToBeFiltered, _omnipresentTestingConfiguration };
+      var filter = CreateFilterTestingConfigurations (
+          items,
+          allPlatforms: new ITaskItem[] { new TaskItem ("x64") },
+          supportedPlatforms: new ITaskItem[] { new TaskItem ("x64"), new TaskItem ("x86") });
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.EquivalentTo (new[] { _omnipresentTestingConfiguration }));
     }
 
     [Test]
@@ -64,7 +87,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var items = new[] { itemWithValidPlatform };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (_ => _.LogError ("AssemblyWithBrowser.dll: Metadata 'Browser' with value 'Safari' of TestingConfiguration is not supported."));
-      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[] { new TaskItem ("Chrome") }, logger: loggerMock);
+      var filter = CreateFilterTestingConfigurations (items, supportedBrowsers: new ITaskItem[] { new TaskItem ("Chrome") }, logger: loggerMock);
 
       var success = filter.Execute();
 
@@ -79,7 +102,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var items = new[] { itemWithDb };
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (_ => _.LogError ("AssemblyWithDB.dll: Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), }, logger: loggerMock);
+      var filter = CreateFilterTestingConfigurations (items, supportedDatabaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), }, logger: loggerMock);
 
       var success = filter.Execute();
 
@@ -92,7 +115,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var validItem = CreateTestConfiguration ("ValidItem", platform: "X64");
       var items = new[] { validItem };
-      var filter = CreateFilterTestingConfigurations (items, platforms: new ITaskItem[] { new TaskItem ("x64") });
+      var filter = CreateFilterTestingConfigurations (items, supportedPlatforms: new ITaskItem[] { new TaskItem ("x64") });
 
       filter.Execute();
 
@@ -104,7 +127,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var validItem = CreateTestConfiguration ("ValidItem", databaseSystem: "sqlserver2012");
       var items = new[] { validItem };
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012") });
+      var filter = CreateFilterTestingConfigurations (items, supportedDatabaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012") });
 
       filter.Execute();
 
@@ -116,7 +139,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var validItem = CreateTestConfiguration ("ValidItem", browser: "chrome");
       var items = new[] { validItem };
-      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[] { new TaskItem ("Chrome") });
+      var filter = CreateFilterTestingConfigurations (items, supportedBrowsers: new ITaskItem[] { new TaskItem ("Chrome") });
 
       filter.Execute();
 
@@ -139,9 +162,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
           _ => _.LogError ("AssemblyWithUnsupportedItem.dll: Metadata 'DatabaseSystem' with value 'SqlServer2012' of TestingConfiguration is not supported."));
       var filter = CreateFilterTestingConfigurations (
           items,
-          databaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), },
-          platforms: new ITaskItem[] { new TaskItem ("x86"), },
-          browsers: new ITaskItem[] { new TaskItem ("Chrome"), },
+          supportedDatabaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2016"), },
+          supportedPlatforms: new ITaskItem[] { new TaskItem ("x86"), },
+          supportedBrowsers: new ITaskItem[] { new TaskItem ("Chrome"), },
           logger: loggerMock);
 
       var success = filter.Execute();
@@ -155,7 +178,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var validItem = CreateTestConfiguration ("ValidItem", browser: "nobrowser");
       var items = new[] { validItem };
-      var filter = CreateFilterTestingConfigurations (items, browsers: new ITaskItem[0]);
+      var filter = CreateFilterTestingConfigurations (items, supportedBrowsers: new ITaskItem[0]);
 
       filter.Execute();
 
@@ -167,7 +190,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var validItem = CreateTestConfiguration ("ValidItem", databaseSystem: "nodb");
       var items = new[] { validItem };
-      var filter = CreateFilterTestingConfigurations (items, databaseSystems: new ITaskItem[0]);
+      var filter = CreateFilterTestingConfigurations (items, supportedDatabaseSystems: new ITaskItem[0]);
 
       filter.Execute();
 
@@ -187,17 +210,19 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
     private FilterTestingConfigurations CreateFilterTestingConfigurations (
         ITaskItem[] input,
-        ITaskItem[] platforms = null,
-        ITaskItem[] databaseSystems = null,
-        ITaskItem[] browsers = null,
+        ITaskItem[] supportedPlatforms = null,
+        ITaskItem[] supportedDatabaseSystems = null,
+        ITaskItem[] supportedBrowsers = null,
+        ITaskItem[] allPlatforms = null,
         ITaskLogger logger = null)
     {
       return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
              {
                  Input = input,
-                 SupportedDatabaseSystems = databaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
-                 SupportedPlatforms = platforms ?? new ITaskItem[] { new TaskItem ("x64") },
-                 SupportedBrowsers = browsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
+                 SupportedDatabaseSystems = supportedDatabaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
+                 SupportedPlatforms = supportedPlatforms ?? new ITaskItem[] { new TaskItem ("x64") },
+                 AllPlatforms = allPlatforms ?? new ITaskItem[] { new TaskItem ("x64") },
+                 SupportedBrowsers = supportedBrowsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
              };
     }
   }

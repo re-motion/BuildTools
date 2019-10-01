@@ -47,6 +47,9 @@ namespace Remotion.BuildTools.MSBuildTasks
     public ITaskItem[] SupportedPlatforms { get; set; }
 
     [Required]
+    public ITaskItem[] AllPlatforms { get; set; }
+
+    [Required]
     public ITaskItem[] SupportedDatabaseSystems { get; set; }
 
     [Required]
@@ -79,7 +82,7 @@ namespace Remotion.BuildTools.MSBuildTasks
         return false;
       }
 
-      Output = Input;
+      Output = GetFilteredItems().ToArray();
 
       return true;
     }
@@ -127,6 +130,23 @@ namespace Remotion.BuildTools.MSBuildTasks
         return true;
 
       return SupportedBrowsers.Select (i => i.ItemSpec).Contains (browser, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private IEnumerable<ITaskItem> GetFilteredItems ()
+    {
+      foreach (var item in Input)
+      {
+        var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
+        if (!PlatformShouldBeFiltered (platform))
+        {
+          yield return item;
+        }
+      }
+    }
+
+    private bool PlatformShouldBeFiltered (string platform)
+    {
+      return !AllPlatforms.Select (i => i.ItemSpec).Contains (platform, StringComparer.OrdinalIgnoreCase);
     }
   }
 }
