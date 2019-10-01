@@ -243,26 +243,44 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ProjectFileName_CopiesOriginalItemSpec ()
+    public void TestAssemblyFileName_CopiesOriginalItemSpec ()
     {
-      const string projectFileName = "MyTest.csproj";
-      var taskItem = new TaskItem (projectFileName);
+      const string testAssemblyFileName = "MyTest.dll";
+      var taskItem = new TaskItem (testAssemblyFileName);
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
       var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ProjectFileName), Is.EqualTo (projectFileName));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TestAssemblyFileName), Is.EqualTo (testAssemblyFileName));
     }
 
     [Test]
-    public void ProjectFileFullPath_IsMetadata ()
+    public void TestAssemblyFileName_GetsFileNameFromFullPath ()
     {
-      const string projectFileName = "MyTest.csproj";
-      const string projectFileFullPath = "C:\\Development\\" + projectFileName;
+      const string testAssemblyFileName = "MyTest.dll";
+      const string testAssemblyFullPath = "C:\\Development\\" + testAssemblyFileName;
+      var taskItem = new TaskItem (testAssemblyFullPath);
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
       var pathStub = MockRepository.Mock<IPath>();
-      pathStub.Stub (_ => _.GetFullPath (projectFileName)).Return (projectFileFullPath);
-      var taskItem = new TaskItem (projectFileName);
+      pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
+      pathStub.Stub (_ => _.GetFullPath (testAssemblyFullPath)).Return (testAssemblyFullPath);
+      var task = new BuildTestOutputFiles (pathStub) { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TestAssemblyFileName), Is.EqualTo (testAssemblyFileName));
+    }
+
+    [Test]
+    public void TestAssemblyFullPath_IsMetadata ()
+    {
+      const string testAssemblyFileName = "MyTest.dll";
+      const string testAssemblyFullPath = "C:\\Development\\" + testAssemblyFileName;
+      var pathStub = MockRepository.Mock<IPath>();
+      pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
+      pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
+      var taskItem = new TaskItem (testAssemblyFileName);
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
       var task = new BuildTestOutputFiles (pathStub)
                  {
@@ -271,7 +289,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       task.Execute();
 
-      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ProjectFileFullPath), Is.EqualTo (projectFileFullPath));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath), Is.EqualTo (testAssemblyFullPath));
     }
   }
 }

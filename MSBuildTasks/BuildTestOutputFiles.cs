@@ -61,11 +61,11 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (string projectFileName, string unsplitConfiguration)
+    private ITaskItem CreateTaskItem (string originalItemSpec, string unsplitConfiguration)
     {
-      var testingConfigurationItem = new TaskItem (projectFileName + "_" + unsplitConfiguration);
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ProjectFileName, projectFileName);
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ProjectFileFullPath, _pathHelper.GetFullPath (projectFileName));
+      var testingConfigurationItem = new TaskItem (originalItemSpec + "_" + unsplitConfiguration);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFileName, _pathHelper.GetFileName (originalItemSpec));
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath, _pathHelper.GetFullPath (originalItemSpec));
 
       var configurationItems = unsplitConfiguration.Split ('+');
 
