@@ -56,6 +56,9 @@ namespace Remotion.BuildTools.MSBuildTasks
     public ITaskItem[] SupportedDatabaseSystems { get; set; }
 
     [Required]
+    public ITaskItem[] AllDatabaseSystems { get; set; }
+
+    [Required]
     public ITaskItem[] SupportedBrowsers { get; set; }
 
     [Output]
@@ -88,6 +91,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       Output = Input
           .Where (IsInAllBrowsers)
           .Where (IsInAllPlatforms)
+          .Where (IsInAllDatabaseSystems)
           .ToArray();
 
       return true;
@@ -183,6 +187,16 @@ namespace Remotion.BuildTools.MSBuildTasks
         return true;
 
       return AllBrowsers.Select (i => i.ItemSpec).Contains (browser, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private bool IsInAllDatabaseSystems (ITaskItem item)
+    {
+      var databaseSystem = item.GetMetadata (TestingConfigurationMetadata.DatabaseSystem);
+
+      if (string.Equals (databaseSystem, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase))
+        return true;
+
+      return AllDatabaseSystems.Select (i => i.ItemSpec).Contains (databaseSystem, StringComparer.OrdinalIgnoreCase);
     }
   }
 }

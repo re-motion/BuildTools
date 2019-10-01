@@ -96,6 +96,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
+    public void AllDatabaseSystems_UnwantedDatabaseSystem_IsFiltered ()
+    {
+      var itemToBeFiltered = CreateTestConfiguration ("AssemblyWithPlatform.dll", databaseSystem: "SqlServer2014");
+      var items = new[] { itemToBeFiltered, _omnipresentTestingConfiguration };
+      var filter = CreateFilterTestingConfigurations (
+          items,
+          allDatabaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012") },
+          supportedDatabaseSystems: new ITaskItem[] { new TaskItem ("SqlServer2012"), new TaskItem ("SqlServer2014") });
+
+      filter.Execute();
+
+      Assert.That (filter.Output, Is.EquivalentTo (new[] { _omnipresentTestingConfiguration }));
+    }
+
+    [Test]
     public void SupportedBrowsers_BrowserNotSupported_ReturnsFalse ()
     {
       var itemWithValidPlatform = CreateTestConfiguration ("AssemblyWithBrowser.dll", browser: "Safari");
@@ -233,12 +248,14 @@ namespace BuildTools.MSBuildTasks.UnitTests
         ITaskItem[] supportedBrowsers = null,
         ITaskItem[] allPlatforms = null,
         ITaskItem[] allBrowsers = null,
+        ITaskItem[] allDatabaseSystems = null,
         ITaskLogger logger = null)
     {
       return new FilterTestingConfigurations (logger ?? MockRepository.Mock<ITaskLogger>())
              {
                  Input = input,
                  SupportedDatabaseSystems = supportedDatabaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
+                 AllDatabaseSystems = allDatabaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2012") },
                  SupportedPlatforms = supportedPlatforms ?? new ITaskItem[] { new TaskItem ("x64") },
                  AllPlatforms = allPlatforms ?? new ITaskItem[] { new TaskItem ("x64") },
                  SupportedBrowsers = supportedBrowsers ?? new ITaskItem[] { new TaskItem ("Firefox") },
