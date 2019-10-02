@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -49,7 +50,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       {
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
 
-        var configurations = testingConfiguration.Split (';');
+        var configurations = Regex.Replace (testingConfiguration, @"\s+", "").Split (new[]{";"}, StringSplitOptions.RemoveEmptyEntries);
         foreach (var configuration in configurations)
         {
           var newItem = CreateTaskItem (item.ItemSpec, configuration);
@@ -72,7 +73,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyDirectoryName, _pathHelper.GetDirectoryName (testAssemblyFullPath));
 
-      var configurationItems = unsplitConfiguration.Trim().Split ('+');
+      var configurationItems = Regex.Replace (unsplitConfiguration, @"\s+", "").Split ('+');
 
       var browser = configurationItems[0];
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Browser, browser);
