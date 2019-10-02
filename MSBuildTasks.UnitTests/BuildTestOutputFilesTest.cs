@@ -121,6 +121,23 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("debug"));
     }
+    
+    [Test]
+    public void MultipleConfigurationsWithTrailingWhitespaces_CorrectParsing ()
+    {
+      var taskItem = new TaskItem ("MyTest.dll");
+      var config = $"{Environment.NewLine}    Chrome+NoDb+x86+dockerNet45+release;  {Environment.NewLine}  Firefox+SqlServer2012+x64+dockerNet45+debug{Environment.NewLine}    ";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.Browser), Is.EqualTo ("Firefox"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.DatabaseSystem), Is.EqualTo ("SqlServer2012"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.Platform), Is.EqualTo ("x64"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("debug"));
+    }
 
     [Test]
     public void ItemSpec_IsAssemblyNameAndConfiguration ()
