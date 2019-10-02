@@ -63,15 +63,16 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private ITaskItem CreateTaskItem (string originalItemSpec, string unsplitConfiguration)
     {
-      var testingConfigurationItem = new TaskItem (originalItemSpec + "_" + unsplitConfiguration);
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFileName, _pathHelper.GetFileName (originalItemSpec));
+      var testAssemblyFileName = _pathHelper.GetFileName (originalItemSpec);
+      var testingConfigurationItem = new TaskItem (testAssemblyFileName + "_" + unsplitConfiguration);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFileName, testAssemblyFileName);
 
       var testAssemblyFullPath = _pathHelper.GetFullPath (originalItemSpec);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath, testAssemblyFullPath);
 
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyDirectoryName, _pathHelper.GetDirectoryName (testAssemblyFullPath));
 
-      var configurationItems = unsplitConfiguration.Split ('+');
+      var configurationItems = unsplitConfiguration.Trim().Split ('+');
 
       var browser = configurationItems[0];
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Browser, browser);

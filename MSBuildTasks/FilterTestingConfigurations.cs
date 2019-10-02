@@ -142,28 +142,6 @@ namespace Remotion.BuildTools.MSBuildTasks
       return SupportedBrowsers.Select (i => i.ItemSpec).Contains (browser, StringComparer.OrdinalIgnoreCase);
     }
 
-    private IEnumerable<ITaskItem> GetFilteredItems ()
-    {
-      var itemsToBeFiltered = new List<ITaskItem>();
-      foreach (var item in Input)
-      {
-        var platform = item.GetMetadata (TestingConfigurationMetadata.Platform);
-        if (!PlatformShouldBeFiltered (platform))
-        {
-          itemsToBeFiltered.Add (item);
-          continue;
-        }
-
-        var browser = item.GetMetadata (TestingConfigurationMetadata.Browser);
-        if (BrowserShouldBeFiltered (browser))
-        {
-          itemsToBeFiltered.Remove (item);
-        }
-      }
-
-      return itemsToBeFiltered;
-    }
-
     private bool PlatformShouldBeFiltered (string platform)
     {
       return !AllPlatforms.Select (i => i.ItemSpec).Contains (platform, StringComparer.OrdinalIgnoreCase);

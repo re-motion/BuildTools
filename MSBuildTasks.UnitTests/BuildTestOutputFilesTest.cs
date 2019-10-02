@@ -106,9 +106,26 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void ValidConfiguration_CopiesItemSpec ()
+    public void ConfigurationsWithTrailingWhitespaces_CorrectParsing ()
     {
-      const string itemSpec = "MyTest.csproj";
+      var taskItem = new TaskItem ("MyTest.dll");
+      var config = $"{Environment.NewLine}    Firefox+SqlServer2012+x64+dockerNet45+debug{Environment.NewLine}    ";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Browser), Is.EqualTo ("Firefox"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.DatabaseSystem), Is.EqualTo ("SqlServer2012"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Platform), Is.EqualTo ("x64"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("debug"));
+    }
+
+    [Test]
+    public void ItemSpec_IsAssemblyNameAndConfiguration ()
+    {
+      const string itemSpec = "MyTest.dll";
       var taskItem = new TaskItem (itemSpec);
       const string config = "Chrome+NoDb+x86+dockerNet45+release";
       taskItem.SetMetadata ("TestingConfiguration", config);
@@ -117,6 +134,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
       task.Execute();
 
       Assert.That (task.Output.Single().ItemSpec, Is.EqualTo (itemSpec + "_" + config));
+    }
+
+    [Test]
+    public void ItemSpecWithFullPath_IsAssemblyNameAndConfiguration ()
+    {
+      const string assemblyName = "MyTest.dll";
+      var assemblyFullPath = $"C:\\Development\\{assemblyName}";
+      var taskItem = new TaskItem (assemblyFullPath);
+      const string config = "Chrome+NoDb+x86+dockerNet45+release";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().ItemSpec, Is.EqualTo (assemblyName + "_" + config));
     }
 
     [Test]
