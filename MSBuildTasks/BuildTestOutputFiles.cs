@@ -17,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
@@ -29,6 +30,21 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     [Required]
     public ITaskItem[] Input { get; set; }
+
+    [Required]
+    public ITaskItem[] SupportedDatabaseSystems { get; set; }
+
+    [Required]
+    public ITaskItem[] SupportedPlatforms { get; set; }
+
+    [Required]
+    public ITaskItem[] SupportedBrowsers { get; set; }
+
+    [Required]
+    public ITaskItem[] SupportedConfigurationIDs { get; set; }
+
+    [Required]
+    public ITaskItem[] SupportedExecutionRuntimes { get; set; }
 
     [Output]
     public ITaskItem[] Output { get; set; }
@@ -77,26 +93,29 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       var configurationItems = Regex.Replace (unsplitConfiguration, @"\s+", "").Split ('+');
 
-      var browser = configurationItems[0];
+      var browser = configurationItems.Single (x => SupportedBrowsers.Select(i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Browser, browser);
 
       var isWebTest = string.Equals (browser, EmptyMetadataID.Browser, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsWebTest, isWebTest);
 
-      var databaseSystem = configurationItems[1];
+      var databaseSystem = configurationItems.Single (x => SupportedDatabaseSystems.Select(i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
 
       var isDatabaseTest = string.Equals (databaseSystem, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
 
-      var platform = configurationItems[2];
+      var platform = configurationItems.Single (x => SupportedPlatforms.Select(i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Platform, platform);
 
       var use32Bit = string.Equals (platform, "x86", StringComparison.OrdinalIgnoreCase) ? "True" : "False";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
 
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, configurationItems[3] == "LocalMachine" ? "net-4.5" : configurationItems[3]);
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationItems[4]);
+      var executionRuntime = configurationItems.Single (x => SupportedExecutionRuntimes.Select(i => i.ItemSpec).Contains (x));
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, executionRuntime == "LocalMachine" ? "net-4.5" : executionRuntime);
+
+      var configurationID = configurationItems.Single (x => SupportedConfigurationIDs.Select(i => i.ItemSpec).Contains (x));
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
       return testingConfigurationItem;
     }

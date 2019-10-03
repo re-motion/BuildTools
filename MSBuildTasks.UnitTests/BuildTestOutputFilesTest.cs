@@ -123,6 +123,31 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
+    public void ConfigurationOrder_Irrelevant ()
+    {
+      var taskItem = new TaskItem ("MyTest.dll");
+      const string config = "debug+Firefox+dockerNet45+SqlServer2012+x64";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var task = new BuildTestOutputFiles
+                 {
+                     Input = new ITaskItem[] { taskItem },
+                     SupportedDatabaseSystems = new ITaskItem[]{new TaskItem ("SqlServer2012")},
+                     SupportedBrowsers = new ITaskItem[]{new TaskItem ("Firefox")},
+                     SupportedPlatforms = new ITaskItem[]{new TaskItem ("x64")},
+                     SupportedConfigurationIDs = new ITaskItem[]{new TaskItem ("debug")},
+                     SupportedExecutionRuntimes = new ITaskItem[]{new TaskItem ("dockerNet45")}
+                 };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Browser), Is.EqualTo ("Firefox"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.DatabaseSystem), Is.EqualTo ("SqlServer2012"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Platform), Is.EqualTo ("x64"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("debug"));
+    }
+
+    [Test]
     public void MultipleConfigurationsWithTrailingWhitespaces_CorrectParsing ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
