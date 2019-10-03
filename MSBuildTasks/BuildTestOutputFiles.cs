@@ -49,11 +49,12 @@ namespace Remotion.BuildTools.MSBuildTasks
       foreach (var item in Input)
       {
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
+        var testingSetupBuildFile = item.GetMetadata ("TestingSetupBuildFile");
 
-        var configurations = Regex.Replace (testingConfiguration, @"\s+", "").Split (new[]{";"}, StringSplitOptions.RemoveEmptyEntries);
+        var configurations = Regex.Replace (testingConfiguration, @"\s+", "").Split (new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
         foreach (var configuration in configurations)
         {
-          var newItem = CreateTaskItem (item.ItemSpec, configuration);
+          var newItem = CreateTaskItem (item.ItemSpec, configuration, testingSetupBuildFile);
           output.Add (newItem);
         }
       }
@@ -62,11 +63,12 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (string originalItemSpec, string unsplitConfiguration)
+    private ITaskItem CreateTaskItem (string originalItemSpec, string unsplitConfiguration, string testingSetupBuildFile)
     {
       var testAssemblyFileName = _pathHelper.GetFileName (originalItemSpec);
       var testingConfigurationItem = new TaskItem (testAssemblyFileName + "_" + unsplitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFileName, testAssemblyFileName);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestingSetupBuildFile, testingSetupBuildFile);
 
       var testAssemblyFullPath = _pathHelper.GetFullPath (originalItemSpec);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath, testAssemblyFullPath);
@@ -93,7 +95,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var use32Bit = string.Equals (platform, "x86", StringComparison.OrdinalIgnoreCase) ? "True" : "False";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
 
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, configurationItems[3]);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, configurationItems[3] == "LocalMachine" ? "net-4.5" : configurationItems[3]);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationItems[4]);
 
       return testingConfigurationItem;

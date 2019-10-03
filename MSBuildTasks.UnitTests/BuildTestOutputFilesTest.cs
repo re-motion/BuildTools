@@ -121,12 +121,13 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("debug"));
     }
-    
+
     [Test]
     public void MultipleConfigurationsWithTrailingWhitespaces_CorrectParsing ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      var config = $"{Environment.NewLine}    Chrome+NoDb+x86+dockerNet45+release;  {Environment.NewLine}  Firefox+SqlServer2012+x64+dockerNet45+debug{Environment.NewLine}    ";
+      var config =
+          $"{Environment.NewLine}    Chrome+NoDb+x86+dockerNet45+release;  {Environment.NewLine}  Firefox+SqlServer2012+x64+dockerNet45+debug{Environment.NewLine}    ";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
 
@@ -138,7 +139,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo ("dockerNet45"));
       Assert.That (task.Output[1].GetMetadata (TestingConfigurationMetadata.ConfigurationID), Is.EqualTo ("debug"));
     }
-    
+
     [Test]
     public void MultipleConfigurationsWithTrailingSemiColon_CorrectParsing ()
     {
@@ -382,6 +383,20 @@ namespace BuildTools.MSBuildTasks.UnitTests
       task.Execute();
 
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TestAssemblyDirectoryName), Is.EqualTo (testAssemblyDirectoryName));
+    }
+
+    [Test]
+    public void TestingSetupBuildFile_IsMetadata ()
+    {
+      var taskItem = new TaskItem ("Tests.dll");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      const string testingSetupBuildFile = "MyTestingSetupBuildFile";
+      taskItem.SetMetadata ("TestingSetupBuildFile", testingSetupBuildFile);
+      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TestingSetupBuildFile), Is.EqualTo (testingSetupBuildFile));
     }
   }
 }

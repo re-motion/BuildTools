@@ -33,5 +33,7 @@
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.NuGetPack" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.NuGetPush" />
   <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.SandcastleProjectBuilder" />
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.BuildTestOutputFiles" />
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)Remotion.BuildTools.MSBuildTasks.dll" TaskName="Remotion.BuildTools.MSBuildTasks.FilterTestingConfigurations" />
 
 </Project>

@@ -29,5 +29,6 @@ namespace Remotion.BuildTools.MSBuildTasks
     public const string TestAssemblyFileName = "TestAssemblyFileName";
     public const string TestAssemblyFullPath = "TestAssemblyFullPath";
     public const string TestAssemblyDirectoryName = "TestAssemblyDirectoryName";
+    public const string TestingSetupBuildFile = "TestingSetupBuildFile";
   }
 }
