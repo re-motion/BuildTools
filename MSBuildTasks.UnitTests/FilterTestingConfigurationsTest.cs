@@ -230,6 +230,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (filter.Output, Is.EqualTo (items));
     }
 
+    [Test]
+    public void SupportedDatabaseSystems_NoDBAlwaysSupported ()
+    {
+      var validItem = CreateTestConfiguration ("ValidItem", databaseSystem: "NoDB");
+      var items = new[] { validItem };
+      var filter = CreateFilterTestingConfigurations (items);
+
+      var result = filter.Execute();
+
+      Assert.That (result, Is.True);
+    }
+
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
       var item = new TaskItem (name);
