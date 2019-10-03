@@ -136,7 +136,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private bool IsValidBrowser (string browser)
     {
-      if (string.Equals (browser, EmptyMetadataID.Browser, StringComparison.OrdinalIgnoreCase) && !SupportedBrowsers.Any())
+      if (string.Equals (browser, EmptyMetadataID.Browser, StringComparison.OrdinalIgnoreCase))
         return true;
 
       return SupportedBrowsers.Select (i => i.ItemSpec).Contains (browser, StringComparer.OrdinalIgnoreCase);

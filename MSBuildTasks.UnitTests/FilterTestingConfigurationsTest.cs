@@ -241,6 +241,18 @@ namespace BuildTools.MSBuildTasks.UnitTests
 
       Assert.That (result, Is.True);
     }
+    
+    [Test]
+    public void SupportedBrowsers_NoBrowserAlwaysSupported ()
+    {
+      var validItem = CreateTestConfiguration ("ValidItem", browser: "NoBrowser");
+      var items = new[] { validItem };
+      var filter = CreateFilterTestingConfigurations (items);
+
+      var result = filter.Execute();
+
+      Assert.That (result, Is.True);
+    }
 
     private ITaskItem CreateTestConfiguration (string name, string platform = null, string databaseSystem = null, string browser = null)
     {
