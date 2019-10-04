@@ -99,7 +99,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var isWebTest = string.Equals (browser, EmptyMetadataID.Browser, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsWebTest, isWebTest);
 
-      var databaseSystem = configurationItems.Single (x => SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (x));
+      var databaseSystem = GetDatabaseSystem (configurationItems);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
 
       var isDatabaseTest = string.Equals (databaseSystem, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
@@ -118,6 +118,16 @@ namespace Remotion.BuildTools.MSBuildTasks
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
       return testingConfigurationItem;
+    }
+
+    private string GetDatabaseSystem (string[] configurationItems)
+    {
+      if (configurationItems.Contains ("NoDB", StringComparer.OrdinalIgnoreCase))
+      {
+        return "NoDB";
+      }
+
+      return configurationItems.Single (x => SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (x));
     }
 
     private string GetBrowser (string[] configurationItems)
