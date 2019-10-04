@@ -22,7 +22,7 @@ namespace Remotion.BuildTools.MSBuildTasks
   /// </summary>
   public static class EmptyMetadataID
   {
-    public const string DatabaseSystem = "NoDb";
+    public const string DatabaseSystem = "NoDB";
     public const string Browser = "NoBrowser";
   }
 }

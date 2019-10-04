@@ -27,6 +27,7 @@ namespace Remotion.BuildTools.MSBuildTasks
   public class BuildTestOutputFiles : Task
   {
     private readonly IPath _pathHelper;
+    private readonly ITaskLogger _logger;
 
     [Required]
     public ITaskItem[] Input { get; set; }
@@ -54,9 +55,10 @@ namespace Remotion.BuildTools.MSBuildTasks
       _pathHelper = new PathWrapper (new FileSystem());
     }
 
-    public BuildTestOutputFiles (IPath pathHelper)
+    public BuildTestOutputFiles (IPath pathHelper, ITaskLogger logger)
     {
       _pathHelper = pathHelper;
+      _logger = logger;
     }
 
     public override bool Execute ()
@@ -67,10 +69,24 @@ namespace Remotion.BuildTools.MSBuildTasks
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
         var testingSetupBuildFile = item.GetMetadata ("TestingSetupBuildFile");
 
-        var configurations = Regex.Replace (testingConfiguration, @"\s+", "").Split (new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-        foreach (var configuration in configurations)
+        var configurations = GetSplitConfigurations (testingConfiguration);
+        foreach (var plusSeparatedConfigurationItems in configurations)
         {
-          var newItem = CreateTaskItem (item.ItemSpec, configuration, testingSetupBuildFile);
+          var configurationItems = GetConfigurationItems (plusSeparatedConfigurationItems);
+
+          var duplicateItems = GetDuplicateItems (configurationItems);
+
+          if (duplicateItems.Any())
+          {
+            foreach (var duplicateItem in duplicateItems)
+            {
+              _logger.LogError ("The following configuration values were found multiple times: '{0}'", duplicateItem);
+            }
+
+            return false;
+          }
+
+          var newItem = CreateConfigurationItem (item.ItemSpec, configurationItems, plusSeparatedConfigurationItems, testingSetupBuildFile);
           output.Add (newItem);
         }
       }
@@ -79,7 +95,26 @@ namespace Remotion.BuildTools.MSBuildTasks
       return true;
     }
 
-    private ITaskItem CreateTaskItem (string originalItemSpec, string unsplitConfiguration, string testingSetupBuildFile)
+    private IEnumerable<string> GetConfigurationItems (string configuration)
+    {
+      return Regex.Replace (configuration, @"\s+", "").Split ('+');
+    }
+
+    private IEnumerable<string> GetSplitConfigurations (string testingConfiguration)
+    {
+      return Regex.Replace (testingConfiguration, @"\s+", "").Split (new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    private IEnumerable<string> GetDuplicateItems (IEnumerable<string> configurationItems)
+    {
+      return configurationItems
+          .GroupBy (x => x)
+          .Where (group => group.Count() > 1)
+          .Select (group => group.Key)
+          .ToArray();
+    }
+
+    private ITaskItem CreateConfigurationItem (string originalItemSpec, IEnumerable<string> splitConfiguration, string unsplitConfiguration, string testingSetupBuildFile)
     {
       var testAssemblyFileName = _pathHelper.GetFileName (originalItemSpec);
       var testingConfigurationItem = new TaskItem (testAssemblyFileName + "_" + unsplitConfiguration);
@@ -91,51 +126,46 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyDirectoryName, _pathHelper.GetDirectoryName (testAssemblyFullPath));
 
-      var configurationItems = Regex.Replace (unsplitConfiguration, @"\s+", "").Split ('+');
 
-      var browser = GetBrowser (configurationItems);
+      var browser = GetBrowser (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Browser, browser);
 
       var isWebTest = string.Equals (browser, EmptyMetadataID.Browser, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsWebTest, isWebTest);
 
-      var databaseSystem = GetDatabaseSystem (configurationItems);
+      var databaseSystem = GetDatabaseSystem (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.DatabaseSystem, databaseSystem);
 
       var isDatabaseTest = string.Equals (databaseSystem, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
 
-      var platform = configurationItems.Single (x => SupportedPlatforms.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      var platform = splitConfiguration.Single (x => SupportedPlatforms.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Platform, platform);
 
       var use32Bit = string.Equals (platform, "x86", StringComparison.OrdinalIgnoreCase) ? "True" : "False";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
 
-      var executionRuntime = configurationItems.Single (x => SupportedExecutionRuntimes.Select (i => i.ItemSpec).Contains (x));
+      var executionRuntime = splitConfiguration.Single (x => SupportedExecutionRuntimes.Select (i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, executionRuntime == "LocalMachine" ? "net-4.5" : executionRuntime);
 
-      var configurationID = configurationItems.Single (x => SupportedConfigurationIDs.Select (i => i.ItemSpec).Contains (x));
+      var configurationID = splitConfiguration.Single (x => SupportedConfigurationIDs.Select (i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
       return testingConfigurationItem;
     }
 
-    private string GetDatabaseSystem (string[] configurationItems)
+    private string GetDatabaseSystem (IEnumerable<string> configurationItems)
     {
-      if (configurationItems.Contains ("NoDB", StringComparer.OrdinalIgnoreCase))
-      {
-        return "NoDB";
-      }
+      if (configurationItems.Contains (EmptyMetadataID.DatabaseSystem, StringComparer.OrdinalIgnoreCase))
+        return EmptyMetadataID.DatabaseSystem;
 
       return configurationItems.Single (x => SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (x));
     }
 
-    private string GetBrowser (string[] configurationItems)
+    private string GetBrowser (IEnumerable<string> configurationItems)
     {
-      if (configurationItems.Contains ("NoBrowser", StringComparer.OrdinalIgnoreCase))
-      {
-        return "NoBrowser";
-      }
+      if (configurationItems.Contains (EmptyMetadataID.Browser, StringComparer.OrdinalIgnoreCase))
+        return EmptyMetadataID.Browser;
 
       return configurationItems.Single (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x));
     }

@@ -160,19 +160,29 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var taskItem = new TaskItem ("MyTest.dll");
       const string config = "debug+debug+dockerNet45+SqlServer2012+x64";
       taskItem.SetMetadata ("TestingConfiguration", config);
-      var task = new BuildTestOutputFiles
-                 {
-                     Input = new ITaskItem[] { taskItem },
-                     SupportedDatabaseSystems = new ITaskItem[] { new TaskItem ("SqlServer2012") },
-                     SupportedBrowsers = new ITaskItem[] { new TaskItem ("Firefox") },
-                     SupportedPlatforms = new ITaskItem[] { new TaskItem ("x64") },
-                     SupportedConfigurationIDs = new ITaskItem[] { new TaskItem ("debug") },
-                     SupportedExecutionRuntimes = new ITaskItem[] { new TaskItem ("dockerNet45") }
-                 };
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogError ("The following configuration values were found multiple times: '{0}'", "debug")).Repeat.Once();
+
+      var items = new ITaskItem[] { taskItem };
+      var supportedDatabaseSystems = new ITaskItem[] { new TaskItem ("SqlServer2012") };
+      var supportedBrowsers = new ITaskItem[] { new TaskItem ("Firefox") };
+      var supportedPlatforms = new ITaskItem[] { new TaskItem ("x64") };
+      var supportedConfigurationIDs = new ITaskItem[] { new TaskItem ("debug") };
+      var supportedExecutionRuntimes = new ITaskItem[] { new TaskItem ("dockerNet45") };
+
+      var task = CreateBuildTestOutputFiles (
+          items,
+          supportedDatabaseSystems: supportedDatabaseSystems,
+          supportedBrowsers: supportedBrowsers,
+          supportedPlatforms: supportedPlatforms,
+          supportedConfigurationIDs: supportedConfigurationIDs,
+          supportedExecutionruntimes: supportedExecutionRuntimes,
+          logger: loggerMock);
 
       var result = task.Execute();
 
       Assert.That (result, Is.False);
+      loggerMock.VerifyAllExpectations();
     }
 
     [Test]
@@ -534,14 +544,16 @@ namespace BuildTools.MSBuildTasks.UnitTests
         ITaskItem[] supportedBrowsers = null,
         ITaskItem[] supportedExecutionruntimes = null,
         ITaskItem[] supportedConfigurationIDs = null,
-        IPath pathHelper = null)
+        IPath pathHelper = null,
+        ITaskLogger logger = null)
     {
       var pathStub = MockRepository.Mock<IPath>();
       pathStub.Stub (_ => _.GetFullPath (null)).IgnoreArguments().Return ("");
       pathStub.Stub (_ => _.GetFileName (null)).IgnoreArguments().Return ("");
       pathStub.Stub (_ => _.GetDirectoryName (null)).IgnoreArguments().Return ("");
+      var loggerStub = MockRepository.Mock<ITaskLogger>();
 
-      return new BuildTestOutputFiles (pathHelper ?? pathStub)
+      return new BuildTestOutputFiles (pathHelper ?? pathStub, logger ?? loggerStub)
              {
                  Input = input,
                  SupportedDatabaseSystems = supportedDatabaseSystems ?? new ITaskItem[] { new TaskItem ("SqlServer2014") },
