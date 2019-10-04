@@ -93,7 +93,7 @@ namespace Remotion.BuildTools.MSBuildTasks
 
       var configurationItems = Regex.Replace (unsplitConfiguration, @"\s+", "").Split ('+');
 
-      var browser = configurationItems.Single (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x));
+      var browser = GetBrowser (configurationItems);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Browser, browser);
 
       var isWebTest = string.Equals (browser, EmptyMetadataID.Browser, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
@@ -118,6 +118,16 @@ namespace Remotion.BuildTools.MSBuildTasks
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
       return testingConfigurationItem;
+    }
+
+    private string GetBrowser (string[] configurationItems)
+    {
+      if (configurationItems.Contains ("NoBrowser", StringComparer.OrdinalIgnoreCase))
+      {
+        return "NoBrowser";
+      }
+
+      return configurationItems.Single (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x));
     }
   }
 }
