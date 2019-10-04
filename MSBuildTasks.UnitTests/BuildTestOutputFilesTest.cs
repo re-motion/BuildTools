@@ -458,7 +458,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
       var pathStub = MockRepository.Mock<IPath>();
       pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
-      pathStub.Stub (_ => _.GetFullPath (testAssemblyFullPath)).Return (testAssemblyFullPath);
+      pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
