@@ -332,7 +332,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var taskItem = new TaskItem ("MyTest.dll");
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x64+dockerNet45+release");
-      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items);
 
       task.Execute();
 
@@ -357,7 +358,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var taskItem = new TaskItem ("MyTest.dll");
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+nodb+x64+dockerNet45+release");
-      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items);
 
       task.Execute();
 
@@ -369,7 +371,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var taskItem = new TaskItem ("MyTest.dll");
       taskItem.SetMetadata ("TestingConfiguration", "NoBrowser+SqlServer2014+x64+dockerNet45+release");
-      var task = new BuildTestOutputFiles { Input = new ITaskItem[] { taskItem } };
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items);
 
       task.Execute();
 
