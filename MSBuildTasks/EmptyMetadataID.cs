@@ -24,5 +24,6 @@ namespace Remotion.BuildTools.MSBuildTasks
   {
     public const string DatabaseSystem = "NoDB";
     public const string Browser = "NoBrowser";
+    public const string ExecutionRuntime = "LocalMachine";
   }
 }

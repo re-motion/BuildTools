@@ -148,6 +148,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       var executionRuntime = splitConfiguration.Single (x => SupportedExecutionRuntimes.Select (i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, executionRuntime == "LocalMachine" ? "net-4.5" : executionRuntime);
 
+      var useDocker = executionRuntime == EmptyMetadataID.ExecutionRuntime ? "False" : "True";
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.UseDocker, useDocker);
+
       var configurationID = splitConfiguration.Single (x => SupportedConfigurationIDs.Select (i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
