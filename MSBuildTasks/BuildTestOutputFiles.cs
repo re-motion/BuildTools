@@ -202,7 +202,8 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private string GetTargetRuntimes (IEnumerable<string> configurationItems)
     {
-      return configurationItems.Single (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase)).ToUpper();
+      var raw = configurationItems.Single (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase)).ToUpper();
+      return Regex.Replace (raw, @"NET(\d)(\d)","NET-$1.$2" );
     }
   }
 }
