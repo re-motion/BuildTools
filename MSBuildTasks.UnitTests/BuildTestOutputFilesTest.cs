@@ -624,6 +624,22 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo (executionRuntimeValue));
     }
 
+    [Test]
+    public void SupportedExecutionRuntimes_IgnoresCase ()
+    {
+      var taskItem = new TaskItem ("Tests.dll");
+      const string executionRuntimeKey = "ExecutionRuntimeKey";
+      const string executionRuntimeValue = "ExecutionRuntimeValue";
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+execuTionruntimekey+release+NET-4.5");
+      var items = new ITaskItem[] { taskItem };
+      var supportedExecutionRuntimes = new[] { new TaskItem ($"{executionRuntimeKey}:{executionRuntimeValue}") };
+      var task = CreateBuildTestOutputFiles (items, supportedExecutionruntimes: supportedExecutionRuntimes);
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo (executionRuntimeValue));
+    }
+
     private BuildTestOutputFiles CreateBuildTestOutputFiles (
         ITaskItem[] input,
         ITaskItem[] supportedPlatforms = null,

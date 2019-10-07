@@ -172,7 +172,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var supportedExecutionRuntimesDictionary = SupportedExecutionRuntimes
           .Select (item => item.ItemSpec)
           .Select (x => x.Split (new[] { ':' }, StringSplitOptions.RemoveEmptyEntries))
-          .ToDictionary (split => split[0], split => split[1]);
+          .ToDictionary (split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
 
       foreach (var item in configurationItems)
       {
