@@ -169,7 +169,18 @@ namespace Remotion.BuildTools.MSBuildTasks
       if (configurationItems.Contains (EmptyMetadataID.ExecutionRuntime, StringComparer.OrdinalIgnoreCase))
         return EmptyMetadataID.ExecutionRuntime;
 
-      return configurationItems.Single (x => SupportedExecutionRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      var supportedExecutionRuntimesDictionary = SupportedExecutionRuntimes
+          .Select (item => item.ItemSpec)
+          .Select (x => x.Split (new[] { ':' }, StringSplitOptions.RemoveEmptyEntries))
+          .ToDictionary (split => split[0], split => split[1]);
+
+      foreach (var item in configurationItems)
+      {
+        if (supportedExecutionRuntimesDictionary.TryGetValue (item, out var supportedExecutionRuntime))
+          return supportedExecutionRuntime;
+      }
+
+      throw new KeyNotFoundException();
     }
 
     private string GetDatabaseSystem (IEnumerable<string> configurationItems)
