@@ -185,7 +185,8 @@ namespace Remotion.BuildTools.MSBuildTasks
       if (configurationItems.Contains (EmptyMetadataID.Browser, StringComparer.OrdinalIgnoreCase))
         return EmptyMetadataID.Browser;
 
-      return configurationItems.Single (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x));
+      var caseInsensitiveBrowser = configurationItems.Single (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      return char.ToUpper (caseInsensitiveBrowser[0]) + caseInsensitiveBrowser.ToLower().Substring (1);
     }
 
     private string GetTargetRuntimes (IEnumerable<string> configurationItems)

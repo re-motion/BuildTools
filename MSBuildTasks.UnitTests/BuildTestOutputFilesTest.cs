@@ -607,6 +607,20 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TargetRuntime), Is.EqualTo ("NET-4.5"));
     }
 
+    [Test]
+    public void Browser_IsCaseInsensitive ()
+    {
+      var taskItem = new TaskItem ("Tests.dll");
+      taskItem.SetMetadata ("TestingConfiguration", "chRome+SqlServer2014+x64+dockerNet45+release+NET-4.5");
+      var items = new ITaskItem[] { taskItem };
+      var supportedBrowsers = new[] { new TaskItem ("Chrome") };
+      var task = CreateBuildTestOutputFiles (items, supportedBrowsers: supportedBrowsers);
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.Browser), Is.EqualTo ("Chrome"));
+    }
+
     private BuildTestOutputFiles CreateBuildTestOutputFiles (
         ITaskItem[] input,
         ITaskItem[] supportedPlatforms = null,
