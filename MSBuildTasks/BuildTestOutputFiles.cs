@@ -145,7 +145,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var use32Bit = string.Equals (platform, "x86", StringComparison.OrdinalIgnoreCase) ? "True" : "False";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Use32Bit, use32Bit);
 
-      var executionRuntime = splitConfiguration.Single (x => SupportedExecutionRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      var executionRuntime = GetExecutionRuntime (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExecutionRuntime, executionRuntime == "LocalMachine" ? "net-4.5" : executionRuntime);
 
       var useDocker = string.Equals (executionRuntime, EmptyMetadataID.ExecutionRuntime, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
@@ -155,6 +155,14 @@ namespace Remotion.BuildTools.MSBuildTasks
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
       return testingConfigurationItem;
+    }
+
+    private string GetExecutionRuntime (IEnumerable<string> configurationItems)
+    {
+      if (configurationItems.Contains (EmptyMetadataID.ExecutionRuntime, StringComparer.OrdinalIgnoreCase))
+        return EmptyMetadataID.ExecutionRuntime;
+
+      return configurationItems.Single (x => SupportedExecutionRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
     }
 
     private string GetDatabaseSystem (IEnumerable<string> configurationItems)

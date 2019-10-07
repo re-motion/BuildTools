@@ -552,6 +552,19 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
+    public void UseDocker_ExecutionRuntimeLocalMachine_IsAlwaysSupported ()
+    {
+      var taskItem = new TaskItem ("Tests.dll");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+LocalMachine+release");
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items);
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.UseDocker), Is.EqualTo ("False"));
+    }
+
+    [Test]
     public void UseDocker_ExecutionRuntimeLocalMachine_IsCaseInsensitive ()
     {
       var taskItem = new TaskItem ("Tests.dll");
