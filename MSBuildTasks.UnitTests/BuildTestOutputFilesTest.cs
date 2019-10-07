@@ -33,7 +33,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ValidConfiguration_CorrectBrowser ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -46,7 +46,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ValidConfiguration_CorrectDatabase ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -59,7 +59,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ValidConfiguration_CorrectPlatform ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -72,7 +72,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ValidConfiguration_CorrectDockerConfiguration ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -85,7 +85,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ValidConfiguration_CorrectBuildConfiguration ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -98,7 +98,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void MultipleConfigurations_CorrectParsing ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release;Firefox+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5;Firefox+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var supportedBrowsers = new ITaskItem[] { new TaskItem ("Chrome"), new TaskItem ("Firefox") };
       var task = CreateBuildTestOutputFiles (items, supportedBrowsers: supportedBrowsers);
@@ -115,7 +115,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ConfigurationsWithTrailingWhitespaces_CorrectParsing ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      var config = $"{Environment.NewLine}    Chrome+SqlServer2014+x64+dockerNet45+release{Environment.NewLine}    ";
+      var config = $"{Environment.NewLine}    Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5{Environment.NewLine}    ";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
@@ -133,7 +133,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ConfigurationOrder_Irrelevant ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      const string config = "debug+Firefox+dockerNet45+SqlServer2012+x64";
+      const string config = "debug+Firefox+dockerNet45+SqlServer2012+x64+net-4.5";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var task = new BuildTestOutputFiles
                  {
@@ -142,7 +142,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
                      SupportedBrowsers = new ITaskItem[] { new TaskItem ("Firefox") },
                      SupportedPlatforms = new ITaskItem[] { new TaskItem ("x64") },
                      SupportedConfigurationIDs = new ITaskItem[] { new TaskItem ("debug") },
-                     SupportedExecutionRuntimes = new ITaskItem[] { new TaskItem ("dockerNet45") }
+                     SupportedExecutionRuntimes = new ITaskItem[] { new TaskItem ("dockerNet45") },
+                     SupportedTargetRuntimes = new ITaskItem[] { new TaskItem ("net-4.5") }
                  };
 
       task.Execute();
@@ -158,7 +159,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void ConfigurationOrder_DoubleConfiguration_Error ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      const string config = "debug+debug+dockerNet45+SqlServer2012+x64";
+      const string config = "debug+debug+dockerNet45+SqlServer2012+x64+net-4.5";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var loggerMock = MockRepository.Mock<ITaskLogger>();
       loggerMock.Expect (_ => _.LogError ("The following configuration values were found multiple times: '{0}'", "debug")).Repeat.Once();
@@ -190,7 +191,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     {
       var taskItem = new TaskItem ("MyTest.dll");
       var config =
-          $"{Environment.NewLine}    Chrome+SqlServer2014+x64+dockerNet45+release;  {Environment.NewLine}  Firefox+SqlServer2014+x64+dockerNet45+release{Environment.NewLine}    ";
+          $"{Environment.NewLine}    Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5;  {Environment.NewLine}  Firefox+SqlServer2014+x64+dockerNet45+release+net-4.5{Environment.NewLine}    ";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var items = new ITaskItem[] { taskItem };
       var supportedBrowsers = new ITaskItem[] { new TaskItem ("Chrome"), new TaskItem ("Firefox") };
@@ -209,7 +210,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void MultipleConfigurationsWithTrailingSemiColon_CorrectParsing ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      const string config = "Chrome+SqlServer2014+x64+dockerNet45+release;Firefox+SqlServer2014+x64+dockerNet45+release;";
+      const string config = "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5;Firefox+SqlServer2014+x64+dockerNet45+release+net-4.5;";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var supportedBrowsers = new ITaskItem[] { new TaskItem ("Chrome"), new TaskItem ("Firefox") };
       var items = new ITaskItem[] { taskItem };
@@ -235,7 +236,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
       var taskItem = new TaskItem (testAssemblyFileName);
-      const string config = "Chrome+SqlServer2014+x64+dockerNet45+release";
+      const string config = "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
@@ -257,7 +258,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
 
       var taskItem = new TaskItem (testAssemblyFullPath);
-      const string config = "Chrome+SqlServer2014+x64+dockerNet45+release";
+      const string config = "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
@@ -278,8 +279,8 @@ namespace BuildTools.MSBuildTasks.UnitTests
       pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
       var taskItem = new TaskItem (testAssemblyFileName);
-      const string config1 = "Chrome+SqlServer2014+x86+dockerNet45+release";
-      const string config2 = "Firefox+SqlServer2012+x64+dockerNet45+debug";
+      const string config1 = "Chrome+SqlServer2014+x86+dockerNet45+release+net-4.5";
+      const string config2 = "Firefox+SqlServer2012+x64+dockerNet45+debug+net-4.5";
       taskItem.SetMetadata ("TestingConfiguration", config1 + ";" + config2);
       var items = new ITaskItem[] { taskItem };
       var supportedBrowsers = new ITaskItem[] { new TaskItem ("Firefox"), new TaskItem ("Chrome") };
@@ -303,7 +304,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void Use32Bit_x86_True ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x86+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x86+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -316,7 +317,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void Use32Bit_x86CaseInsensitive_True ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+X86+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+X86+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
       task.Execute();
@@ -328,7 +329,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void Use32Bit_x64_False ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -341,7 +342,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void IsDatabaseTest_NoDb_False ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDb+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -354,7 +355,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void IsDatabaseTest_NotNoDb_True ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -367,7 +368,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void IsDatabaseTest_NoDbIgnoreCase_False ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+nodb+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+nodb+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -380,7 +381,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void IsWebTest_NoBrowser_False ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "NoBrowser+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "NoBrowser+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -393,7 +394,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void IsWebTest_NoBrowserIgnoreCase_False ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "nobrowser+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "nobrowser+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -406,7 +407,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void SupportedBrowsers_NoBrowser_AlwaysSupported ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "NoBrowser+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "NoBrowser+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, supportedBrowsers: new ITaskItem[0]);
 
@@ -419,7 +420,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void SupportedDatabaseSystems_NoDB_AlwaysSupported ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDB+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+NoDB+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, supportedDatabaseSystems: new ITaskItem[0]);
 
@@ -432,7 +433,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void IsWebTest_NotNoBrowser_True ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -452,7 +453,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
       var taskItem = new TaskItem (testAssemblyFileName);
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
 
@@ -468,7 +469,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       const string testAssemblyDirectoryName = "Development";
       var testAssemblyFullPath = $"C:\\{testAssemblyDirectoryName}\\{testAssemblyFileName}";
       var taskItem = new TaskItem (testAssemblyFullPath);
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var pathStub = MockRepository.Mock<IPath>();
       pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
@@ -492,7 +493,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
       var taskItem = new TaskItem (testAssemblyFileName);
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
 
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
@@ -513,7 +514,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
       pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
       var taskItem = new TaskItem (testAssemblyFileName);
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
 
@@ -526,7 +527,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void TestingSetupBuildFile_IsMetadata ()
     {
       var taskItem = new TaskItem ("Tests.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+net-4.5");
       const string testingSetupBuildFile = "MyTestingSetupBuildFile";
       taskItem.SetMetadata ("TestingSetupBuildFile", testingSetupBuildFile);
       var items = new ITaskItem[] { taskItem };
@@ -541,7 +542,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void UseDocker_ExecutionRuntimeLocalMachine_False ()
     {
       var taskItem = new TaskItem ("Tests.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+LocalMachine+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+LocalMachine+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var supportedExecutionruntimes = new[] { new TaskItem ("LocalMachine") };
       var task = CreateBuildTestOutputFiles (items, supportedExecutionruntimes: supportedExecutionruntimes);
@@ -555,7 +556,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void UseDocker_ExecutionRuntimeLocalMachine_IsAlwaysSupported ()
     {
       var taskItem = new TaskItem ("Tests.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+LocalMachine+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+LocalMachine+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items);
 
@@ -568,7 +569,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     public void UseDocker_ExecutionRuntimeLocalMachine_IsCaseInsensitive ()
     {
       var taskItem = new TaskItem ("Tests.dll");
-      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+lOcalmAchine+release");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+lOcalmAchine+release+net-4.5");
       var items = new ITaskItem[] { taskItem };
       var supportedExecutionruntimes = new[] { new TaskItem ("LocalMachine") };
       var task = CreateBuildTestOutputFiles (items, supportedExecutionruntimes: supportedExecutionruntimes);
@@ -578,6 +579,34 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.UseDocker), Is.EqualTo ("False"));
     }
 
+    [Test]
+    public void TargetFramework_IsMetadata ()
+    {
+      var taskItem = new TaskItem ("Tests.dll");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+NET-4.5");
+      var items = new ITaskItem[] { taskItem };
+      var supportedTargetRuntimes = new[] { new TaskItem ("NET-4.5") };
+      var task = CreateBuildTestOutputFiles (items, supportedTargetRuntimes: supportedTargetRuntimes);
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TargetRuntime), Is.EqualTo ("NET-4.5"));
+    }
+
+    [Test]
+    public void TargetFramework_IsCaseInsensitive ()
+    {
+      var taskItem = new TaskItem ("Tests.dll");
+      taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+dockerNet45+release+nEt-4.5");
+      var items = new ITaskItem[] { taskItem };
+      var supportedTargetRuntimes = new[] { new TaskItem ("net-4.5") };
+      var task = CreateBuildTestOutputFiles (items, supportedTargetRuntimes: supportedTargetRuntimes);
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.TargetRuntime), Is.EqualTo ("NET-4.5"));
+    }
+
     private BuildTestOutputFiles CreateBuildTestOutputFiles (
         ITaskItem[] input,
         ITaskItem[] supportedPlatforms = null,
@@ -585,6 +614,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
         ITaskItem[] supportedBrowsers = null,
         ITaskItem[] supportedExecutionruntimes = null,
         ITaskItem[] supportedConfigurationIDs = null,
+        ITaskItem[] supportedTargetRuntimes = null,
         IPath pathHelper = null,
         ITaskLogger logger = null)
     {
@@ -601,6 +631,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
                  SupportedPlatforms = supportedPlatforms ?? new ITaskItem[] { new TaskItem ("x64"), new TaskItem ("x86") },
                  SupportedBrowsers = supportedBrowsers ?? new ITaskItem[] { new TaskItem ("Chrome") },
                  SupportedExecutionRuntimes = supportedExecutionruntimes ?? new ITaskItem[] { new TaskItem ("dockerNet45") },
+                 SupportedTargetRuntimes = supportedTargetRuntimes ?? new ITaskItem[] { new TaskItem ("net-4.5") },
                  SupportedConfigurationIDs = supportedConfigurationIDs ?? new ITaskItem[] { new TaskItem ("release") },
              };
     }

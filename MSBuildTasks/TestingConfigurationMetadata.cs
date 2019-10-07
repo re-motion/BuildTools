@@ -31,5 +31,6 @@ namespace Remotion.BuildTools.MSBuildTasks
     public const string TestAssemblyDirectoryName = "TestAssemblyDirectoryName";
     public const string TestingSetupBuildFile = "TestingSetupBuildFile";
     public const string UseDocker = "UseDocker";
+    public const string TargetRuntime = "TargetRuntime";
   }
 }

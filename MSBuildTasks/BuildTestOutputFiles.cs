@@ -47,6 +47,10 @@ namespace Remotion.BuildTools.MSBuildTasks
     [Required]
     public ITaskItem[] SupportedExecutionRuntimes { get; set; }
 
+    [Required]
+    public ITaskItem[] SupportedTargetRuntimes { get; set; }
+
+
     [Output]
     public ITaskItem[] Output { get; set; }
 
@@ -154,6 +158,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       var configurationID = splitConfiguration.Single (x => SupportedConfigurationIDs.Select (i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
+      var targetRuntime = GetTargetRuntimes (splitConfiguration);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TargetRuntime, targetRuntime);
+
       return testingConfigurationItem;
     }
 
@@ -179,6 +186,11 @@ namespace Remotion.BuildTools.MSBuildTasks
         return EmptyMetadataID.Browser;
 
       return configurationItems.Single (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x));
+    }
+
+    private string GetTargetRuntimes (IEnumerable<string> configurationItems)
+    {
+      return configurationItems.Single (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase)).ToUpper();
     }
   }
 }
