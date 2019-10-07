@@ -57,6 +57,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     public BuildTestOutputFiles ()
     {
       _pathHelper = new PathWrapper (new FileSystem());
+      _logger = new TaskLogger (Log);
     }
 
     public BuildTestOutputFiles (IPath pathHelper, ITaskLogger logger)
@@ -203,7 +204,7 @@ namespace Remotion.BuildTools.MSBuildTasks
     private string GetTargetRuntimes (IEnumerable<string> configurationItems)
     {
       var raw = configurationItems.Single (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase)).ToUpper();
-      return Regex.Replace (raw, @"NET(\d)(\d)","NET-$1.$2" );
+      return Regex.Replace (raw, @"NET(\d)(\d)", "NET-$1.$2");
     }
   }
 }
