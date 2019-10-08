@@ -787,6 +787,20 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
+    public void ExcludeCategories_NotProvided_Semicolon ()
+    {
+      var taskItem = new TaskItem ("C:\\Path\\To\\MyTest.dll");
+      const string config = "release+SqlServer2014+x64+Win_NET46+Chrome+net45";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items);
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExcludeCategories), Is.EqualTo (";"));
+    }
+
+    [Test]
     public void TestingCategories_ToleratesAlienItems ()
     {
       var taskItem = new TaskItem ("C:\\Path\\To\\MyTest.dll");

@@ -263,7 +263,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var keyValuePair =
           configurationItems.SingleOrDefault (x => x.StartsWith (TestingConfigurationMetadata.ExcludeCategories + "=", StringComparison.OrdinalIgnoreCase));
 
-      return keyValuePair?.Split ('=')[1] ?? "";
+      return keyValuePair?.Split ('=')[1] ?? ";";
     }
 
     private string GetIncludeCategories (IEnumerable<string> configurationItems)
