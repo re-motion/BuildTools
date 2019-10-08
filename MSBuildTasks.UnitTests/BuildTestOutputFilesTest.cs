@@ -772,6 +772,20 @@ namespace BuildTools.MSBuildTasks.UnitTests
       loggerMock.VerifyAllExpectations();
     }
 
+    [Test]
+    public void ExcludeCategories_IsMetadata ()
+    {
+      var taskItem = new TaskItem ("C:\\Path\\To\\MyTest.dll");
+      const string config = "release+SqlServer2014+x64+Win_NET46+Chrome+net45+ExcludeCategories=a,b,c";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items);
+
+      task.Execute();
+
+      Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExcludeCategories), Is.EqualTo ("a,b,c"));
+    }
+
     private BuildTestOutputFiles CreateBuildTestOutputFiles (
         ITaskItem[] input,
         ITaskItem[] supportedPlatforms = null,

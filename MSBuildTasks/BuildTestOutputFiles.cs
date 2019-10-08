@@ -169,6 +169,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       var targetRuntime = GetTargetRuntime (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TargetRuntime, targetRuntime);
 
+      var excludeCategories = GetExcludeCategories (splitConfiguration);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExcludeCategories, excludeCategories);
+
       return testingConfigurationItem;
     }
 
@@ -250,6 +253,13 @@ namespace Remotion.BuildTools.MSBuildTasks
         throw CreateMissingConfigurationStringException ("target runtime");
 
       return Regex.Replace (rawTargetRuntime, @"NET(\d)(\d)", "NET-$1.$2", RegexOptions.IgnoreCase);
+    }
+
+    private string GetExcludeCategories (IEnumerable<string> configurationItems)
+    {
+      var keyValuePair = configurationItems.SingleOrDefault (x => x.StartsWith ("ExcludeCategories=", StringComparison.OrdinalIgnoreCase));
+
+      return keyValuePair?.Split ('=')[1] ?? "";
     }
 
     private FormatException CreateMissingConfigurationStringException (string friendlyConfigurationItemName)
