@@ -1,4 +1,4 @@
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -196,7 +196,12 @@ namespace Remotion.BuildTools.MSBuildTasks
       if (configurationItems.Contains (EmptyMetadataID.DatabaseSystem, StringComparer.OrdinalIgnoreCase))
         return EmptyMetadataID.DatabaseSystem;
 
-      return configurationItems.Single (x => SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (x));
+      var databaseSystem = configurationItems.SingleOrDefault (x => SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (x));
+
+      if (databaseSystem == null)
+        throw new FormatException ("Could not find a supported database system.");
+
+      return databaseSystem;
     }
 
     private string GetBrowser (IEnumerable<string> configurationItems)
