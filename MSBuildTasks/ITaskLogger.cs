@@ -15,13 +15,19 @@
 // under the License.
 // 
 using System;
+using JetBrains.Annotations;
 
 namespace Remotion.BuildTools.MSBuildTasks
 {
   public interface ITaskLogger
   {
+    [StringFormatMethod ("message")]
     void LogMessage (string message, params object[] args);
+
+    [StringFormatMethod ("message")]
     void LogWarning (string message, params object[] args);
+
+    [StringFormatMethod ("message")]
     void LogError (string message, params object[] args);
   }
 }

@@ -73,8 +73,6 @@ namespace Remotion.BuildTools.MSBuildTasks
       {
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
         var testingSetupBuildFile = item.GetMetadata ("TestingSetupBuildFile");
-        _logger.LogWarning ("superduperoriginal:{0}", item.ItemSpec);
-        _logger.LogWarning ("originaltsetingconfigurations:{0}", testingConfiguration);
 
 
         var configurations = GetSplitConfigurations (testingConfiguration);
@@ -94,8 +92,16 @@ namespace Remotion.BuildTools.MSBuildTasks
             return false;
           }
 
-          var newItem = CreateConfigurationItem (item.ItemSpec, configurationItems, plusSeparatedConfigurationItems, testingSetupBuildFile);
-          output.Add (newItem);
+          try
+          {
+            var newItem = CreateConfigurationItem (item.ItemSpec, configurationItems, plusSeparatedConfigurationItems, testingSetupBuildFile);
+            output.Add (newItem);
+          }
+          catch (FormatException ex)
+          {
+            _logger.LogError ("{0} ('{1}')", ex.Message, plusSeparatedConfigurationItems);
+            return false;
+          }
         }
       }
 
@@ -198,14 +204,23 @@ namespace Remotion.BuildTools.MSBuildTasks
       if (configurationItems.Contains (EmptyMetadataID.Browser, StringComparer.OrdinalIgnoreCase))
         return EmptyMetadataID.Browser;
 
-      var caseInsensitiveBrowser = configurationItems.Single (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      var caseInsensitiveBrowser = configurationItems.SingleOrDefault (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+
+      if (caseInsensitiveBrowser == null)
+        throw new FormatException ("Could not find a supported browser.");
+
+      return CapitalizeFirstLetter (caseInsensitiveBrowser);
+    }
+
+    private static string CapitalizeFirstLetter (string caseInsensitiveBrowser)
+    {
       return char.ToUpper (caseInsensitiveBrowser[0]) + caseInsensitiveBrowser.ToLower().Substring (1);
     }
 
     private string GetTargetRuntimes (IEnumerable<string> configurationItems)
     {
-      var raw = configurationItems.Single (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase)).ToUpper();
-      return Regex.Replace (raw, @"NET(\d)(\d)", "NET-$1.$2");
+      var raw = configurationItems.Single (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      return Regex.Replace (raw, @"NET(\d)(\d)", "NET-$1.$2", RegexOptions.IgnoreCase);
     }
   }
 }

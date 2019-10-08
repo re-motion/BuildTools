@@ -670,6 +670,23 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExecutionRuntime), Is.EqualTo (executionRuntimeValue2));
     }
 
+    [Test]
+    public void MissingBrowser_LogsError_False ()
+    {
+      var taskItem = new TaskItem ("MyTest.dll");
+      const string config = "SqlServer2014+x64+Win_NET46+release+net45";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogError ("{0} ('{1}')", "Could not find a supported browser.", config));
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items, logger: loggerMock);
+
+      var result = task.Execute();
+
+      Assert.That (result, Is.False);
+      loggerMock.VerifyAllExpectations();
+    }
+
     private BuildTestOutputFiles CreateBuildTestOutputFiles (
         ITaskItem[] input,
         ITaskItem[] supportedPlatforms = null,
