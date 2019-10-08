@@ -1,4 +1,4 @@
-﻿// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.  rubicon licenses this file to you under 
@@ -219,12 +219,12 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private string GetTargetRuntime (IEnumerable<string> configurationItems)
     {
-      var raw = configurationItems.SingleOrDefault (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      var rawTargetRuntime = configurationItems.SingleOrDefault (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
 
-      if (raw == null)
+      if (rawTargetRuntime == null)
         throw new FormatException ("Could not find a supported target runtime.");
 
-      return Regex.Replace (raw, @"NET(\d)(\d)", "NET-$1.$2", RegexOptions.IgnoreCase);
+      return Regex.Replace (rawTargetRuntime, @"NET(\d)(\d)", "NET-$1.$2", RegexOptions.IgnoreCase);
     }
   }
 }
