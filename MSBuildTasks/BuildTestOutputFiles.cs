@@ -177,7 +177,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var platform = splitConfiguration.SingleOrDefault (x => SupportedPlatforms.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
 
       if (platform == null)
-        throw new FormatException ("Could not find a supported platform.");
+        throw CreateMissingConfigurationStringException ("platform");
 
       return platform;
     }
@@ -198,7 +198,7 @@ namespace Remotion.BuildTools.MSBuildTasks
           return supportedExecutionRuntime;
       }
 
-      throw new FormatException ("Could not find a supported execution runtime.");
+      throw CreateMissingConfigurationStringException ("execution runtime");
     }
 
     private string GetDatabaseSystem (IEnumerable<string> configurationItems)
@@ -209,7 +209,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var databaseSystem = configurationItems.SingleOrDefault (x => SupportedDatabaseSystems.Select (i => i.ItemSpec).Contains (x));
 
       if (databaseSystem == null)
-        throw new FormatException ("Could not find a supported database system.");
+        throw CreateMissingConfigurationStringException ("database system");
 
       return databaseSystem;
     }
@@ -222,7 +222,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var caseInsensitiveBrowser = configurationItems.SingleOrDefault (x => SupportedBrowsers.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
 
       if (caseInsensitiveBrowser == null)
-        throw new FormatException ("Could not find a supported browser.");
+        throw CreateMissingConfigurationStringException ("browser");
 
       return CapitalizeFirstLetter (caseInsensitiveBrowser);
     }
@@ -237,9 +237,14 @@ namespace Remotion.BuildTools.MSBuildTasks
       var rawTargetRuntime = configurationItems.SingleOrDefault (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
 
       if (rawTargetRuntime == null)
-        throw new FormatException ("Could not find a supported target runtime.");
+        throw CreateMissingConfigurationStringException ("target runtime");
 
       return Regex.Replace (rawTargetRuntime, @"NET(\d)(\d)", "NET-$1.$2", RegexOptions.IgnoreCase);
+    }
+
+    private FormatException CreateMissingConfigurationStringException (string friendlyConfigurationItemName)
+    {
+      return new FormatException ($"Could not find a supported {friendlyConfigurationItemName}.");
     }
   }
 }
