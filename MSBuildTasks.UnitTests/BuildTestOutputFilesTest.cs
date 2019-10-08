@@ -738,6 +738,23 @@ namespace BuildTools.MSBuildTasks.UnitTests
       loggerMock.VerifyAllExpectations();
     }
 
+    [Test]
+    public void MissingPlatform_LogsError_False ()
+    {
+      var taskItem = new TaskItem ("MyTest.dll");
+      const string config = "SqlServer2014+Win_NET46+release+Chrome+net45";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogError ("{0} ('{1}')", "Could not find a supported platform.", config));
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items, logger: loggerMock);
+
+      var result = task.Execute();
+
+      Assert.That (result, Is.False);
+      loggerMock.VerifyAllExpectations();
+    }
+
     private BuildTestOutputFiles CreateBuildTestOutputFiles (
         ITaskItem[] input,
         ITaskItem[] supportedPlatforms = null,

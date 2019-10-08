@@ -151,7 +151,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var isDatabaseTest = string.Equals (databaseSystem, EmptyMetadataID.DatabaseSystem, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IsDatabaseTest, isDatabaseTest);
 
-      var platform = splitConfiguration.Single (x => SupportedPlatforms.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      var platform = GetPlatform (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Platform, platform);
 
       var use32Bit = string.Equals (platform, "x86", StringComparison.OrdinalIgnoreCase) ? "True" : "False";
@@ -170,6 +170,16 @@ namespace Remotion.BuildTools.MSBuildTasks
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TargetRuntime, targetRuntime);
 
       return testingConfigurationItem;
+    }
+
+    private string GetPlatform (IEnumerable<string> splitConfiguration)
+    {
+      var platform = splitConfiguration.SingleOrDefault (x => SupportedPlatforms.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+
+      if (platform == null)
+        throw new FormatException ("Could not find a supported platform.");
+
+      return platform;
     }
 
     private string GetExecutionRuntime (IEnumerable<string> configurationItems)
