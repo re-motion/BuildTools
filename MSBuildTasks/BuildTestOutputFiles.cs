@@ -72,8 +72,14 @@ namespace Remotion.BuildTools.MSBuildTasks
       foreach (var item in Input)
       {
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
-        var testingSetupBuildFile = item.GetMetadata ("TestingSetupBuildFile");
 
+        if (string.IsNullOrEmpty (testingConfiguration))
+        {
+          _logger.LogWarning ("Could not find TestingConfigurations for {0}.", item.ItemSpec);
+          continue;
+        }
+
+        var testingSetupBuildFile = item.GetMetadata ("TestingSetupBuildFile");
 
         var configurations = GetSplitConfigurations (testingConfiguration);
         foreach (var plusSeparatedConfigurationItems in configurations)

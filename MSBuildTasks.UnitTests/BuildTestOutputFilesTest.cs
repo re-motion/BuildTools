@@ -815,6 +815,21 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
+    public void NoTestingConfigurationsMetadata_LogsError_False ()
+    {
+      const string testAssemblyFullPath = "C:\\Path\\To\\MyTest.dll";
+      var taskItem = new TaskItem (testAssemblyFullPath);
+      var items = new ITaskItem[] { taskItem };
+      var loggerMock = MockRepository.Mock<ITaskLogger>();
+      loggerMock.Expect (_ => _.LogWarning ("Could not find TestingConfigurations for {0}.", testAssemblyFullPath));
+      var task = CreateBuildTestOutputFiles (items, logger: loggerMock);
+
+      task.Execute();
+
+      loggerMock.VerifyAllExpectations();
+    }
+
+    [Test]
     public void TestingCategories_ToleratesAlienItems ()
     {
       var taskItem = new TaskItem ("C:\\Path\\To\\MyTest.dll");
