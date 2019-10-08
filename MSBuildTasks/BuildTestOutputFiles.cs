@@ -271,7 +271,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var keyValuePair =
           configurationItems.SingleOrDefault (x => x.StartsWith (TestingConfigurationMetadata.IncludeCategories + "=", StringComparison.OrdinalIgnoreCase));
 
-      return keyValuePair?.Split ('=')[1] ?? "";
+      return keyValuePair?.Split ('=')[1] ?? ";";
     }
 
     private FormatException CreateMissingConfigurationStringException (string friendlyConfigurationItemName)
