@@ -29,6 +29,8 @@ namespace Remotion.BuildTools.MSBuildTasks
     private readonly IPath _pathHelper;
     private readonly ITaskLogger _logger;
 
+    private Dictionary<string, string> _supportedExecutionRuntimeDictionary;
+
     [Required]
     public ITaskItem[] Input { get; set; }
 
@@ -68,6 +70,11 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     public override bool Execute ()
     {
+      _supportedExecutionRuntimeDictionary = SupportedExecutionRuntimes
+          .Select (item => item.ItemSpec)
+          .Select (x => x.Split (new[] { ':' }, StringSplitOptions.RemoveEmptyEntries))
+          .ToDictionary (split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
+
       var output = new List<ITaskItem>();
       foreach (var item in Input)
       {
@@ -197,14 +204,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       if (configurationItems.Contains (EmptyMetadataID.ExecutionRuntime, StringComparer.OrdinalIgnoreCase))
         return EmptyMetadataID.ExecutionRuntime;
 
-      var supportedExecutionRuntimesDictionary = SupportedExecutionRuntimes
-          .Select (item => item.ItemSpec)
-          .Select (x => x.Split (new[] { ':' }, StringSplitOptions.RemoveEmptyEntries))
-          .ToDictionary (split => split[0], split => split[1], StringComparer.OrdinalIgnoreCase);
-
       foreach (var item in configurationItems)
       {
-        if (supportedExecutionRuntimesDictionary.TryGetValue (item, out var supportedExecutionRuntime))
+        if (_supportedExecutionRuntimeDictionary.TryGetValue (item, out var supportedExecutionRuntime))
           return supportedExecutionRuntime;
       }
 
