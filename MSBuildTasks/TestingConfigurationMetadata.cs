@@ -33,5 +33,6 @@ namespace Remotion.BuildTools.MSBuildTasks
     public const string UseDocker = "UseDocker";
     public const string TargetRuntime = "TargetRuntime";
     public const string ExcludeCategories = "ExcludeCategories";
+    public const string IncludeCategories = "IncludeCategories";
   }
 }

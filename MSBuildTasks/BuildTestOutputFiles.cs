@@ -172,6 +172,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       var excludeCategories = GetExcludeCategories (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ExcludeCategories, excludeCategories);
 
+      var includeCategories = GetIncludeCategories (splitConfiguration);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.IncludeCategories, includeCategories);
+
       return testingConfigurationItem;
     }
 
@@ -257,7 +260,16 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private string GetExcludeCategories (IEnumerable<string> configurationItems)
     {
-      var keyValuePair = configurationItems.SingleOrDefault (x => x.StartsWith ("ExcludeCategories=", StringComparison.OrdinalIgnoreCase));
+      var keyValuePair =
+          configurationItems.SingleOrDefault (x => x.StartsWith (TestingConfigurationMetadata.ExcludeCategories + "=", StringComparison.OrdinalIgnoreCase));
+
+      return keyValuePair?.Split ('=')[1] ?? "";
+    }
+
+    private string GetIncludeCategories (IEnumerable<string> configurationItems)
+    {
+      var keyValuePair =
+          configurationItems.SingleOrDefault (x => x.StartsWith (TestingConfigurationMetadata.IncludeCategories + "=", StringComparison.OrdinalIgnoreCase));
 
       return keyValuePair?.Split ('=')[1] ?? "";
     }
