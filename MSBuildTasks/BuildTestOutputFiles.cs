@@ -219,7 +219,11 @@ namespace Remotion.BuildTools.MSBuildTasks
 
     private string GetTargetRuntimes (IEnumerable<string> configurationItems)
     {
-      var raw = configurationItems.Single (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+      var raw = configurationItems.SingleOrDefault (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
+
+      if (raw == null)
+        throw new FormatException ("Could not find a supported target runtime.");
+
       return Regex.Replace (raw, @"NET(\d)(\d)", "NET-$1.$2", RegexOptions.IgnoreCase);
     }
   }
