@@ -786,6 +786,20 @@ namespace BuildTools.MSBuildTasks.UnitTests
       Assert.That (task.Output.Single().GetMetadata (TestingConfigurationMetadata.ExcludeCategories), Is.EqualTo ("a,b,c"));
     }
 
+    [Test]
+    public void TestingCategories_ToleratesAlienItems ()
+    {
+      var taskItem = new TaskItem ("C:\\Path\\To\\MyTest.dll");
+      const string config = "release+SqlServer2014+x64+Win_NET46+Chrome+net45+SomeRandomString";
+      taskItem.SetMetadata ("TestingConfiguration", config);
+      var items = new ITaskItem[] { taskItem };
+      var task = CreateBuildTestOutputFiles (items);
+
+      var result = task.Execute();
+
+      Assert.That (result, Is.True);
+    }
+
     private BuildTestOutputFiles CreateBuildTestOutputFiles (
         ITaskItem[] input,
         ITaskItem[] supportedPlatforms = null,
