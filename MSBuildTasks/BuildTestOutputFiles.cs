@@ -188,7 +188,7 @@ namespace Remotion.BuildTools.MSBuildTasks
           return supportedExecutionRuntime;
       }
 
-      throw new KeyNotFoundException();
+      throw new FormatException ("Could not find a supported execution runtime.");
     }
 
     private string GetDatabaseSystem (IEnumerable<string> configurationItems)
