@@ -73,6 +73,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       {
         var testingConfiguration = item.GetMetadata ("TestingConfiguration");
         var testingSetupBuildFile = item.GetMetadata ("TestingSetupBuildFile");
+        _logger.LogWarning ("superduperoriginal:{0}", item.ItemSpec);
+        _logger.LogWarning ("originaltsetingconfigurations:{0}", testingConfiguration);
+
 
         var configurations = GetSplitConfigurations (testingConfiguration);
         foreach (var plusSeparatedConfigurationItems in configurations)
@@ -126,11 +129,9 @@ namespace Remotion.BuildTools.MSBuildTasks
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFileName, testAssemblyFileName);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestingSetupBuildFile, testingSetupBuildFile);
 
-      var testAssemblyFullPath = _pathHelper.GetFullPath (testAssemblyFileName);
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath, testAssemblyFullPath);
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyFullPath, originalItemSpec);
 
-      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyDirectoryName, _pathHelper.GetDirectoryName (testAssemblyFullPath));
-
+      testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TestAssemblyDirectoryName, _pathHelper.GetDirectoryName (originalItemSpec));
 
       var browser = GetBrowser (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.Browser, browser);

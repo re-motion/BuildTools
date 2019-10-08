@@ -122,16 +122,16 @@ namespace BuildTools.MSBuildTasks.UnitTests
       var taskItem = new TaskItem ("MyTest.dll");
       const string config = "debug+Firefox+Win_NET46+SqlServer2012+x64+net45";
       taskItem.SetMetadata ("TestingConfiguration", config);
-      var task = new BuildTestOutputFiles
-                 {
-                     Input = new ITaskItem[] { taskItem },
-                     SupportedDatabaseSystems = new ITaskItem[] { new TaskItem ("SqlServer2012") },
-                     SupportedBrowsers = new ITaskItem[] { new TaskItem ("Firefox") },
-                     SupportedPlatforms = new ITaskItem[] { new TaskItem ("x64") },
-                     SupportedConfigurationIDs = new ITaskItem[] { new TaskItem ("debug") },
-                     SupportedExecutionRuntimes = new ITaskItem[] { new TaskItem ("Win_NET46:DockerImageName") },
-                     SupportedTargetRuntimes = new ITaskItem[] { new TaskItem ("NET45") }
-                 };
+      var items = new ITaskItem[] { taskItem };
+
+      var task = CreateBuildTestOutputFiles (
+          items,
+          new ITaskItem[] { new TaskItem ("x64") },
+          new ITaskItem[] { new TaskItem ("SqlServer2012") },
+          new ITaskItem[] { new TaskItem ("Firefox") },
+          new ITaskItem[] { new TaskItem ("Win_NET46:DockerImageName") },
+          new ITaskItem[] { new TaskItem ("debug") },
+          new ITaskItem[] { new TaskItem ("NET45") });
 
       task.Execute();
 
@@ -219,10 +219,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
       const string testAssemblyDirectoryName = "Development";
       var testAssemblyFullPath = $"C:\\{testAssemblyDirectoryName}\\{testAssemblyFileName}";
       var pathStub = MockRepository.Mock<IPath>();
-      pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
-      pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
+      pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
-      var taskItem = new TaskItem (testAssemblyFileName);
+      var taskItem = new TaskItem (testAssemblyFullPath);
       const string config = "Chrome+SqlServer2014+x64+Win_NET46+release+net45";
       taskItem.SetMetadata ("TestingConfiguration", config);
       var items = new ITaskItem[] { taskItem };
@@ -262,10 +261,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
       const string testAssemblyDirectoryName = "Development";
       var testAssemblyFullPath = $"C:\\{testAssemblyDirectoryName}\\{testAssemblyFileName}";
       var pathStub = MockRepository.Mock<IPath>();
-      pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
-      pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
+      pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
-      var taskItem = new TaskItem (testAssemblyFileName);
+      var taskItem = new TaskItem (testAssemblyFullPath);
       const string config1 = "Chrome+SqlServer2014+x86+Win_NET46+release+net45";
       const string config2 = "Firefox+SqlServer2012+x64+Win_NET46+debug+net45";
       taskItem.SetMetadata ("TestingConfiguration", config1 + ";" + config2);
@@ -430,16 +428,15 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void TestAssemblyFileName_CopiesOriginalItemSpec ()
+    public void TestAssemblyFileName_DerivesFromItemSpec ()
     {
       const string testAssemblyFileName = "MyTest.dll";
       const string testAssemblyDirectoryName = "Development";
       var testAssemblyFullPath = $"C:\\{testAssemblyDirectoryName}\\{testAssemblyFileName}";
       var pathStub = MockRepository.Mock<IPath>();
-      pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
-      pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
+      pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
-      var taskItem = new TaskItem (testAssemblyFileName);
+      var taskItem = new TaskItem (testAssemblyFullPath);
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+Win_NET46+release+net45");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
@@ -476,10 +473,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
       const string testAssemblyDirectoryName = "Development";
       var testAssemblyFullPath = $"C:\\{testAssemblyDirectoryName}\\{testAssemblyFileName}";
       var pathStub = MockRepository.Mock<IPath>();
-      pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
-      pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
+      pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
-      var taskItem = new TaskItem (testAssemblyFileName);
+      var taskItem = new TaskItem (testAssemblyFullPath);
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+Win_NET46+release+net45");
       var items = new ITaskItem[] { taskItem };
 
@@ -497,10 +493,9 @@ namespace BuildTools.MSBuildTasks.UnitTests
       const string testAssemblyDirectoryName = "Development";
       var testAssemblyFullPath = $"C:\\{testAssemblyDirectoryName}\\{testAssemblyFileName}";
       var pathStub = MockRepository.Mock<IPath>();
-      pathStub.Stub (_ => _.GetFullPath (testAssemblyFileName)).Return (testAssemblyFullPath);
-      pathStub.Stub (_ => _.GetFileName (testAssemblyFileName)).Return (testAssemblyFileName);
+      pathStub.Stub (_ => _.GetFileName (testAssemblyFullPath)).Return (testAssemblyFileName);
       pathStub.Stub (_ => _.GetDirectoryName (testAssemblyFullPath)).Return (testAssemblyDirectoryName);
-      var taskItem = new TaskItem (testAssemblyFileName);
+      var taskItem = new TaskItem (testAssemblyFullPath);
       taskItem.SetMetadata ("TestingConfiguration", "Chrome+SqlServer2014+x64+Win_NET46+release+net45");
       var items = new ITaskItem[] { taskItem };
       var task = CreateBuildTestOutputFiles (items, pathHelper: pathStub);
@@ -687,7 +682,6 @@ namespace BuildTools.MSBuildTasks.UnitTests
         ITaskLogger logger = null)
     {
       var pathStub = MockRepository.Mock<IPath>();
-      pathStub.Stub (_ => _.GetFullPath (null)).IgnoreArguments().Return ("");
       pathStub.Stub (_ => _.GetFileName (null)).IgnoreArguments().Return ("");
       pathStub.Stub (_ => _.GetDirectoryName (null)).IgnoreArguments().Return ("");
       var loggerStub = MockRepository.Mock<ITaskLogger>();
