@@ -166,7 +166,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       var configurationID = splitConfiguration.Single (x => SupportedConfigurationIDs.Select (i => i.ItemSpec).Contains (x));
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
-      var targetRuntime = GetTargetRuntimes (splitConfiguration);
+      var targetRuntime = GetTargetRuntime (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TargetRuntime, targetRuntime);
 
       return testingConfigurationItem;
@@ -217,7 +217,7 @@ namespace Remotion.BuildTools.MSBuildTasks
       return char.ToUpper (caseInsensitiveBrowser[0]) + caseInsensitiveBrowser.ToLower().Substring (1);
     }
 
-    private string GetTargetRuntimes (IEnumerable<string> configurationItems)
+    private string GetTargetRuntime (IEnumerable<string> configurationItems)
     {
       var raw = configurationItems.SingleOrDefault (x => SupportedTargetRuntimes.Select (i => i.ItemSpec).Contains (x, StringComparer.OrdinalIgnoreCase));
 

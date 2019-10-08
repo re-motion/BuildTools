@@ -688,7 +688,7 @@ namespace BuildTools.MSBuildTasks.UnitTests
     }
 
     [Test]
-    public void MissingTargetRuntimes_LogsError_False ()
+    public void MissingTargetRuntime_LogsError_False ()
     {
       var taskItem = new TaskItem ("MyTest.dll");
       const string config = "SqlServer2014+x64+Win_NET46+release+Chrome";
