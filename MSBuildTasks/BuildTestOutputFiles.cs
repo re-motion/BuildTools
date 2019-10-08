@@ -163,13 +163,23 @@ namespace Remotion.BuildTools.MSBuildTasks
       var useDocker = string.Equals (executionRuntime, EmptyMetadataID.ExecutionRuntime, StringComparison.OrdinalIgnoreCase) ? "False" : "True";
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.UseDocker, useDocker);
 
-      var configurationID = splitConfiguration.Single (x => SupportedConfigurationIDs.Select (i => i.ItemSpec).Contains (x));
+      var configurationID = GetConfigurationID (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.ConfigurationID, configurationID);
 
       var targetRuntime = GetTargetRuntime (splitConfiguration);
       testingConfigurationItem.SetMetadata (TestingConfigurationMetadata.TargetRuntime, targetRuntime);
 
       return testingConfigurationItem;
+    }
+
+    private string GetConfigurationID (IEnumerable<string> splitConfiguration)
+    {
+      var configurationID = splitConfiguration.SingleOrDefault (x => SupportedConfigurationIDs.Select (i => i.ItemSpec).Contains (x));
+
+      if (configurationID == null)
+        throw CreateMissingConfigurationStringException ("configuration ID");
+
+      return configurationID;
     }
 
     private string GetPlatform (IEnumerable<string> splitConfiguration)
