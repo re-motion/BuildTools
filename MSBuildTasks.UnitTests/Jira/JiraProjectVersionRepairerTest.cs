@@ -85,9 +85,34 @@ namespace BuildTools.MSBuildTasks.UnitTests.Jira
       jiraProjectVersionService.AssertWasCalled (x => x.MoveVersion (versionId, beforeUrl));
     }
 
-    private JiraProjectVersion CreateJiraProjectVersion (string name, string id = "")
+    [Test]
+    public void TestMoveVersionToCorrectPositionWithReleasedVersionInBetween ()
     {
-      return new JiraProjectVersion() { name = name, projectId = projectId, id = id };
+      const string versionId = "exampleId";
+      const string beforeUrl = "someBeforeUrl";
+      var createdVersion = CreateJiraProjectVersion ("1.0.2", versionId, released: false);
+
+      var jiraProjectVersions = new List<JiraProjectVersion>
+                                {
+                                    CreateJiraProjectVersion ("1.0.0", released: false),
+                                    CreateJiraProjectVersion ("1.0.1", released: true, self: beforeUrl),
+                                    CreateJiraProjectVersion ("1.0.3", released: false)
+                                };
+
+      var jiraProjectVersionService = MockRepository.Mock<IJiraProjectVersionService>();
+      var jiraProjectVersionFinder = MockRepository.Mock<IJiraProjectVersionFinder>();
+      jiraProjectVersionFinder.Stub (x => x.GetVersionById (versionId)).Return (createdVersion);
+      jiraProjectVersionFinder.Stub (x => x.FindVersions (projectId, "(?s).*")).Return (jiraProjectVersions);
+      var jiraProjectVersionRepairer = new JiraProjectVersionRepairer (jiraProjectVersionService, jiraProjectVersionFinder);
+
+      jiraProjectVersionRepairer.RepairVersionPosition (versionId);
+
+      jiraProjectVersionService.AssertWasCalled (x => x.MoveVersion (versionId, beforeUrl));
+    }
+
+    private JiraProjectVersion CreateJiraProjectVersion (string name, string id = "", bool released = false, string self = "")
+    {
+      return new JiraProjectVersion() { name = name, projectId = projectId, id = id, released = released, self = self };
     }
   }
 }

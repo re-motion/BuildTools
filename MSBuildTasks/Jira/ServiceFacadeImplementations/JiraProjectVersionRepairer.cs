@@ -40,7 +40,6 @@ namespace Remotion.BuildTools.MSBuildTasks.Jira.ServiceFacadeImplementations
 
       var versions = _jiraProjectVersionFinder
           .FindVersions (jiraProjectVersion.projectId, "(?s).*")
-          .Where (x => x.released == jiraProjectVersion.released)
           .ToList();
 
       if (IsSemanticVersion (jiraProjectVersion.name, ParseSemanticVersionOrNull))
